@@ -450,7 +450,8 @@ class audioRoomHome extends Component {
                       caption={item.caption}
                       joinButton={async () => {
                         if (this.props.connected) {
-                          this.props.navigation.navigate('audioRoom', { caption: item.caption, hashtag: item.hashtag, roomId: '4c43190f-3ae3-4458-a14a-1fb6bf1749b4', role: 0 })
+                          this.props.navigation.navigate('audioRoom', { caption: "This is me", hashtag: "#ROOM",  roomId: '4c43190f-3ae3-4458-a14a-1fb6bf1749b4', role: 0})
+                          // this.props.navigation.navigate('audioRoom', { caption: item.caption, hashtag: item.hashtag, roomId: '4c43190f-3ae3-4458-a14a-1fb6bf1749b4', role: 0 })
                         }
                         else {
                           Toast.showWithGravity('You have to connected to Internet to create a room', Toast.SHORT, Toast.CENTER)

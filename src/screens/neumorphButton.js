@@ -59,7 +59,7 @@ export default class neumorphTest extends Component {
         <BoxShadow setting={shadowOpt}>
           <BoxShadow setting={shadowOpt2}>
             <View
-              style={{
+              style={[{
                 position: 'relative',
                 width: widthB,
                 height: heightB,
@@ -68,7 +68,8 @@ export default class neumorphTest extends Component {
                 borderWidth: 1,
                 borderColor: '#e5e5e5',
                 overflow: 'hidden',
-              }}>
+                // justifyContent: 'center'
+              },this.props.styleChildren]}>
               {this.props.children}
             </View>
           </BoxShadow>
