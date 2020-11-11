@@ -456,9 +456,10 @@ export default class openingScreen extends Component {
               }}
             >
               <Image
-                source={require("../assets/logo.png")}
+                source={require("../assets/group.png")}
+                style={{ width: "100%", zIndex: -1 }}
                 // style={{borderWidth: 1, borderColor: 'black'}}
-                style={{alignSelf:'center', height: 100, width: 100, marginBottom: '10%'}}
+                // style={{alignSelf:'center', height: 100, width: 100, marginBottom: '10%'}}
               />
             </View>
           </KeyboardAvoidingView>

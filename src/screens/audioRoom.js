@@ -10,6 +10,7 @@ import {
   FlatList,
   SafeAreaView,
   BackHandler,
+  Dimensions
 } from 'react-native';
 import Box from './neumorphButton';
 import CBox from './customizableNeuButton';
@@ -23,7 +24,103 @@ import RtcEngine from 'react-native-agora'
 import ErrorPopup from './errorPopup'
 import database from '@react-native-firebase/database'
 import Toast from 'react-native-simple-toast'
+const screenWidth = Math.round(Dimensions.get('window').width);
+const roomQueue = [
+  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'hasir',
+    index: 1,
 
+  }
+]
+const roomHosts = [
+  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'hasir',
+    connected: true,
+    value: -1
+  },
+  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'steve',
+    connected: true,
+    // value: -1
+  },
+  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'jurgen',
+    connected: true,
+    // value: -1
+  },
+  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'steve',
+    connected: true,
+    // value: -1
+  },
+  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'jurgen',
+    connected: true,
+    // value: -1
+  },  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'steve',
+    connected: true,
+    // value: -1
+  },
+  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'jurgen',
+    connected: true,
+    // value: -1
+  },  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'steve',
+    connected: true,
+    // value: -1
+  },
+  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'jurgen',
+    connected: true,
+    // value: -1
+  },  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'steve',
+    connected: true,
+    // value: -1
+  },
+  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'jurgen',
+    connected: true,
+    // value: -1
+  },
+  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'steve',
+    connected: true,
+    // value: -1
+  },
+  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'jurgen',
+    connected: true,
+    // value: -1
+  },  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'steve',
+    connected: true,
+    // value: -1
+  },
+  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'jurgen',
+    connected: true,
+    // value: -1
+  },
+]
 var naviagtionBarHidden = true;
 class audioRoom extends Component {
   constructor(props) {
@@ -44,11 +141,12 @@ class audioRoom extends Component {
       rejoinError: false,
       modalVisible: false,
       leave: false,
-      loading: false
+      loading: false,
     };
     this.BackHandler
     this.agoraUid
     this.agora
+    // console.log(this.props.roomQueue+"hello");
   }
   _toggleNotification(values) {
     var toValue = -300;
@@ -85,111 +183,111 @@ class audioRoom extends Component {
     });
   };
 
-  componentDidMount() {
+  // componentDidMount() {
 
-    database().ref(`audience/${item['id']}/${this.props.user.user.username}`).set({
-      value: new Date().getTime(),
-      photoUrl: this.props.user.user.photoUrl
-    })
+  //   database().ref(`audience/${item['id']}/${this.props.user.user.username}`).set({
+  //     value: new Date().getTime(),
+  //     photoUrl: this.props.user.user.photoUrl
+  //   })
 
-    database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
+  //   database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
 
-      if(snap.key === this.props.user.user.username) {
-        if(snap.val().value === -1) {
-          this.setState({role: 3})
-        }
-        else {
-          this.setState({role: 2})
-        }
-      }
+  //     if(snap.key === this.props.user.user.username) {
+  //       if(snap.val().value === -1) {
+  //         this.setState({role: 3})
+  //       }
+  //       else {
+  //         this.setState({role: 2})
+  //       }
+  //     }
 
-      this.props.dispatch({
-        type: ADD_ROOM_HOSTS,
-        payload: {
-          username: snap.key,
-          value: snap.val().value,
-          photoUrl: snap.val().photoUrl
-        }
-      })
-    })
+  //     this.props.dispatch({
+  //       type: ADD_ROOM_HOSTS,
+  //       payload: {
+  //         username: snap.key,
+  //         value: snap.val().value,
+  //         photoUrl: snap.val().photoUrl
+  //       }
+  //     })
+  //   })
 
-    database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_changed', snap => {
+  //   database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_changed', snap => {
 
-      if(snap.key === this.props.user.user.username) {
-        if(snap.val().value === -1) {
-          this.setState({role: 3})
-        }
-        else {
-          this.setState({role: 2})
-        }
-      }
+  //     if(snap.key === this.props.user.user.username) {
+  //       if(snap.val().value === -1) {
+  //         this.setState({role: 3})
+  //       }
+  //       else {
+  //         this.setState({role: 2})
+  //       }
+  //     }
 
-      this.props.dispatch({
-        type: UPDATE_HOSTS,
-        payload: {
-          username: snap.key,
-          value: snap.val().value
-        }
-      })
-    })
+  //     this.props.dispatch({
+  //       type: UPDATE_HOSTS,
+  //       payload: {
+  //         username: snap.key,
+  //         value: snap.val().value
+  //       }
+  //     })
+  //   })
 
-    database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
+  //   database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
 
-      if(snap.key === this.props.user.user.username) {
-        this.setState({role: 0})
-      }
+  //     if(snap.key === this.props.user.user.username) {
+  //       this.setState({role: 0})
+  //     }
 
-      this.props.dispatch({
-        type: REMOVE_ROOM_HOSTS,
-        payload: snap.key
-      })
-    })
+  //     this.props.dispatch({
+  //       type: REMOVE_ROOM_HOSTS,
+  //       payload: snap.key
+  //     })
+  //   })
 
-    //// AUDIENCE NOW ////
+  //   //// AUDIENCE NOW ////
 
-    database().ref(`audience/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
-      this.props.dispatch({
-        type: ADD_ROOM_AUDIENCE,
-        payload: {
-          username: snap.key,
-          photoUrl: snap.val().photoUrl
-        }
-      })
-    })
+  //   database().ref(`audience/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
+  //     this.props.dispatch({
+  //       type: ADD_ROOM_AUDIENCE,
+  //       payload: {
+  //         username: snap.key,
+  //         photoUrl: snap.val().photoUrl
+  //       }
+  //     })
+  //   })
 
-    database().ref(`audience/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
-      this.props.dispatch({
-        type: REMOVE_ROOM_AUDIENCE,
-        payload: snap.key
-      })
-    })
+  //   database().ref(`audience/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
+  //     this.props.dispatch({
+  //       type: REMOVE_ROOM_AUDIENCE,
+  //       payload: snap.key
+  //     })
+  //   })
 
-    //// QUEUE NOW ////
+  //   //// QUEUE NOW ////
 
-    database().ref(`q/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
+  //   database().ref(`q/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
 
-      if(snap.key === this.props.user.user.username) {
-        this.setState({role: 1})
-      }
+  //     if(snap.key === this.props.user.user.username) {
+  //       this.setState({role: 1})
+  //     }
 
-      this.props.dispatch({
-        type: ADD_ROOM_QUEUE,
-        payload: {
-          username: snap.key,
-          photoUrl: snap.val().photoUrl
-        }
-      })
-    })
+  //     this.props.dispatch({
+  //       type: ADD_ROOM_QUEUE,
+  //       payload: {
+  //         username: snap.key,
+  //         photoUrl: snap.val().photoUrl
+  //       }
+  //     })
+  //   })
 
-    database().ref(`q/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
-      console.log("USERNAME", snap.key)
-      this.props.dispatch({
-        type: REMOVE_ROOM_QUEUE,
-        payload: snap.key
-      })
-    })
+  //   database().ref(`q/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
+  //     console.log("USERNAME", snap.key)
+  //     this.props.dispatch({
+  //       type: REMOVE_ROOM_QUEUE,
+  //       payload: snap.key
+  //     })
+  //   })
 
-  }
+  // }
 
   componentDidUpdate(prevProps, prevState) {
 
@@ -257,6 +355,9 @@ class audioRoom extends Component {
               console.log("LEAVE")
             }} name="Leave" />
           </View>
+          <Text style={{marginLeft: 15, marginTop: 5,color: '#7F7F7F'}}>Swipe right to view the participants.</Text>
+          {this.state.role != 3 && <Text style={{marginLeft: 15, color: '#7F7F7F'}}>User with a star is the admin.</Text>}
+          {this.state.role === 3 && <Text style={{marginLeft: 15, color: '#7F7F7F'}}>Long Press for options.</Text>}
           <View
             style={{
               borderBottomColor: '#BFBFBF',
@@ -321,16 +422,21 @@ class audioRoom extends Component {
               {/* ScrollView of Hosts, one with the star is Admin */}
               {/* Add a flatlist with THREE COLUMNS. Check Flatlist documentation for that.  */}
               {/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
+              {/* {console.log(this.props.roomQueue + 'hello')} */}
               <SafeAreaView
                 style={{ flex: 1 }}
                 showsVerticalScrollIndicator={false}
-                style={{ marginBottom: 150 }}>
+                style={{ marginBottom: 160 }}
+                >
                 {/*Check props below. */}
                 <FlatList
                   horizontal={false}
                   numColumns={3}
                   data={this.props.roomHosts}
+                  // data={roomHosts}
+                  showsVerticalScrollIndicator={false}
                   keyExtractor={item => item.username}
+                  style={{paddingLeft: 15}}
                   renderItem={({ item, index }) => {
                     // console.log(`AGORA ID: ${item.agoraId} and USERNAME: ${this.props.user.user.username}`)
                     if (item.value === -1) {
@@ -393,6 +499,8 @@ class audioRoom extends Component {
                   horizontal={false}
                   numColumns={3}
                   data={this.props.roomAudience}
+                  // data={roomHosts}
+                  style={{paddingLeft: 15, marginBottom: 100}}
                   keyExtractor={item => item.username}
                   renderItem={({ item }) => {
                     return (
@@ -475,6 +583,7 @@ class audioRoom extends Component {
             {/* ~~~~~~~~~~~~~~~~~~~~~~~QUEUE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  */}
             <FlatList
               data={this.props.roomQueue}
+              // data={roomQueue}
               keyExtractor={item => item.username}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
@@ -718,15 +827,16 @@ export class Admin extends Component {
   render() {
     return (
       <TouchableOpacity
-        style={{ width: 90, marginLeft: 15 }}
+        style={{ width: screenWidth/3 -50, marginRight:  (screenWidth - 3*(screenWidth/3 -50))/3}}
         onPress={this.props.navigateToProfile}>
-        <Box height={80} width={80} borderRadius={15}>
+        <Box height={screenWidth/3 -40} width={screenWidth/3 -40} borderRadius={15} styleChildren={{justifyContent: 'center'}}>
           <Image
             style={{
-              height: 80,
-              width: 80,
+              height: screenWidth/3 -40,
+              width: screenWidth/3 -40,
+              alignSelf:'center',
               borderColor: '#EA688A',
-              borderWidth: 5,
+              borderWidth: 4,
               borderRadius: 15
             }}
             source={{ uri: this.props.profilePic }}
@@ -735,7 +845,7 @@ export class Admin extends Component {
         <Text
           style={{
             marginTop: -10,
-            color: '#8f8f8f',
+            color: '#EA688A',
             overflow: 'hidden',
             width: 80,
             height: 20,
@@ -751,9 +861,8 @@ export class Admin extends Component {
           size={15}
           style={{
             position: 'absolute',
-            top: 0,
-            right: 0,
-            marginTop: 23,
+            top: 5,
+            right: -15,
             color: '#fff',
             backgroundColor: '#EA688A',
             padding: 3,
@@ -772,15 +881,15 @@ export class Host extends Component {
   render() {
     return (
       <TouchableOpacity
-        style={{ width: 90, marginLeft: 15 }}
+        style={{ width: screenWidth/3 -50, marginRight:  (screenWidth - 3*(screenWidth/3 -50))/3 }}
         onPress={this.props.navigateToProfile}
         onLongPress={this.props.longPressOnHosts}
       >
-        <Box height={80} width={80} borderRadius={15}>
+        <Box height={screenWidth/3 -40} width={screenWidth/3 -40} borderRadius={15}>
           <Image
             style={{
-              height: 77,
-              width: 77,
+              height: screenWidth/3 -37,
+              width: screenWidth/3 -37,
               borderColor: "#EA688A",
               borderWidth: this.props.micOn ? 3 : 0,
               borderRadius: 15,
@@ -1085,14 +1194,14 @@ export class Participant extends Component {
   render() {
     return (
       <TouchableOpacity
-        style={{ width: 90, marginLeft: 15 }}
+        style={{ width: screenWidth/3 -50, marginRight: (screenWidth - 3*(screenWidth/3 -50))/3 }}
         onPress={this.props.navigateToProfile}
         onLongPress={this.props.longPressOnParticipant}>
-        <Box height={80} width={80} borderRadius={15}>
+        <Box height={screenWidth/3 -40} width={screenWidth/3 -40} borderRadius={15}>
           <Image
             style={{
-              height: 80,
-              width: 80,
+              height: screenWidth/3 -40,
+              width: screenWidth/3 -40,
             }}
             source={{ uri: this.props.profilePic }}
           />
