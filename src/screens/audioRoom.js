@@ -34,21 +34,18 @@ class audioRoom extends Component {
       bounceValue: new Animated.Value(-300),
       textn: 'its working now',
       selectedUser: '',
-      inQueue: false,
-      initialConnection: false,
+      selectedPhoto: '',
+      agoraInitError: false,
       createRoomModalVisible: false,
-      reconnectingAttemptsLeft: 9,
       mic: true,
       role: this.props.navigation.getParam('role'),
-      joinError: false,
-      rejoinError: false,
       modalVisible: false,
-      leave: false,
-      loading: false
+      loading: false,
+      roomEnded: false
     };
     this.BackHandler
-    this.agoraUid
     this.agora
+    this.numberOfHosts = 0
   }
   _toggleNotification(values) {
     var toValue = -300;
@@ -67,7 +64,7 @@ class audioRoom extends Component {
   // This function toggles the notification bar, and removes it after 5 seconds.
   timerToTheNotification = async values => {
     this._toggleNotification(values);
-    await setTimeout(() => {
+    setTimeout(() => {
       this._toggleNotification(values);
     }, 2500);
   };
@@ -85,125 +82,271 @@ class audioRoom extends Component {
     });
   };
 
-  componentDidMount() {
+  async componentDidMount() {
 
-    database().ref(`audience/${item['id']}/${this.props.user.user.username}`).set({
-      value: new Date().getTime(),
-      photoUrl: this.props.user.user.photoUrl
-    })
+    try {
 
-    database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
+      this.agora = await RtcEngine.create('dd6a544633094bf48aa362dbace85303')
+      await this.agora.setChannelProfile(1)
+      await this.agora.disableVideo()
+      if (this.props.navigation.getParam('role') === 3) {
+        await this.agora.setClientRole(1)
+      }
+      else {
+        await this.agora.setClientRole(2)
+      }
+      await this.agora.joinChannelWithUserAccount(this.props.navigation.getParam('agoraToken'), this.props.navigation.getParam('roomId'), this.props.user.user.username)
 
-      if(snap.key === this.props.user.user.username) {
-        if(snap.val().value === -1) {
-          this.setState({role: 3})
-        }
-        else {
-          this.setState({role: 2})
-        }
+      //// FIREBASE FROM HERE ////
+
+      if(this.state.role < 2) {
+
+        database().ref(`audience/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).set({
+          value: Math.floor(new Date().getTime() / 1000),
+          photoUrl: this.props.user.user.photoUrl
+        })
+
       }
 
-      this.props.dispatch({
-        type: ADD_ROOM_HOSTS,
-        payload: {
-          username: snap.key,
-          value: snap.val().value,
-          photoUrl: snap.val().photoUrl
+      //// HOSTS CHANGES ////
+
+      database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
+
+        this.numberOfHosts += 1
+
+        if (snap.key === this.props.user.user.username) {
+          if (snap.val().value === -1) {
+            this.setState({ role: 3 })
+          }
+          else {
+            this.setState({ role: 2 })
+          }
         }
+
+        this.props.dispatch({
+          type: ADD_ROOM_HOSTS,
+          payload: {
+            username: snap.key,
+            value: snap.val().value,
+            photoUrl: snap.val().photoUrl
+          }
+        })
       })
-    })
 
-    database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_changed', snap => {
+      database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_changed', snap => {
 
-      if(snap.key === this.props.user.user.username) {
-        if(snap.val().value === -1) {
-          this.setState({role: 3})
+        if (snap.key === this.props.user.user.username) {
+          if (snap.val().value === -1) {
+            this.setState({ role: 3 })
+          }
+          else {
+            this.setState({ role: 2 })
+          }
         }
-        else {
-          this.setState({role: 2})
+
+        this.props.dispatch({
+          type: UPDATE_HOSTS,
+          payload: {
+            username: snap.key,
+            value: snap.val().value
+          }
+        })
+      })
+
+      database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
+
+        this.numberOfHosts -= 1
+
+        if (snap.key === this.props.user.user.username) {
+          this.setState({ role: 0 })
         }
-      }
 
-      this.props.dispatch({
-        type: UPDATE_HOSTS,
-        payload: {
-          username: snap.key,
-          value: snap.val().value
+        this.props.dispatch({
+          type: REMOVE_ROOM_HOSTS,
+          payload: snap.key
+        })
+      })
+
+      //// AUDIENCE NOW ////
+
+      database().ref(`audience/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
+        this.props.dispatch({
+          type: ADD_ROOM_AUDIENCE,
+          payload: {
+            username: snap.key,
+            photoUrl: snap.val().photoUrl
+          }
+        })
+      })
+
+      database().ref(`audience/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
+        this.props.dispatch({
+          type: REMOVE_ROOM_AUDIENCE,
+          payload: snap.key
+        })
+      })
+
+      //// QUEUE NOW ////
+
+      database().ref(`q/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
+
+        if (snap.key === this.props.user.user.username) {
+          this.setState({ role: 1 })
         }
+
+        this.props.dispatch({
+          type: ADD_ROOM_QUEUE,
+          payload: {
+            username: snap.key,
+            photoUrl: snap.val().photoUrl
+          }
+        })
       })
-    })
 
-    database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
-
-      if(snap.key === this.props.user.user.username) {
-        this.setState({role: 0})
-      }
-
-      this.props.dispatch({
-        type: REMOVE_ROOM_HOSTS,
-        payload: snap.key
+      database().ref(`q/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
+        console.log("USERNAME", snap.key)
+        this.props.dispatch({
+          type: REMOVE_ROOM_QUEUE,
+          payload: snap.key
+        })
       })
-    })
 
-    //// AUDIENCE NOW ////
+      database().ref(`e/${this.props.navigation.getParam('roomId')}`).on('value', snap => {
 
-    database().ref(`audience/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
-      this.props.dispatch({
-        type: ADD_ROOM_AUDIENCE,
-        payload: {
-          username: snap.key,
-          photoUrl: snap.val().photoUrl
-        }
+        // if (snap.val() !== null) {
+
+        //   if (snap.val() === 1) {
+
+        //     this.setState({ roomEnded: true })
+
+        //   }
+
+        // }
+
+        console.log("ROOM ENDED", snap.val())
+
       })
-    })
 
-    database().ref(`audience/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
-      this.props.dispatch({
-        type: REMOVE_ROOM_AUDIENCE,
-        payload: snap.key
-      })
-    })
-
-    //// QUEUE NOW ////
-
-    database().ref(`q/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
-
-      if(snap.key === this.props.user.user.username) {
-        this.setState({role: 1})
-      }
-
-      this.props.dispatch({
-        type: ADD_ROOM_QUEUE,
-        payload: {
-          username: snap.key,
-          photoUrl: snap.val().photoUrl
-        }
-      })
-    })
-
-    database().ref(`q/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
-      console.log("USERNAME", snap.key)
-      this.props.dispatch({
-        type: REMOVE_ROOM_QUEUE,
-        payload: snap.key
-      })
-    })
-
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-
-    if(prevState.role !== this.state.role) {
-      console.log(`PREV ROLE: ${prevState.role} & CURR ROLE: ${this.state.role}`)
+    } catch (error) {
+      console.log("CATCH ERROR", error)
+      this.setState({ agoraInitError: true })
     }
 
   }
 
-  componentWillUnmount() {
+  async componentDidUpdate(prevProps, prevState) {
+
+    //// ROLE CHANGES ////
+
+    if (prevState.role !== this.state.role) {
+
+      /// MADE HOST OR ADMIN FROM QUEUE OR AUDIENCE
+
+      if ((prevState.role === 1 || prevState.role === 0) && (this.state.role === 2 || this.state.role === 3)) {
+        try {
+          await this.agora.setClientRole(1)
+          this.setState({ mic: true })
+        } catch (error) {
+
+        }
+      }
+
+      /// REMOVED AS HOST OR ADMIN
+
+      if ((prevState.role === 2 || prevState.role === 3) && (this.state.role === 1 || this.state.role === 0)) {
+        try {
+          await this.agora.setClientRole(2)
+          this.setState({ mic: false })
+        } catch (error) {
+
+        }
+      }
+    }
+
+    //// MIC CHANGES ////
+
+    if (this.state.mic !== prevState.mic) {
+
+      /// MIC ON NOW
+
+      if (this.state.mic) {
+        if (this.state.role === 2 || this.state.role === 3) {
+          try {
+            await this.agora.muteLocalAudioStream(false)
+          } catch (error) {
+
+          }
+        }
+      }
+
+      /// MIC OFF NOW
+
+      else {
+        if (this.state.role === 2 || this.state.role === 3) {
+          try {
+            await this.agora.muteLocalAudioStream(true)
+          } catch (error) {
+
+          }
+        }
+      }
+
+    }
+
+    //// CONNECTION CHANGES ////
+
+    if (this.props.connected !== prevProps.connected) {
+
+      /// CONNECTED NOW
+
+      if (this.props.connected) {
+
+        this.setState({ textn: 'Re-connected Successfully' })
+
+        if (this.state.role === 2 || this.state.role === 3) {
+          try {
+            this.setState({ mic: false })
+            await this.agora.muteAllRemoteAudioStreams(false)
+          } catch (error) {
+
+          }
+        }
+
+      }
+
+      /// DISCONNECTED NOW
+
+      else {
+
+        this.setState({ textn: 'Re-connected Successfully' })
+
+        if (this.state.role === 2 || this.state.role === 3) {
+          try {
+            this.setState({ mic: false })
+            await this.agora.muteAllRemoteAudioStreams(true)
+          } catch (error) {
+
+          }
+        }
+
+      }
+
+    }
+
+  }
+
+  async componentWillUnmount() {
+
+    try {
+      await this.agora.destroy()
+    } catch (error) {
+
+    }
 
     database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).off()
     database().ref(`audience/${this.props.navigation.getParam('roomId')}`).off()
-    database().ref(`queue/${this.props.navigation.getParam('roomId')}`).off()
+    database().ref(`q/${this.props.navigation.getParam('roomId')}`).off()
+    database().ref(`e/${this.props.navigation.getParam('roomId')}`).off()
 
   }
 
@@ -254,7 +397,21 @@ class audioRoom extends Component {
               </Text>
             </View>
             <Leave pressFunction={async () => {
-              console.log("LEAVE")
+
+              if ((this.state.role === 2) || this.state.role === 3) {
+                database().ref(`hosts/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).remove().catch()
+                this.props.navigation.goBack()
+              }
+              else if (this.state.role === 1) {
+                database().ref(`queue/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).remove().catch()
+                database().ref(`audience/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).remove().catch()
+                this.props.navigation.goBack()
+              }
+              else {
+                database().ref(`audience/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).remove().catch()
+                this.props.navigation.goBack()
+              }
+
             }} name="Leave" />
           </View>
           <View
@@ -309,6 +466,29 @@ class audioRoom extends Component {
             </View>
           </Modal> */}
           {/* List of Hosts */}
+
+          <ErrorPopup
+            title="Audio Engine Error"
+            subTitle='There was an error initialising audio. Please go to the previous screen and try again.'
+            okButtonText="OK"
+            clickFunction={() => {
+              this.setState({ agoraInitError: false })
+              this.props.navigation.goBack()
+            }}
+            modalVisible={this.state.agoraInitError}
+          />
+
+          <ErrorPopup
+            title="Room Ended"
+            subTitle='The room was ended because there were no speakers. Please refresh the home page.'
+            okButtonText="OK"
+            clickFunction={() => {
+              this.setState({ roomEnded: false })
+              this.props.navigation.goBack()
+            }}
+            modalVisible={this.state.roomEnded}
+          />
+
           <Swiper
             showsButtons={false}
             loop={false}
@@ -353,8 +533,12 @@ class audioRoom extends Component {
                           connected={item.connected}
                           longPressOnHosts={() => {
                             if (this.state.role === 3) {
-                              this.setState({ selectedUser: item.username })
-                              this.removePermissionPopUp(!this.state.removePermissionPopUp);
+                              if (item.value !== -1) {
+
+                                this.setState({ selectedUser: item.username })
+                                this.removePermissionPopUp(!this.state.removePermissionPopUp);
+
+                              }
                             }
                           }}
                         />
@@ -403,7 +587,7 @@ class audioRoom extends Component {
                         connected={item.connected}
                         longPressOnParticipant={() => {
                           if (this.state.role === 3) {
-                            this.setState({ selectedUser: item.username })
+                            this.setState({ selectedUser: item.username, selectedPhoto: item.photoUrl })
                             this.givePermissionPopUp(!this.state.removePermissionPopUp);
                           }
                         }}
@@ -441,28 +625,40 @@ class audioRoom extends Component {
               {(this.state.role === 2 || this.state.role === 3) &&
                 <MicButton
                   micOffFunction={() => {
-                    console.log("OFF")
+                    if (this.props.connected) {
+                      this.setState({ mic: false })
+                    }
+                    else {
+                      Toast.show('No Internet Connection. Please re-connect')
+                    }
                   }}
                   micOnFunction={() => {
-                    console.log("ON")
+                    if (this.props.connected) {
+                      this.setState({ mic: true })
+                    }
+                    else {
+                      Toast.show('No Internet Connection. Please re-connect')
+                    }
                   }}
                   micOnorNot={this.state.mic}
                 />
               }
 
+              {/* //// JOIN QUEUE //// */}
+
               {this.state.role === 0 &&
                 <Talk pressFunction={() => {
-                  if(this.props.connected) {
+                  if (this.props.connected) {
                     database().ref(`q/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).set({
-                      value: new Date().getTime(),
+                      value: Math.floor(new Date().getTime() / 1000),
                       photoUrl: this.props.user.user.photoUrl
                     })
-                    .then(() => {
-                      this.setState({role: 1})
-                    })
-                    .catch(() => {
-                      Toast.show('We encountered an error. Please Try Again', Toast.SHORT)
-                    })
+                      .then(() => {
+                        this.setState({ role: 1 })
+                      })
+                      .catch(() => {
+                        Toast.show('We encountered an error. Please Try Again', Toast.SHORT)
+                      })
                   }
                   else {
                     Toast.show('No Internet Connection', Toast.SHORT)
@@ -488,7 +684,7 @@ class audioRoom extends Component {
                     queueNo={+index + 1}
                     longPressOnQueue={() => {
                       if (this.state.role === 3) {
-                        this.setState({ selectedUser: item.username })
+                        this.setState({ selectedUser: item.username, selectedPhoto: item.photoUrl })
                         this.givePermissionPopUp(!this.state.givePermissionPopUp)
                       }
                     }}
@@ -573,7 +769,26 @@ class audioRoom extends Component {
                 {/* Add on press here to give permission to talk. */}
                 <TouchableOpacity style={{ paddingVertical: 10 }}
                   onPress={() => {
-                    console.log("MAKE SPEAKER")
+                    if (this.props.connected) {
+                      if (this.numberOfHosts < 17) {
+
+                        database().ref(`hosts/${this.props.navigation.getParam('roomId')}/${this.state.selectedUser}`).set({
+                          value: Math.floor(new Date().getTime() / 1000),
+                          photoUrl: this.state.selectedPhoto
+                        })
+                          .catch()
+
+                      }
+                      else {
+
+                        Toast.show('Apologies, but there can\'t be more than 17 speakers')
+
+                      }
+
+                    }
+                    else {
+                      Toast.show('You are disconncted. Please re-connect')
+                    }
                   }}
                 >
                   <Text style={{ color: '#7f7f7f', alignSelf: 'center' }}>
@@ -646,7 +861,15 @@ class audioRoom extends Component {
                     paddingVertical: 10,
                   }}
                   onPress={async () => {
-                    console.log("MAKE ADMIN SPEAKER")
+                    if (this.props.connected) {
+                      database().ref(`hosts/${this.props.navigation.getParam('roomId')}/${this.state.selectedUser}`).update({
+                        value: -1
+                      })
+                        .catch()
+                    }
+                    else {
+                      Toast.show('You are disconncted. Please re-connect')
+                    }
                   }}
                 >
                   <Text style={{ color: '#7f7f7f', alignSelf: 'center' }}>
@@ -656,7 +879,12 @@ class audioRoom extends Component {
                 {/* Add on press here to remove talk permission. */}
                 <TouchableOpacity style={{ paddingVertical: 10 }}
                   onPress={() => {
-                    console.log("REMOVE SPEAKER")
+                    if (this.props.connected) {
+                      database().ref(`hosts/${this.props.navigation.getParam('roomId')}/${this.state.selectedUser}`).remove().catch()
+                    }
+                    else {
+                      Toast.show('You are disconncted. Please re-connect')
+                    }
                   }}
                 >
                   <Text style={{ color: '#7f7f7f', alignSelf: 'center' }}>

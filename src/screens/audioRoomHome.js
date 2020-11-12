@@ -45,8 +45,9 @@ class audioRoomHome extends Component {
       getError: false,
       modalVisible: false,
       createError: false,
+      createLoading: false,
+      refreshing: false
     };
-    this.focusListener;
 
     PermissionsAndroid.request('android.permission.RECORD_AUDIO')
 
@@ -78,8 +79,10 @@ class audioRoomHome extends Component {
           payload: arr
         })
         this.setState({ loading: false })
+        this.setState({ refreshing: false })
       })
       .catch(() => {
+        this.setState({ refreshing: false })
         this.setState({ loading: false })
         this.setState({ getError: true })
       })
@@ -274,48 +277,67 @@ class audioRoomHome extends Component {
                 <CreateRoomButton
                   height={40}
                   width={275}
+                  loading={this.state.createLoading}
                   borderRadius={20}
                   text="CREATE ROOM"
                   createRoom={() => {
                     if (this.props.connected) {
                       if (this.state.hashtag !== '') {
+                        this.setState({ createLoading: true })
                         var roomId = uuidv4()
                         database().ref(`rooms/${roomId}`).set({
                           hashtag: this.state.hashtag,
+                          na: 0,
+                          nh: 0,
                           caption: this.state.caption,
-                          count: 1,
-                          admin: {
-                            [`${this.props.user.user.username}`]: {
-                              photoUrl: this.props.user.user.photoUrl,
-                              bio: this.props.user.user.bio
-                            }
-                          },
-                          participants: {}
                         })
                           .then(() => {
-                            database().ref(`adminCount/${roomId}`).set(1)
+                            database().ref(`hosts/${roomId}`).set({
+                              [`${this.props.user.user.username}`]: {
+                                value: -1,
+                                photoUrl: this.props.user.user.photoUrl
+                              }
+                            })
                               .then(() => {
-                                database().ref(`hosts/${roomId}`).set({
-                                  [`${this.props.user.user.username}`]: {
-                                    value: -1,
-                                    photoUrl: this.props.user.user.photoUrl
-                                  }
+                                fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
+                                  method: 'POST',
+                                  headers: {
+                                    Accept: 'application/json',
+                                    'Content-Type': 'application/json'
+                                  },
+                                  body: JSON.stringify({
+                                    roomId: roomId
+                                  })
                                 })
-                                  .then(() => {
-                                    this.toggleCreateRoomModal()
-                                    this.props.navigation.navigate('audioRoom', { hashtag: this.state.hashtag, caption: this.state.caption, roomId: roomId, role: 3 })
+                                  .then((res) => {
+                                    return res.json()
                                   })
-                                  .catch(() => {
-                                    Toast.show('No Internet Connection', Toast.SHORT)
+                                  .then((res) => {
+                                    console.log("TYPE PF TOKEN", typeof (res.token))
                                     this.toggleCreateRoomModal()
+                                    this.setState({ loading: false })
+                                    this.props.navigation.navigate('audioRoom', { hashtag: this.state.hashtag, caption: this.state.caption, roomId: roomId, role: 3, agoraToken: res.token })
                                   })
+                                  .catch((err) => {
+                                    database().ref(`rooms/${roomId}`).remove().catch()
+                                    database().ref(`hosts/${roomId}`).remove().catch()
+                                    console.log("ERROR INSIDE",err)
+                                    this.setState({ loading: false })
+                                    Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
+                                  })
+
                               })
-                              .catch(() => {
-                                Toast.show('No Internet Connection', Toast.SHORT)
+                              .catch((err) => {
+                                database().ref(`hosts/${roomId}`).remove().catch()
+                                console.log("ERROR OUTSIDE",err)
+                                this.setState({ loading: false })
+                                Toast.show('We encountered an error. Please Try Again.', Toast.SHORT)
                                 this.toggleCreateRoomModal()
                               })
                           })
                           .catch(() => {
+                            database().ref(`rooms/${roomId}`).remove().catch()
+                            this.setState({ loading: false })
                             Toast.show('No Internet Connection', Toast.SHORT)
                             this.toggleCreateRoomModal()
                           })
@@ -416,7 +438,10 @@ class audioRoomHome extends Component {
                 fontSize: 23,
                 marginTop: 5,
               }}
-              onPress={() => console.log("REFRESH")}
+              onPress={() => {
+                this.getRooms()
+                // console.log("REFRESH")
+              }}
             >
               {' '}
                   Refresh
@@ -426,21 +451,36 @@ class audioRoomHome extends Component {
               <FlatList
                 style={{ marginBottom: 60, marginTop: 30 }}
                 data={this.props.rooms}
+                refreshing={this.state.refreshing}
+                onRefresh={this.getRooms}
                 keyExtractor={(item) => item['id']}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => {
                   var showText = ''
+                  var count
+                  if (item.nh !== undefined) {
+                    count = item.nh
+                  }
+                  if (item.na !== undefined) {
+                    if (item.nh !== undefined) {
+                      count += item.na
+                    }
+                  }
                   if (item.participants !== undefined) {
                     var keys = Object.keys(item.participants)
-                    if (item.count === 1) {
+                    if (keys.length === 0) {
                       showText = 'Be the first to start the conversation!';
                     } else if (keys.length === 1) {
                       showText = `${keys[0]} is already here!`;
                     } else if (keys.length === 2) {
                       showText = `${keys[0]} and ${keys[1]} are exchanging thoughts!`;
                     } else if (keys.length === 3) {
-                      showText = `${keys[0]},${keys[1]},${keys[2]} and ${item.count - 3
-                        } others are here!`;
+                      if (count !== undefined) {
+                        showText = `${keys[0]},${keys[1]},${keys[2]} and ${count} other(s) are here!`
+                      }
+                      else {
+                        showText = `${keys[0]},${keys[1]},${keys[2]} and other(s) are here!`
+                      }
                     }
                   }
 
@@ -450,10 +490,44 @@ class audioRoomHome extends Component {
                       caption={item.caption}
                       joinButton={async () => {
                         if (this.props.connected) {
-                          this.props.navigation.navigate('audioRoom', { caption: item.caption, hashtag: item.hashtag, roomId: '4c43190f-3ae3-4458-a14a-1fb6bf1749b4', role: 0 })
+                          var audio = true
+                          if (Platform.OS === 'android') {
+                            audio = PermissionsAndroid.check('android.permission.RECORD_AUDIO')
+                          }
+                          if (audio) {
+
+                            this.setState({ buttonFetching: item.id })
+
+                            fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
+                              method: 'POST',
+                              headers: {
+                                Accept: 'application/json',
+                                'Content-Type': 'application/json'
+                              },
+                              body: JSON.stringify({
+                                roomId: item.id
+                              })
+                            })
+                              .then((res) => {
+                                return res.json()
+                              })
+                              .then((res) => {
+                                console.log("TYPE OF TOKEN", typeof (res.token))
+                                this.setState({ buttonFetching: false })
+                                this.props.navigation.navigate('audioRoom', { caption: item.caption, hashtag: item.hashtag, roomId: item.id, role: 0, agoraToken: res.token })
+                              })
+                              .catch(() => {
+                                this.setState({ buttonFetching: false })
+                                Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
+                              })
+                          }
+                          else {
+                            Toast.showWithGravity('Please give audio permission to join a room', Toast.SHORT, Toast.CENTER)
+                          }
+
                         }
                         else {
-                          Toast.showWithGravity('You have to connected to Internet to create a room', Toast.SHORT, Toast.CENTER)
+                          Toast.showWithGravity('You have to be connected to the Internet to join a room', Toast.SHORT, Toast.CENTER)
                         }
                       }}
                       fetching={this.state.buttonFetching}
@@ -773,6 +847,8 @@ export class TopBar extends Component {
 export class CreateRoomButton extends Component {
   render() {
     return (
+      <TouchableOpacity
+      onPress={this.props.createRoom}>
       <Box height={40} width={275} borderRadius={20}>
         <LinearGradient
           start={{ x: 0, y: 0 }}
@@ -786,7 +862,7 @@ export class CreateRoomButton extends Component {
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-          <TouchableOpacity
+          <View
             style={{
               alignItems: 'center',
               justifyContent: 'center',
@@ -794,13 +870,14 @@ export class CreateRoomButton extends Component {
               height: 40,
               width: 300,
             }}
-            onPress={this.props.createRoom}>
+            >
             <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 12 }}>
               {this.props.text}
             </Text>
-          </TouchableOpacity>
+          </View>
         </LinearGradient>
       </Box>
+      </TouchableOpacity>
     );
   }
 }
