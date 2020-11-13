@@ -24,8 +24,16 @@ import RtcEngine from 'react-native-agora'
 import ErrorPopup from './errorPopup'
 import database from '@react-native-firebase/database'
 import Toast from 'react-native-simple-toast'
+const screenWidth = Math.round(Dimensions.get('window').width);
+const roomQueue = [
+  {
+    photoUrl: 'https://source.unsplash.com/random',
+    username: 'hasir',
+    index: 1,
 
 const screenWidth = Math.round(Dimensions.get('window').width)
+  }
+]
 
 var naviagtionBarHidden = true;
 class audioRoom extends Component {
@@ -45,10 +53,12 @@ class audioRoom extends Component {
       modalVisible: false,
       loading: false,
       roomEnded: false
+
     };
     this.BackHandler
     this.agora
     this.numberOfHosts = 0
+    // console.log(this.props.roomQueue+"hello");
   }
   _toggleNotification(values) {
     var toValue = -300;
@@ -232,7 +242,7 @@ class audioRoom extends Component {
       this.setState({ agoraInitError: true })
     }
 
-  }
+  // }
 
   async componentDidUpdate(prevProps, prevState) {
 
@@ -447,6 +457,7 @@ class audioRoom extends Component {
           <Text style={{ marginLeft: 15, marginTop: 5, color: '#7F7F7F' }}>Swipe right to view the participants.</Text>
           <Text style={{ marginLeft: 15, color: '#7F7F7F' }}>Users with a star are moderators.</Text>
           {this.state.role === 3 && <Text style={{ marginLeft: 15, color: '#7F7F7F' }}>Long Press for options.</Text>}
+
           <View
             style={{
               borderBottomColor: '#BFBFBF',
@@ -491,10 +502,12 @@ class audioRoom extends Component {
               {/* ScrollView of Hosts, one with the star is Admin */}
               {/* Add a flatlist with THREE COLUMNS. Check Flatlist documentation for that.  */}
               {/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
+              {/* {console.log(this.props.roomQueue + 'hello')} */}
               <SafeAreaView
                 style={{ flex: 1 }}
                 showsVerticalScrollIndicator={false}
                 style={{ marginBottom: 160 }}>
+
                 {/*Check props below. */}
                 <FlatList
                   horizontal={false}
@@ -502,7 +515,10 @@ class audioRoom extends Component {
                   style={{ paddingLeft: 15 }}
                   numColumns={3}
                   data={this.props.roomHosts}
+                  // data={roomHosts}
+                  showsVerticalScrollIndicator={false}
                   keyExtractor={item => item.username}
+                  style={{paddingLeft: 15}}
                   renderItem={({ item, index }) => {
                     // console.log(`AGORA ID: ${item.agoraId} and USERNAME: ${this.props.user.user.username}`)
                     if (item.value === -1) {
@@ -570,6 +586,8 @@ class audioRoom extends Component {
                   style={{ paddingLeft: 15, marginBottom: 100 }}
                   numColumns={3}
                   data={this.props.roomAudience}
+                  // data={roomHosts}
+                  style={{paddingLeft: 15, marginBottom: 100}}
                   keyExtractor={item => item.username}
                   renderItem={({ item }) => {
                     return (
@@ -664,6 +682,7 @@ class audioRoom extends Component {
             {/* ~~~~~~~~~~~~~~~~~~~~~~~QUEUE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  */}
             <FlatList
               data={this.props.roomQueue}
+              // data={roomQueue}
               keyExtractor={item => item.username}
               horizontal={true}
               showsHorizontalScrollIndicator={false}

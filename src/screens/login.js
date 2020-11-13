@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {useEffect,useRef, Component } from "react";
 import {
   Text,
   View,
@@ -39,6 +39,10 @@ class openingScreen extends Component {
     this.keyboardCheck = this.keyboardCheck.bind(this);
     this.onPressLogin = this.onPressLogin.bind(this)
     this.keyboardCheck();
+    // const inputElementRef = useRef(null);
+    // inputElementRef.current.setNativeProps({
+    //   style: {fontFamily: 'Roboto-Bold'}
+    // });
   }
   keyboardCheck = () => {
     this.keyboardDidShowListener = Keyboard.addListener(
@@ -135,6 +139,12 @@ class openingScreen extends Component {
       });
   };
   render() {
+    const inputElementRef = useRef(null);
+    useEffect(()=>{
+      inputElementRef.current.setNativeProps({
+        style: {fontFamily: 'Roboto-Bold'}
+      });
+    }, []);
     if (this.state.isLoading === true) {
       return (
         <View style={{ flex: 1, justifyContent: "center" }}>
@@ -197,6 +207,7 @@ class openingScreen extends Component {
                     placeholderColor="#B5BFD0"
                     style={{
                       fontWeight: "bold",
+                      // fontFamily: 'Roboto-Bold',
                       paddingHorizontal: 20,
                       width: "100%",
                     }}
@@ -211,12 +222,14 @@ class openingScreen extends Component {
                 >
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TextInput
+                      ref={inputElementRef}
                       placeholder="Password"
                       placeholderColor="#B5BFD0"
                       secureTextEntry={this.state.hidePassword}
                       style={{
                         fontWeight: "bold",
                         paddingHorizontal: 20,
+                        // fontFamily: 'Roboto-Bold',
                         width: 260,
                       }}
                       onChangeText={(val) => this.onChangeText("password", val)}
@@ -305,9 +318,10 @@ class openingScreen extends Component {
               }}
             >
               <Image
-                source={require("../assets/logo.png")}
+                source={require("../assets/group.png")}
+                style={{ width: "100%", zIndex: -1 }}
                 // style={{borderWidth: 1, borderColor: 'black'}}
-                style={{alignSelf:'center', height: 100, width: 100, marginBottom: '10%'}}
+                // style={{alignSelf:'center', height: 100, width: 100, marginBottom: '10%'}}
               />
             </View>
           )}
