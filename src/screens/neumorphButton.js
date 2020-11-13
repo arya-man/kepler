@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   Text,
   View,
@@ -8,7 +8,7 @@ import {
   Image,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import {BoxShadow} from 'react-native-shadow';
+import { BoxShadow } from 'react-native-shadow';
 
 // let notchange = heightB < widthB ? widthB : heightB;
 export default class neumorphTest extends Component {
@@ -27,7 +27,7 @@ export default class neumorphTest extends Component {
       opacity: 0.18,
       x: 0.2 * change,
       y: yChange,
-      style: {marginVertical: 5},
+      style: { marginVertical: 5 },
     };
     const shadowOpt2 = {
       width: widthB - 0.2 * change,
@@ -38,7 +38,7 @@ export default class neumorphTest extends Component {
       opacity: 1,
       x: -0.0001 * change,
       y: -0.0001 * change,
-      style: {marginVertical: 5},
+      style: { marginVertical: 5 },
     };
     return (
       //   <View
@@ -59,7 +59,7 @@ export default class neumorphTest extends Component {
         <BoxShadow setting={shadowOpt}>
           <BoxShadow setting={shadowOpt2}>
             <View
-              style={{
+              style={[{
                 position: 'relative',
                 width: widthB,
                 height: heightB,
@@ -68,7 +68,7 @@ export default class neumorphTest extends Component {
                 borderWidth: 1,
                 borderColor: '#e5e5e5',
                 overflow: 'hidden',
-              }}>
+              }, this.props.styleChildren]}>
               {this.props.children}
             </View>
           </BoxShadow>

@@ -22,13 +22,15 @@ import CBox from './customizableNeuButton';
 import LinearGradient from 'react-native-linear-gradient';
 import { connect } from 'react-redux';
 import { withNavigation } from 'react-navigation';
-import PacmanIndicator from '../indicators/pacman';
 import { GET_ROOMS, GET_CONNECTED } from '../redux/roomsRedux';
 import ErrorPopup from './errorPopup'
 import firestore from '@react-native-firebase/firestore'
 import database from '@react-native-firebase/database'
 import Toast from 'react-native-simple-toast'
 import { v4 as uuidv4 } from 'uuid'
+import {
+  PulseIndicator,
+} from 'react-native-indicators';
 
 class audioRoomHome extends Component {
   constructor(props) {
@@ -107,9 +109,15 @@ class audioRoomHome extends Component {
 
   }
 
-  componentWillUnmount() {
+  componentDidUpdate(prevProps, prevState) {
 
-    console.log("HOME UNMOUNT")
+    if (this.state.createLoading !== prevState.createLoading) {
+      console.log("CREATE LOADING", this.state.createLoading)
+    }
+
+  }
+
+  componentWillUnmount() {
 
     database().ref('dummy').off()
     database().ref('.info/connected').off()
@@ -281,74 +289,80 @@ class audioRoomHome extends Component {
                   borderRadius={20}
                   text="CREATE ROOM"
                   createRoom={() => {
-                    if (this.props.connected) {
-                      if (this.state.hashtag !== '') {
-                        this.setState({ createLoading: true })
-                        var roomId = uuidv4()
-                        database().ref(`rooms/${roomId}`).set({
-                          hashtag: this.state.hashtag,
-                          na: 0,
-                          nh: 0,
-                          caption: this.state.caption,
-                        })
-                          .then(() => {
-                            database().ref(`hosts/${roomId}`).set({
-                              [`${this.props.user.user.username}`]: {
-                                value: -1,
-                                photoUrl: this.props.user.user.photoUrl
-                              }
-                            })
-                              .then(() => {
-                                fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
-                                  method: 'POST',
-                                  headers: {
-                                    Accept: 'application/json',
-                                    'Content-Type': 'application/json'
-                                  },
-                                  body: JSON.stringify({
-                                    roomId: roomId
-                                  })
-                                })
-                                  .then((res) => {
-                                    return res.json()
-                                  })
-                                  .then((res) => {
-                                    console.log("TYPE PF TOKEN", typeof (res.token))
-                                    this.toggleCreateRoomModal()
-                                    this.setState({ loading: false })
-                                    this.props.navigation.navigate('audioRoom', { hashtag: this.state.hashtag, caption: this.state.caption, roomId: roomId, role: 3, agoraToken: res.token })
-                                  })
-                                  .catch((err) => {
-                                    database().ref(`rooms/${roomId}`).remove().catch()
-                                    database().ref(`hosts/${roomId}`).remove().catch()
-                                    console.log("ERROR INSIDE",err)
-                                    this.setState({ loading: false })
-                                    Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
-                                  })
 
-                              })
-                              .catch((err) => {
-                                database().ref(`hosts/${roomId}`).remove().catch()
-                                console.log("ERROR OUTSIDE",err)
-                                this.setState({ loading: false })
-                                Toast.show('We encountered an error. Please Try Again.', Toast.SHORT)
-                                this.toggleCreateRoomModal()
-                              })
+                    if (!this.state.createLoading) {
+
+                      if (this.props.connected) {
+                        if (this.state.hashtag !== '') {
+                          this.setState({ createLoading: true })
+                          var roomId = uuidv4()
+                          database().ref(`rooms/${roomId}`).set({
+                            hashtag: this.state.hashtag,
+                            na: 0,
+                            nh: 0,
+                            caption: this.state.caption,
                           })
-                          .catch(() => {
-                            database().ref(`rooms/${roomId}`).remove().catch()
-                            this.setState({ loading: false })
-                            Toast.show('No Internet Connection', Toast.SHORT)
-                            this.toggleCreateRoomModal()
-                          })
+                            .then(() => {
+                              database().ref(`hosts/${roomId}`).set({
+                                [`${this.props.user.user.username}`]: {
+                                  value: -1,
+                                  photoUrl: this.props.user.user.photoUrl
+                                }
+                              })
+                                .then(() => {
+                                  fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
+                                    method: 'POST',
+                                    headers: {
+                                      Accept: 'application/json',
+                                      'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                      roomId: roomId
+                                    })
+                                  })
+                                    .then((res) => {
+                                      return res.json()
+                                    })
+                                    .then((res) => {
+                                      console.log("TYPE PF TOKEN", typeof (res.token))
+                                      this.toggleCreateRoomModal()
+                                      this.setState({ createLoading: false })
+                                      this.props.navigation.navigate('audioRoom', { hashtag: this.state.hashtag, caption: this.state.caption, roomId: roomId, role: 3, agoraToken: res.token })
+                                    })
+                                    .catch((err) => {
+                                      database().ref(`rooms/${roomId}`).remove().catch()
+                                      database().ref(`hosts/${roomId}`).remove().catch()
+                                      console.log("ERROR INSIDE", err)
+                                      this.setState({ createLoading: false })
+                                      Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
+                                    })
+
+                                })
+                                .catch((err) => {
+                                  database().ref(`hosts/${roomId}`).remove().catch()
+                                  console.log("ERROR OUTSIDE", err)
+                                  this.setState({ createLoading: false })
+                                  Toast.show('We encountered an error. Please Try Again.', Toast.SHORT)
+                                  this.toggleCreateRoomModal()
+                                })
+                            })
+                            .catch(() => {
+                              database().ref(`rooms/${roomId}`).remove().catch()
+                              this.setState({ createLoading: false })
+                              Toast.show('No Internet Connection', Toast.SHORT)
+                              this.toggleCreateRoomModal()
+                            })
+                        }
+                        else {
+                          Toast.show('Please enter the title of the room', Toast.SHORT)
+                        }
                       }
                       else {
-                        Toast.show('Please enter the title of the room', Toast.SHORT)
+                        Toast.show('Disconnected from internet. Can\'t create Room', Toast.SHORT)
                       }
+
                     }
-                    else {
-                      Toast.show('Disconnected from internet. Can\'t create Room', Toast.SHORT)
-                    }
+
                   }}
                 />
               </View>
@@ -845,38 +859,67 @@ export class TopBar extends Component {
   }
 }
 export class CreateRoomButton extends Component {
+
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      loading: (this.props.loading === true ? true : false)
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+
+    if (this.props.loading !== prevProps.loading) {
+
+      if (this.props.loading === true) {
+        this.setState({ loading: true })
+      }
+      else {
+        this.setState({ loading: false })
+      }
+
+    }
+
+  }
+
   render() {
     return (
       <TouchableOpacity
-      onPress={this.props.createRoom}>
-      <Box height={40} width={275} borderRadius={20}>
-        <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          colors={['#EA688A', '#EA7A7F']}
-          style={{
-            height: 40,
-            borderRadius: 20,
-            width: 300,
-            alignSelf: 'center',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <View
+        onPress={this.props.createRoom}>
+        <Box height={40} width={275} borderRadius={20}>
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            colors={['#EA688A', '#EA7A7F']}
             style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'transparent',
               height: 40,
+              borderRadius: 20,
               width: 300,
-            }}
+              alignSelf: 'center',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'transparent',
+                height: 40,
+                width: 300,
+              }}
             >
-            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 12 }}>
-              {this.props.text}
-            </Text>
-          </View>
-        </LinearGradient>
-      </Box>
+              {!this.state.loading &&
+                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 12 }}>
+                  {this.props.text}
+                </Text>
+              }
+              {this.state.loading &&
+                <PulseIndicator color="#4e7bb4" size={40} />
+              }
+            </View>
+          </LinearGradient>
+        </Box>
       </TouchableOpacity>
     );
   }
@@ -921,7 +964,7 @@ export class JoinButton extends Component {
             </TouchableOpacity>
           )}
           {this.props.shouldLoad && (
-            <PacmanIndicator color="#4e7bb4" size={40} />
+            <PulseIndicator color="#4e7bb4" size={40} />
           )}
         </LinearGradient>
       </Box>

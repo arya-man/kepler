@@ -124,7 +124,6 @@ export default function roomsRedux(state = INITIAL_STATE, action) {
             return { ...state, roomQueue: action.payload }
 
         case ADD_ROOM_QUEUE:
-            console.log("ADD ROOM QUEUE", action.payload)
             return { ...state, roomQueue: [...state.roomQueue, action.payload] }
 
         case REMOVE_ROOM_QUEUE:

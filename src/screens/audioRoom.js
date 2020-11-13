@@ -10,6 +10,7 @@ import {
   FlatList,
   SafeAreaView,
   BackHandler,
+  Dimensions
 } from 'react-native';
 import Box from './neumorphButton';
 import CBox from './customizableNeuButton';
@@ -23,6 +24,8 @@ import RtcEngine from 'react-native-agora'
 import ErrorPopup from './errorPopup'
 import database from '@react-native-firebase/database'
 import Toast from 'react-native-simple-toast'
+
+const screenWidth = Math.round(Dimensions.get('window').width)
 
 var naviagtionBarHidden = true;
 class audioRoom extends Component {
@@ -99,7 +102,7 @@ class audioRoom extends Component {
 
       //// FIREBASE FROM HERE ////
 
-      if(this.state.role < 2) {
+      if (this.state.role < 2) {
 
         database().ref(`audience/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).set({
           value: Math.floor(new Date().getTime() / 1000),
@@ -204,7 +207,6 @@ class audioRoom extends Component {
       })
 
       database().ref(`q/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
-        console.log("USERNAME", snap.key)
         this.props.dispatch({
           type: REMOVE_ROOM_QUEUE,
           payload: snap.key
@@ -213,17 +215,15 @@ class audioRoom extends Component {
 
       database().ref(`e/${this.props.navigation.getParam('roomId')}`).on('value', snap => {
 
-        // if (snap.val() !== null) {
+        if (snap.val() !== null) {
 
-        //   if (snap.val() === 1) {
+          if (snap.val() === 1) {
 
-        //     this.setState({ roomEnded: true })
+            this.setState({ roomEnded: true })
 
-        //   }
+          }
 
-        // }
-
-        console.log("ROOM ENDED", snap.val())
+        }
 
       })
 
@@ -245,7 +245,19 @@ class audioRoom extends Component {
       if ((prevState.role === 1 || prevState.role === 0) && (this.state.role === 2 || this.state.role === 3)) {
         try {
           await this.agora.setClientRole(1)
-          this.setState({ mic: true })
+          
+          if(this.state.role === 2) {
+
+            this.setState({ mic: true , textn: 'You have been made a Speaker!' })
+
+          }
+          else {
+
+            this.setState({ mic: true , textn: 'You have been made a Moderator!' })
+
+          }
+
+          this.timerToTheNotification(this.state.bounceValue)
         } catch (error) {
 
         }
@@ -256,7 +268,19 @@ class audioRoom extends Component {
       if ((prevState.role === 2 || prevState.role === 3) && (this.state.role === 1 || this.state.role === 0)) {
         try {
           await this.agora.setClientRole(2)
-          this.setState({ mic: false })
+
+          if(prevState.role === 2) {
+
+            this.setState({ mic: false , textn: 'You have been removed as a Speaker!' })
+
+          }
+          else {
+
+            this.setState({ mic: false , textn: 'You have been removed as a Moderator!' })
+
+          }
+          this.timerToTheNotification(this.state.bounceValue)
+          
         } catch (error) {
 
         }
@@ -303,14 +327,19 @@ class audioRoom extends Component {
 
         this.setState({ textn: 'Re-connected Successfully' })
 
-        if (this.state.role === 2 || this.state.role === 3) {
-          try {
-            this.setState({ mic: false })
-            await this.agora.muteAllRemoteAudioStreams(false)
-          } catch (error) {
+        try {
+          await this.agora.muteAllRemoteAudioStreams(false)
+        } catch (error) {
 
-          }
         }
+
+        if (this.state.role === 2 || this.state.role === 3) {
+
+          this.setState({ mic: false })
+
+        }
+
+        this.timerToTheNotification(this.state.bounceValue)
 
       }
 
@@ -318,16 +347,21 @@ class audioRoom extends Component {
 
       else {
 
-        this.setState({ textn: 'Re-connected Successfully' })
+        this.setState({ textn: 'Disconnected from Internet' })
+
+        try {
+          await this.agora.muteAllRemoteAudioStreams(true)
+        } catch (error) {
+
+        }
 
         if (this.state.role === 2 || this.state.role === 3) {
-          try {
-            this.setState({ mic: false })
-            await this.agora.muteAllRemoteAudioStreams(true)
-          } catch (error) {
 
-          }
+          this.setState({ mic: false })
+
         }
+
+        this.timerToTheNotification(this.state.bounceValue)
 
       }
 
@@ -388,10 +422,6 @@ class audioRoom extends Component {
                 }}
                 ellipsizeMode="tail"
                 numberOfLines={1}
-                onPress={() =>
-                  // THIS LINE BELOW BRINGS THE NOTIFICATION TO THE SCREEN. AND AUTOMATICALLY REMOVES AFTER 5 SECONDS. ADD YOUR OWN CALLING LOGIC AND REMOVE THIS ON PRESS.
-                  this.timerToTheNotification(this.state.bounceValue)
-                }
               >
                 {`#${this.props.navigation.getParam('hashtag')}`}
               </Text>
@@ -403,7 +433,7 @@ class audioRoom extends Component {
                 this.props.navigation.goBack()
               }
               else if (this.state.role === 1) {
-                database().ref(`queue/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).remove().catch()
+                // database().ref(`queue/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).remove().catch()
                 database().ref(`audience/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).remove().catch()
                 this.props.navigation.goBack()
               }
@@ -414,6 +444,9 @@ class audioRoom extends Component {
 
             }} name="Leave" />
           </View>
+          <Text style={{ marginLeft: 15, marginTop: 5, color: '#7F7F7F' }}>Swipe right to view the participants.</Text>
+          <Text style={{ marginLeft: 15, color: '#7F7F7F' }}>Users with a star are moderators.</Text>
+          {this.state.role === 3 && <Text style={{ marginLeft: 15, color: '#7F7F7F' }}>Long Press for options.</Text>}
           <View
             style={{
               borderBottomColor: '#BFBFBF',
@@ -423,52 +456,9 @@ class audioRoom extends Component {
               opacity: 0.2,
             }}
           />
-          {/* <Modal
-            animationType="fade"
-            transparent={true}
-            visible={this.state.createRoomModalVisible}
-            onRequestClose={() => {
-              Alert.alert("Modal has been closed.");
-            }}
-          >
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: "rgba(0,0,0,0.2)",
-              }}
-            >
-              <View
-                style={{
-                  height: 250,
-                  width: "80%",
-                  borderWidth: 3,
-                  borderColor: "#e5e5e5",
-                  backgroundColor: "rgba(234,235,243,1)",
-                  borderRadius: 10,
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}
-              >
-                <Text
-                  style={{
-                    color: "#4e7bb4",
-                    fontWeight: "bold",
-                    fontSize: 20,
-                  }}
-                >
-                  Attemps Left : {this.state.reconnectingAttemptsLeft}
-                </Text>
-                <ActivityIndicator size="large" color="#EA7A7F" />
-
-              </View>
-            </View>
-          </Modal> */}
-          {/* List of Hosts */}
 
           <ErrorPopup
-            title="Audio Engine Error"
+            title="Audio Initialisation Error"
             subTitle='There was an error initialising audio. Please go to the previous screen and try again.'
             okButtonText="OK"
             clickFunction={() => {
@@ -504,10 +494,12 @@ class audioRoom extends Component {
               <SafeAreaView
                 style={{ flex: 1 }}
                 showsVerticalScrollIndicator={false}
-                style={{ marginBottom: 150 }}>
+                style={{ marginBottom: 160 }}>
                 {/*Check props below. */}
                 <FlatList
                   horizontal={false}
+                  showsVerticalScrollIndicator={false}
+                  style={{ paddingLeft: 15 }}
                   numColumns={3}
                   data={this.props.roomHosts}
                   keyExtractor={item => item.username}
@@ -535,7 +527,7 @@ class audioRoom extends Component {
                             if (this.state.role === 3) {
                               if (item.value !== -1) {
 
-                                this.setState({ selectedUser: item.username })
+                                this.setState({ selectedUser: item.username, selectedPhoto: item.photoUrl })
                                 this.removePermissionPopUp(!this.state.removePermissionPopUp);
 
                               }
@@ -575,6 +567,7 @@ class audioRoom extends Component {
 
                 <FlatList
                   horizontal={false}
+                  style={{ paddingLeft: 15, marginBottom: 100 }}
                   numColumns={3}
                   data={this.props.roomAudience}
                   keyExtractor={item => item.username}
@@ -752,7 +745,26 @@ class audioRoom extends Component {
                 {/* Add on press here to make Admin */}
                 <TouchableOpacity
                   onPress={async () => {
-                    console.log("MAKE ADMIN")
+                    if (this.props.connected) {
+                      if (this.numberOfHosts < 17) {
+
+                        database().ref(`hosts/${this.props.navigation.getParam('roomId')}/${this.state.selectedUser}`).set({
+                          value: -1,
+                          photoUrl: this.state.selectedPhoto
+                        })
+                          .catch()
+                      }
+                      else {
+
+                        Toast.show('Apologies, but there can\'t be more than 17 speakers')
+
+                      }
+
+                    }
+                    else {
+                      Toast.show('You are disconnected. Please re-connect')
+                    }
+                    this.givePermissionPopUp(!this.state.givePermissionPopUp)
                   }}
                   style={{
                     marginTop: 10,
@@ -763,7 +775,7 @@ class audioRoom extends Component {
                     paddingVertical: 10,
                   }}>
                   <Text style={{ color: '#7f7f7f', alignSelf: 'center' }}>
-                    Make Admin
+                    Make Moderator
                   </Text>
                 </TouchableOpacity>
                 {/* Add on press here to give permission to talk. */}
@@ -777,7 +789,6 @@ class audioRoom extends Component {
                           photoUrl: this.state.selectedPhoto
                         })
                           .catch()
-
                       }
                       else {
 
@@ -787,8 +798,9 @@ class audioRoom extends Component {
 
                     }
                     else {
-                      Toast.show('You are disconncted. Please re-connect')
+                      Toast.show('You are disconnected. Please re-connect')
                     }
+                    this.givePermissionPopUp(!this.state.givePermissionPopUp)
                   }}
                 >
                   <Text style={{ color: '#7f7f7f', alignSelf: 'center' }}>
@@ -868,23 +880,38 @@ class audioRoom extends Component {
                         .catch()
                     }
                     else {
-                      Toast.show('You are disconncted. Please re-connect')
+                      Toast.show('You are disconnected. Please re-connect')
                     }
+
+                    this.removePermissionPopUp(
+                      !this.state.removePermissionPopUp,
+                    );
                   }}
                 >
                   <Text style={{ color: '#7f7f7f', alignSelf: 'center' }}>
-                    Make Admin
+                    Make Moderator
                   </Text>
                 </TouchableOpacity>
                 {/* Add on press here to remove talk permission. */}
                 <TouchableOpacity style={{ paddingVertical: 10 }}
                   onPress={() => {
                     if (this.props.connected) {
-                      database().ref(`hosts/${this.props.navigation.getParam('roomId')}/${this.state.selectedUser}`).remove().catch()
+                      database().ref(`hosts/${this.props.navigation.getParam('roomId')}/${this.state.selectedUser}`).remove(() => {
+                        database().ref(`audience/${this.props.navigation.getParam('roomId')}/${this.state.selectedUser}`).set({
+                          value: Math.floor(new Date().getTime() / 1000),
+                          photoUrl: this.state.selectedPhoto
+                        })
+                          .catch()
+                      })
+                        .catch()
                     }
                     else {
-                      Toast.show('You are disconncted. Please re-connect')
+                      Toast.show('You are disconnected. Please re-connect')
                     }
+
+                    this.removePermissionPopUp(
+                      !this.state.removePermissionPopUp,
+                    );
                   }}
                 >
                   <Text style={{ color: '#7f7f7f', alignSelf: 'center' }}>
@@ -946,15 +973,16 @@ export class Admin extends Component {
   render() {
     return (
       <TouchableOpacity
-        style={{ width: 90, marginLeft: 15 }}
+        style={{ width: screenWidth / 3 - 50, marginRight: (screenWidth - 3 * (screenWidth / 3 - 50)) / 3 }}
         onPress={this.props.navigateToProfile}>
-        <Box height={80} width={80} borderRadius={15}>
+        <Box height={screenWidth / 3 - 40} width={screenWidth / 3 - 40} borderRadius={15} styleChildren={{ justifyContent: 'center' }}>
           <Image
             style={{
-              height: 80,
-              width: 80,
-              borderColor: '#EA688A',
-              borderWidth: 5,
+              height: screenWidth / 3 - 40,
+              width: screenWidth / 3 - 40,
+              alignSelf: 'center',
+              borderColor: '#4e7bb4',
+              borderWidth: 4,
               borderRadius: 15
             }}
             source={{ uri: this.props.profilePic }}
@@ -963,7 +991,7 @@ export class Admin extends Component {
         <Text
           style={{
             marginTop: -10,
-            color: '#8f8f8f',
+            color: '#EA688A',
             overflow: 'hidden',
             width: 80,
             height: 20,
@@ -979,11 +1007,10 @@ export class Admin extends Component {
           size={15}
           style={{
             position: 'absolute',
-            top: 0,
-            right: 0,
-            marginTop: 23,
+            top: 5,
+            right: -15,
             color: '#fff',
-            backgroundColor: '#EA688A',
+            backgroundColor: '#4e7bb4',
             padding: 3,
             borderRadius: 10,
           }}
@@ -1000,16 +1027,16 @@ export class Host extends Component {
   render() {
     return (
       <TouchableOpacity
-        style={{ width: 90, marginLeft: 15 }}
+        style={{ width: screenWidth / 3 - 50, marginRight: (screenWidth - 3 * (screenWidth / 3 - 50)) / 3 }}
         onPress={this.props.navigateToProfile}
         onLongPress={this.props.longPressOnHosts}
       >
-        <Box height={80} width={80} borderRadius={15}>
+        <Box height={screenWidth / 3 - 40} width={screenWidth / 3 - 40} borderRadius={15}>
           <Image
             style={{
-              height: 77,
-              width: 77,
-              borderColor: "#EA688A",
+              height: screenWidth / 3 - 37,
+              width: screenWidth / 3 - 37,
+              borderColor: "#4e7bb4",
               borderWidth: this.props.micOn ? 3 : 0,
               borderRadius: 15,
               alignSelf: "center",
@@ -1269,8 +1296,28 @@ export class MicButton extends Component {
     super(props);
     this.state = {
       micON: this.props.micOnorNot,
-    };
+    }
   }
+
+  componentDidUpdate(prevProps , prevState) {
+
+    if(this.props.micOnorNot !== prevProps.micOnorNot) {
+
+      if(this.props.micOnorNot) {
+
+        this.setState({micON: true})
+
+      }
+      else {
+
+        this.setState({micON: false})
+
+      }
+
+    }
+
+  }
+
   toggle = () => {
     if (this.state.micON) {
       this.setState({ micON: false });
@@ -1313,14 +1360,14 @@ export class Participant extends Component {
   render() {
     return (
       <TouchableOpacity
-        style={{ width: 90, marginLeft: 15 }}
+        style={{ width: screenWidth / 3 - 50, marginRight: (screenWidth - 3 * (screenWidth / 3 - 50)) / 3 }}
         onPress={this.props.navigateToProfile}
         onLongPress={this.props.longPressOnParticipant}>
-        <Box height={80} width={80} borderRadius={15}>
+        <Box height={screenWidth / 3 - 40} width={screenWidth / 3 - 40} borderRadius={15}>
           <Image
             style={{
-              height: 80,
-              width: 80,
+              height: screenWidth / 3 - 40,
+              width: screenWidth / 3 - 40,
             }}
             source={{ uri: this.props.profilePic }}
           />
