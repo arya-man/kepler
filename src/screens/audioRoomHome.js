@@ -30,6 +30,7 @@ import { v4 as uuidv4 } from 'uuid'
 import {
   PulseIndicator,
 } from 'react-native-indicators';
+import messaging from '@react-native-firebase/messaging'
 
 class audioRoomHome extends Component {
   constructor(props) {
@@ -167,6 +168,8 @@ class audioRoomHome extends Component {
     })
 
     this.getRooms()
+
+    messaging().subscribeToTopic('all').catch()
 
   }
 
