@@ -8,12 +8,17 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   TouchableOpacity,
+  Dimensions
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Box from '../screens/neumorphButton';
 import Icon from 'react-native-vector-icons/Feather';
 import auth from '@react-native-firebase/auth';
 import ErrorPopup from './errorPopup'
+import Video from 'react-native-video'
+
+const screenHeight = Dimensions.get('window').height
+const screenWidth = Dimensions.get('window').width
 
 export default class openingScreen extends Component {
   constructor(props) {
@@ -59,7 +64,7 @@ export default class openingScreen extends Component {
     return (
       <View
         style={{
-          flex: 1,
+          height: screenHeight,
           backgroundColor: 'rgba(234,235,243,1)',
           //   justifyContent: 'center',
         }}>
@@ -69,7 +74,7 @@ export default class openingScreen extends Component {
           subTitle={this.state.modalMessage}
           okButtonText="OK"
           clickFunction={() => {
-            this.setState({modalMessage: ''})
+            this.setState({ modalMessage: '' })
             this.setState({ modalVisible: !this.state.modalVisible }); //Always keep this thing here
           }}
           modalVisible={this.state.modalVisible}
@@ -80,7 +85,7 @@ export default class openingScreen extends Component {
           subTitle={this.state.errorMessage}
           okButtonText="OK"
           clickFunction={() => {
-            this.setState({errorMessage: ''})
+            this.setState({ errorMessage: '' })
             this.setState({ errorVisible: !this.state.errorVisible }); //Always keep this thing here
           }}
           modalVisible={this.state.errorVisible}
@@ -183,17 +188,13 @@ export default class openingScreen extends Component {
             </View>
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
-        <View
-          style={{
-            width: '100%',
-            position: 'absolute',
-            top: '73%',
-          }}>
-          <Image
-            source={require('../assets/group.png')}
-            style={{ width: '100%', zIndex: -1 }}
-          />
-        </View>
+
+        <Video
+          source={require('../assets/loader3.mp4')}
+          repeat={true}
+          style={{ width: screenHeight * 0.37, height: screenHeight * 0.37, alignSelf: 'center', marginTop: screenHeight * 0.02 }}
+          resizeMode='contain'
+        />
       </View>
     );
   }

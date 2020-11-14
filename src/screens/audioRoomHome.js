@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
   Modal,
   TextInput,
-  Keyboard,
   Platform,
   PermissionsAndroid
 } from 'react-native';
@@ -48,7 +47,8 @@ class audioRoomHome extends Component {
       modalVisible: false,
       createError: false,
       createLoading: false,
-      refreshing: false
+      refreshing: false,
+      location: '',
     };
 
     PermissionsAndroid.request('android.permission.RECORD_AUDIO')
@@ -61,12 +61,74 @@ class audioRoomHome extends Component {
     });
   };
 
+  // getRooms = () => {
 
-  onRefresh = () => {
-    console.log("ONREFRESH")
-  };
+  //   if (this.state.location === '') {
+
+  //     fetch('https://ipapi.co/json/')
+  //       .then((data) => {
+  //         return data.json()
+  //       })
+  //       .then((data) => {
+
+  //         console.log("DATA", data)
+
+  //         this.setState({ location: data.country })
+
+  //         database().ref('rooms').orderByChild('location').equalTo(data.country).once('value')
+  //           .then((query) => {
+  //             var arr = []
+  //             query.forEach(doc => {
+  //               var obj = { id: doc.key }
+  //               obj = { ...obj, ...doc.val() }
+  //               arr.push(obj)
+  //               // console.log("OBJ", obj)
+  //             })
+  //             this.props.dispatch({
+  //               type: GET_ROOMS,
+  //               payload: arr
+  //             })
+  //           })
+  //           .catch(() => {
+  //             this.setState({ getError: true })
+  //           })
+
+  //       })
+  //       .catch((err) => {
+  //         console.log("ERROR LOCATION", err)
+  //         this.setState({ getError: true })
+  //       })
+  //   }
+
+  //   else {
+
+  //     database().ref('rooms').orderByChild('location').equalTo(this.state.loading).once('value')
+  //       .then((query) => {
+  //         var arr = []
+  //         query.forEach(doc => {
+  //           var obj = { id: doc.key }
+  //           obj = { ...obj, ...doc.val() }
+  //           arr.push(obj)
+  //           // console.log("OBJ", obj)
+  //         })
+  //         this.props.dispatch({
+  //           type: GET_ROOMS,
+  //           payload: arr
+  //         })
+  //       })
+  //       .catch(() => {
+  //         this.setState({ getError: true })
+  //       })
+
+  //   }
+
+  //   this.setState({ loading: false })
+  //   this.setState({ refreshing: false })
+
+  // }
 
   getRooms = () => {
+
     database().ref('rooms').once('value')
       .then((query) => {
         var arr = []
@@ -80,14 +142,13 @@ class audioRoomHome extends Component {
           type: GET_ROOMS,
           payload: arr
         })
-        this.setState({ loading: false })
-        this.setState({ refreshing: false })
       })
       .catch(() => {
-        this.setState({ refreshing: false })
-        this.setState({ loading: false })
         this.setState({ getError: true })
       })
+
+    this.setState({ loading: false })
+    this.setState({ refreshing: false })
 
   }
 
@@ -105,14 +166,42 @@ class audioRoomHome extends Component {
       })
     })
 
+    database().ref('a').onDisconnect().remove(() => {
+      console.log("WRITTEN")
+    })
+
     this.getRooms()
 
   }
 
   componentDidUpdate(prevProps, prevState) {
 
-    if (this.state.createLoading !== prevState.createLoading) {
-      console.log("CREATE LOADING", this.state.createLoading)
+    if(this.props.connected !== prevProps.connected) {
+
+      if(!this.props.connected) {
+
+        Toast.show('Disconnected from Internet', Toast.LONG)
+
+      }
+      else {
+
+        database().ref('a').onDisconnect().remove(e => {
+          if(e === null) {
+            console.log("CANCELLED")
+          }
+          else {
+            console.log("ERROR CANCEL")
+          }
+        })
+
+        database().ref('a').onDisconnect().remove(() => {
+          console.log(" 2 WRITTEN")
+        })
+
+        Toast.show('Re-connected!', Toast.SHORT)
+
+      }
+
     }
 
   }
@@ -303,47 +392,29 @@ class audioRoomHome extends Component {
                             caption: this.state.caption,
                           })
                             .then(() => {
-                              database().ref(`hosts/${roomId}`).set({
-                                [`${this.props.user.user.username}`]: {
-                                  value: -1,
-                                  photoUrl: this.props.user.user.photoUrl
-                                }
+                              fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
+                                method: 'POST',
+                                headers: {
+                                  Accept: 'application/json',
+                                  'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                  roomId: roomId
+                                })
                               })
-                                .then(() => {
-                                  fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
-                                    method: 'POST',
-                                    headers: {
-                                      Accept: 'application/json',
-                                      'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({
-                                      roomId: roomId
-                                    })
-                                  })
-                                    .then((res) => {
-                                      return res.json()
-                                    })
-                                    .then((res) => {
-                                      console.log("TYPE PF TOKEN", typeof (res.token))
-                                      this.toggleCreateRoomModal()
-                                      this.setState({ createLoading: false })
-                                      this.props.navigation.navigate('audioRoom', { hashtag: this.state.hashtag, caption: this.state.caption, roomId: roomId, role: 3, agoraToken: res.token })
-                                    })
-                                    .catch((err) => {
-                                      database().ref(`rooms/${roomId}`).remove().catch()
-                                      database().ref(`hosts/${roomId}`).remove().catch()
-                                      console.log("ERROR INSIDE", err)
-                                      this.setState({ createLoading: false })
-                                      Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
-                                    })
-
+                                .then((res) => {
+                                  return res.json()
+                                })
+                                .then((res) => {
+                                  console.log("TYPE PF TOKEN", typeof (res.token))
+                                  this.toggleCreateRoomModal()
+                                  this.setState({ createLoading: false })
+                                  this.props.navigation.navigate('audioRoom', { hashtag: this.state.hashtag, caption: this.state.caption, roomId: roomId, role: 3, agoraToken: res.token })
                                 })
                                 .catch((err) => {
-                                  database().ref(`hosts/${roomId}`).remove().catch()
-                                  console.log("ERROR OUTSIDE", err)
+                                  database().ref(`rooms/${roomId}`).remove().catch()
                                   this.setState({ createLoading: false })
-                                  Toast.show('We encountered an error. Please Try Again.', Toast.SHORT)
-                                  this.toggleCreateRoomModal()
+                                  Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
                                 })
                             })
                             .catch(() => {
@@ -402,9 +473,10 @@ class audioRoomHome extends Component {
           }}
           modalVisible={this.state.getError}
         />
+
         {this.state.loading ? (
           <View style={{ flex: 1, justifyContent: 'center', marginBottom: 60 }}>
-            <ActivityIndicator size="large" color="#EA7A7F" />
+            <ActivityIndicator size="large" color="#4e7bb4" />
           </View>
         ) : this.props.rooms.length === 0 ? (
           <View
@@ -442,31 +514,33 @@ class audioRoomHome extends Component {
               {' '}
                   Go on, create one!
                 </Text>
-
-            <Text
-              style={{
-
-                alignSelf: 'center',
-                color: "#4e7bb4",
-                fontWeight: 'bold',
-                fontSize: 23,
-                marginTop: 5,
-              }}
-              onPress={() => {
-                this.getRooms()
-                // console.log("REFRESH")
-              }}
-            >
-              {' '}
+            <TouchableOpacity onPress={() => {
+              this.setState({ loading: true })
+              this.getRooms()
+            }}>
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  color: "#4e7bb4",
+                  fontWeight: 'bold',
+                  fontSize: 23,
+                  marginTop: 5,
+                }}
+              >
+                {' '}
                   Refresh
                 </Text>
+            </TouchableOpacity>
           </View>
         ) : (
               <FlatList
                 style={{ marginBottom: 60, marginTop: 30 }}
                 data={this.props.rooms}
                 refreshing={this.state.refreshing}
-                onRefresh={this.getRooms}
+                onRefresh={() => {
+                  this.setState({ refreshing: true })
+                  this.getRooms()
+                }}
                 keyExtractor={(item) => item['id']}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => {

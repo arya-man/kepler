@@ -23,14 +23,14 @@ export const CONNECTED_QUEUE = 'CONNECTED_QUEUE'
 
 export const GET_CONNECTED = 'GET_CONNECTED'
 
-export const CLEAR_ROOM = 'CLEAR_ROOM'
+export const FLUSH_ROOM = 'FLUSH_ROOM'
 
 const INITIAL_STATE = { roomAudience: [], roomHosts: [], roomQueue: [], rooms: [], connected: false }
 
 export default function roomsRedux(state = INITIAL_STATE, action) {
     switch (action.type) {
 
-        case CLEAR_ROOM:
+        case FLUSH_ROOM:
             return { ...state, roomAudience: [], roomHosts: [], roomQueue: [] }
 
         case GET_CONNECTED:

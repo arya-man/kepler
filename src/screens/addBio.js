@@ -5,10 +5,11 @@ import {
   Image,
   TextInput,
   TouchableWithoutFeedback,
-  KeyboardAvoidingView,
   Keyboard,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  Dimensions,
+  Platform
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import Box from '../screens/neumorphButton';
@@ -20,8 +21,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import ErrorPopup from './errorPopup'
 import { connect } from 'react-redux'
 import { GET_USER } from '../redux/userRedux'
+import Video from 'react-native-video'
 
-var BASE64 = ''
+const screenHeight = Dimensions.get('window').height
+const screenWidth = Dimensions.get('window').width
+
 class openingScreen extends Component {
   constructor(props) {
     super(props);
@@ -40,33 +44,9 @@ class openingScreen extends Component {
       fieldMessage: '',
       authMessage: '',
     };
-    this.keyboardCheck = this.keyboardCheck.bind(this);
     this.onChangeText = this.onChangeText.bind(this)
     this.addUserDetails = this.addUserDetails.bind(this)
-    this.keyboardCheck();
     this.imageNot
-  }
-
-  keyboardCheck = () => {
-    this.keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      this._keyboardDidShow
-    );
-    this.keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      this._keyboardDidHide
-    );
-  };
-
-  componentDidMount() {
-    // console.log("NAVIGATION USERNAME", this.props.navigation.getParam('username'))
-    // console.log("NAVIGATION UID", this.props.navigation.getParam('uid'))
-    // console.log("NAVIGATION EMAIL", this.props.navigation.getParam('email'))
-  }
-
-  componentWillUnmount() {
-    this.keyboardDidShowListener.remove();
-    this.keyboardDidHideListener.remove();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -98,10 +78,10 @@ class openingScreen extends Component {
       this.setState({ fieldMessage: 'Choose Image By Clicking on the Top Right Icon to Proceed' })
       return
     }
-    if(this.state.firstName == '' || this.state.lastName == '' || this.state.bio == ''){
+    if (this.state.firstName == '' || this.state.lastName == '' || this.state.bio == '') {
       this.setState({
-        fieldMessage:'Please Fill all the Fields',
-        fieldmodalVisible:true
+        fieldMessage: 'Please Fill all the Fields',
+        fieldmodalVisible: true
       })
       return
     }
@@ -164,7 +144,7 @@ class openingScreen extends Component {
 
 
       return (
-        <View style={{ flex: 1, backgroundColor: "rgba(234,235,243,1)" }}>
+        <View style={{ height: screenHeight, backgroundColor: "rgba(234,235,243,1)" }}>
           <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
 
             <ErrorPopup
@@ -377,8 +357,7 @@ class openingScreen extends Component {
               </View>
             </TouchableWithoutFeedback>
           </KeyboardAwareScrollView>
-          <KeyboardAvoidingView behavior="position">
-            <View
+          {/* <View
               style={{
                 width: "100%",
                 bottom: this.state.keyboardOn ? -500 : -20,
@@ -388,10 +367,16 @@ class openingScreen extends Component {
               <Image
                 source={require("../assets/logo.png")}
                 // style={{borderWidth: 1, borderColor: 'black'}}
-                style={{alignSelf:'center', height: 100, width: 100, marginBottom: '10%'}}
+                style={{ alignSelf: 'center', height: 100, width: 100, marginBottom: '10%' }}
               />
-            </View>
-          </KeyboardAvoidingView>
+            </View> */}
+          <Video
+            source={require('../assets/loader3.mp4')}
+            repeat={true}
+            style={{ width: screenHeight * 0.40, height: screenHeight * 0.40, alignSelf: 'center', marginBottom: screenHeight * 0.04 }}
+            resizeMode='contain'
+          />
+
         </View>
       );
     }

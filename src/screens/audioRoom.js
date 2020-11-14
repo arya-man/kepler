@@ -19,11 +19,11 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
 import Swiper from 'react-native-swiper';
 import { connect } from 'react-redux'
-import { REMOVE_ROOM_QUEUE, ADD_ROOM_AUDIENCE, REMOVE_ROOM_AUDIENCE, REMOVE_ROOM_HOSTS, ADD_ROOM_QUEUE, ADD_ROOM_HOSTS, TALK_ROOM_HOSTS, CLEAR_ROOM, CONNECTED_AUDIENCE, CONNECTED_HOSTS, CONNECTED_QUEUE, UPDATE_HOSTS } from '../redux/roomsRedux'
-import RtcEngine from 'react-native-agora'
+import { REMOVE_ROOM_QUEUE, ADD_ROOM_AUDIENCE, REMOVE_ROOM_AUDIENCE, REMOVE_ROOM_HOSTS, ADD_ROOM_QUEUE, ADD_ROOM_HOSTS, UPDATE_HOSTS, FLUSH_ROOM } from '../redux/roomsRedux'
 import ErrorPopup from './errorPopup'
 import database from '@react-native-firebase/database'
 import Toast from 'react-native-simple-toast'
+import RtcEngine from 'react-native-agora'
 
 const screenWidth = Math.round(Dimensions.get('window').width)
 
@@ -89,146 +89,184 @@ class audioRoom extends Component {
 
     try {
 
-      this.agora = await RtcEngine.create('dd6a544633094bf48aa362dbace85303')
-      await this.agora.setChannelProfile(1)
-      await this.agora.disableVideo()
-      if (this.props.navigation.getParam('role') === 3) {
-        await this.agora.setClientRole(1)
+      if (!this.props.connected) {
+        Toast.show('You are disconnected from the Internet', Toast.LONG)
+        this.props.navigation.goBack()
       }
+
       else {
-        await this.agora.setClientRole(2)
-      }
-      await this.agora.joinChannelWithUserAccount(this.props.navigation.getParam('agoraToken'), this.props.navigation.getParam('roomId'), this.props.user.user.username)
 
-      //// FIREBASE FROM HERE ////
+        database().ref(`e/${this.props.navigation.getParam('roomId')}`).once('value', async snap => {
 
-      if (this.state.role < 2) {
-
-        database().ref(`audience/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).set({
-          value: Math.floor(new Date().getTime() / 1000),
-          photoUrl: this.props.user.user.photoUrl
-        })
-
-      }
-
-      //// HOSTS CHANGES ////
-
-      database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
-
-        this.numberOfHosts += 1
-
-        if (snap.key === this.props.user.user.username) {
-          if (snap.val().value === -1) {
-            this.setState({ role: 3 })
-          }
-          else {
-            this.setState({ role: 2 })
-          }
-        }
-
-        this.props.dispatch({
-          type: ADD_ROOM_HOSTS,
-          payload: {
-            username: snap.key,
-            value: snap.val().value,
-            photoUrl: snap.val().photoUrl
-          }
-        })
-      })
-
-      database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_changed', snap => {
-
-        if (snap.key === this.props.user.user.username) {
-          if (snap.val().value === -1) {
-            this.setState({ role: 3 })
-          }
-          else {
-            this.setState({ role: 2 })
-          }
-        }
-
-        this.props.dispatch({
-          type: UPDATE_HOSTS,
-          payload: {
-            username: snap.key,
-            value: snap.val().value
-          }
-        })
-      })
-
-      database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
-
-        this.numberOfHosts -= 1
-
-        if (snap.key === this.props.user.user.username) {
-          this.setState({ role: 0 })
-        }
-
-        this.props.dispatch({
-          type: REMOVE_ROOM_HOSTS,
-          payload: snap.key
-        })
-      })
-
-      //// AUDIENCE NOW ////
-
-      database().ref(`audience/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
-        this.props.dispatch({
-          type: ADD_ROOM_AUDIENCE,
-          payload: {
-            username: snap.key,
-            photoUrl: snap.val().photoUrl
-          }
-        })
-      })
-
-      database().ref(`audience/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
-        this.props.dispatch({
-          type: REMOVE_ROOM_AUDIENCE,
-          payload: snap.key
-        })
-      })
-
-      //// QUEUE NOW ////
-
-      database().ref(`q/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
-
-        if (snap.key === this.props.user.user.username) {
-          this.setState({ role: 1 })
-        }
-
-        this.props.dispatch({
-          type: ADD_ROOM_QUEUE,
-          payload: {
-            username: snap.key,
-            photoUrl: snap.val().photoUrl
-          }
-        })
-      })
-
-      database().ref(`q/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
-        this.props.dispatch({
-          type: REMOVE_ROOM_QUEUE,
-          payload: snap.key
-        })
-      })
-
-      database().ref(`e/${this.props.navigation.getParam('roomId')}`).on('value', snap => {
-
-        if (snap.val() !== null) {
-
-          if (snap.val() === 1) {
-
+          if (snap.val() !== null) {
             this.setState({ roomEnded: true })
-
           }
 
-        }
+          else {
 
-      })
+            try {
+              this.agora = await RtcEngine.create('dd6a544633094bf48aa362dbace85303')
+              await this.agora.setChannelProfile(1)
+              await this.agora.disableVideo()
+              if (this.props.navigation.getParam('role') === 3) {
+                await this.agora.setClientRole(1)
+              }
+              else {
+                await this.agora.setClientRole(2)
+              }
+              await this.agora.joinChannelWithUserAccount(this.props.navigation.getParam('agoraToken'), this.props.navigation.getParam('roomId'), this.props.user.user.username)
+
+              //// FIREBASE FROM HERE ////
+
+              if (this.state.role < 2) {
+
+                database().ref(`audience/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).set({
+                  value: Math.floor(new Date().getTime() / 1000),
+                  photoUrl: this.props.user.user.photoUrl
+                })
+
+              }
+
+              if (this.state.role === 3) {
+
+                database().ref(`hosts/${roomId}`).set({
+                  [`${this.props.user.user.username}`]: {
+                    value: -1,
+                    photoUrl: this.props.user.user.photoUrl
+                  }
+                })
+
+              }
+
+              //// HOSTS CHANGES ////
+
+              database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
+
+                this.numberOfHosts += 1
+
+                if (snap.key === this.props.user.user.username) {
+                  if (snap.val().value === -1) {
+                    this.setState({ role: 3 })
+                  }
+                  else {
+                    this.setState({ role: 2 })
+                  }
+                }
+
+                this.props.dispatch({
+                  type: ADD_ROOM_HOSTS,
+                  payload: {
+                    username: snap.key,
+                    value: snap.val().value,
+                    photoUrl: snap.val().photoUrl
+                  }
+                })
+              })
+
+              database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_changed', snap => {
+
+                if (snap.key === this.props.user.user.username) {
+                  if (snap.val().value === -1) {
+                    this.setState({ role: 3 })
+                  }
+                  else {
+                    this.setState({ role: 2 })
+                  }
+                }
+
+                this.props.dispatch({
+                  type: UPDATE_HOSTS,
+                  payload: {
+                    username: snap.key,
+                    value: snap.val().value
+                  }
+                })
+              })
+
+              database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
+
+                this.numberOfHosts -= 1
+
+                if (snap.key === this.props.user.user.username) {
+                  this.setState({ role: 0 })
+                }
+
+                this.props.dispatch({
+                  type: REMOVE_ROOM_HOSTS,
+                  payload: snap.key
+                })
+              })
+
+              //// AUDIENCE NOW ////
+
+              database().ref(`audience/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
+                this.props.dispatch({
+                  type: ADD_ROOM_AUDIENCE,
+                  payload: {
+                    username: snap.key,
+                    photoUrl: snap.val().photoUrl
+                  }
+                })
+              })
+
+              database().ref(`audience/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
+                this.props.dispatch({
+                  type: REMOVE_ROOM_AUDIENCE,
+                  payload: snap.key
+                })
+              })
+
+              //// QUEUE NOW ////
+
+              database().ref(`q/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_added', snap => {
+
+                if (snap.key === this.props.user.user.username) {
+                  this.setState({ role: 1 })
+                }
+
+                this.props.dispatch({
+                  type: ADD_ROOM_QUEUE,
+                  payload: {
+                    username: snap.key,
+                    photoUrl: snap.val().photoUrl
+                  }
+                })
+              })
+
+              database().ref(`q/${this.props.navigation.getParam('roomId')}`).orderByChild('value').on('child_removed', snap => {
+                this.props.dispatch({
+                  type: REMOVE_ROOM_QUEUE,
+                  payload: snap.key
+                })
+              })
+
+              database().ref(`e/${this.props.navigation.getParam('roomId')}`).on('value', snap => {
+
+                if (snap.val() !== null) {
+
+                  if (snap.val() === 1) {
+
+                    this.setState({ roomEnded: true })
+
+                  }
+
+                }
+
+              })
+            } catch (error) {
+              // console.log("INSIDE CATCH ERROR", error)
+              database().ref(`rooms/${this.props.navigation.getParam('roomId')}`).remove()
+              this.setState({ agoraInitError: true })
+            }
+          }
+
+        })
+
+      }
 
     } catch (error) {
-      console.log("CATCH ERROR", error)
+      // console.log("CATCH ERROR", error)
+      database().ref(`rooms/${this.props.navigation.getParam('roomId')}`).remove()
       this.setState({ agoraInitError: true })
     }
 
@@ -245,15 +283,15 @@ class audioRoom extends Component {
       if ((prevState.role === 1 || prevState.role === 0) && (this.state.role === 2 || this.state.role === 3)) {
         try {
           await this.agora.setClientRole(1)
-          
-          if(this.state.role === 2) {
 
-            this.setState({ mic: true , textn: 'You have been made a Speaker!' })
+          if (this.state.role === 2) {
+
+            this.setState({ mic: true, textn: 'You have been made a Speaker!' })
 
           }
           else {
 
-            this.setState({ mic: true , textn: 'You have been made a Moderator!' })
+            this.setState({ mic: true, textn: 'You have been made a Moderator!' })
 
           }
 
@@ -269,18 +307,18 @@ class audioRoom extends Component {
         try {
           await this.agora.setClientRole(2)
 
-          if(prevState.role === 2) {
+          if (prevState.role === 2) {
 
-            this.setState({ mic: false , textn: 'You have been removed as a Speaker!' })
+            this.setState({ mic: false, textn: 'You have been removed as a Speaker!' })
 
           }
           else {
 
-            this.setState({ mic: false , textn: 'You have been removed as a Moderator!' })
+            this.setState({ mic: false, textn: 'You have been removed as a Moderator!' })
 
           }
           this.timerToTheNotification(this.state.bounceValue)
-          
+
         } catch (error) {
 
         }
@@ -377,6 +415,10 @@ class audioRoom extends Component {
 
     }
 
+    this.props.dispatch({
+      type: FLUSH_ROOM
+    })
+
     database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).off()
     database().ref(`audience/${this.props.navigation.getParam('roomId')}`).off()
     database().ref(`q/${this.props.navigation.getParam('roomId')}`).off()
@@ -459,7 +501,7 @@ class audioRoom extends Component {
 
           <ErrorPopup
             title="Audio Initialisation Error"
-            subTitle='There was an error initialising audio. Please go to the previous screen and try again.'
+            subTitle='There was an error while initialising audio. Please go to Home screen and try again.'
             okButtonText="OK"
             clickFunction={() => {
               this.setState({ agoraInitError: false })
@@ -1299,18 +1341,18 @@ export class MicButton extends Component {
     }
   }
 
-  componentDidUpdate(prevProps , prevState) {
+  componentDidUpdate(prevProps, prevState) {
 
-    if(this.props.micOnorNot !== prevProps.micOnorNot) {
+    if (this.props.micOnorNot !== prevProps.micOnorNot) {
 
-      if(this.props.micOnorNot) {
+      if (this.props.micOnorNot) {
 
-        this.setState({micON: true})
+        this.setState({ micON: true })
 
       }
       else {
 
-        this.setState({micON: false})
+        this.setState({ micON: false })
 
       }
 

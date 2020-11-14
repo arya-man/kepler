@@ -8,7 +8,9 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  Dimensions,
+  Platform
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Box from '../screens/neumorphButton';
@@ -21,8 +23,12 @@ import firestore from "@react-native-firebase/firestore"
 import storage from "@react-native-firebase/storage"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import ErrorPopup from './errorPopup'
-import {persistor} from '../redux'
+import { persistor } from '../redux'
 import auth from '@react-native-firebase/auth'
+import Video from 'react-native-video'
+
+const screenHeight = Dimensions.get('window').height
+const screenWidth = Dimensions.get('window').width
 
 export class openingScreen extends Component {
   constructor(props) {
@@ -48,10 +54,10 @@ export class openingScreen extends Component {
     this.setState({ [key]: val });
   };
   doneFunction = async () => {
-    if(this.state.firstName == '' || this.state.lastName == '' || this.state.bio==''){
+    if (this.state.firstName == '' || this.state.lastName == '' || this.state.bio == '') {
       this.setState({
-        authmodalVisible:true,
-        authMessage:"Please Fill all the Fields!"
+        authmodalVisible: true,
+        authMessage: "Please Fill all the Fields!"
       })
     }
     this.setState({ isLoading: true })
@@ -124,7 +130,7 @@ export class openingScreen extends Component {
             }.bind(this))
             .catch(function (error) {
               const { code, message } = error;
-              this.setState({authMessage: message})
+              this.setState({ authMessage: message })
             });
           // console.log('User updated!');
         })
@@ -138,13 +144,13 @@ export class openingScreen extends Component {
     this.setState({ isLoading: false })
     // console.log('DONE');
   };
-  logOutFunction = async()=>{
+  logOutFunction = async () => {
     await auth().signOut()
     var keys = await AsyncStorage.getAllKeys()
     await AsyncStorage.multiRemove(keys)
     await persistor.purge()
     this.props.navigation.navigate('auth')
-}
+  }
   keyboardCheck = () => {
     this.keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
@@ -187,8 +193,8 @@ export class openingScreen extends Component {
       )
     }
     return (
-      <View style={{ flex: 1, backgroundColor: 'rgba(234,235,243,1)' }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' ,}}>
+      <View style={{ height: screenHeight, backgroundColor: 'rgba(234,235,243,1)' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
           <ErrorPopup
             title="Error"
             subTitle={this.state.authMessage}
@@ -200,7 +206,7 @@ export class openingScreen extends Component {
             modalVisible={this.state.authmodalVisible}
           />
           <TouchableOpacity
-            style={{ marginLeft: -190 , marginTop: 5 }}
+            style={{ marginLeft: -190, marginTop: 5 }}
             onPress={() => this.props.navigation.goBack()}>
             <Box height={50} width={50} borderRadius={10}>
               <Icon
@@ -216,12 +222,12 @@ export class openingScreen extends Component {
             onPress={async () => {
               try {
                 var image = await ImagePicker.openPicker({
-                  height: 100,
-                  width: 100,
+                  height: 500,
+                  width: 500,
                   cropping: true
                 })
                 this.setState({
-                  photoUrl: image['path'],
+                  photoUrl: Platform.OS === 'ios' ? image.replace('file://', '') : image['path'],
                   mime: image['mime'],
                   imageUpdated: true
                 })
@@ -397,7 +403,7 @@ export class openingScreen extends Component {
           </TouchableWithoutFeedback>
         </KeyboardAwareScrollView>
         <KeyboardAvoidingView behavior="position">
-          <View
+          {/* <View
             style={{
               width: '100%',
               bottom: this.state.keyboardOn ? -500 : -20,
@@ -407,8 +413,15 @@ export class openingScreen extends Component {
               source={require('../assets/group.png')}
               style={{ width: '100%', zIndex: -1 }}
             />
-          </View>
+          </View> */}
+
         </KeyboardAvoidingView>
+        <Video
+          source={require('../assets/loader3.mp4')}
+          repeat={true}
+          style={{ width: screenHeight * 0.40, height: screenHeight * 0.40, alignSelf: 'center', marginBottom: screenHeight * 0.04 }}
+          resizeMode='contain'
+        />
       </View>
     );
   }
