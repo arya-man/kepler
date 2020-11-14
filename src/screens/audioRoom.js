@@ -88,7 +88,7 @@ class audioRoom extends Component {
 
   async componentDidMount() {
 
-    // BackHandler.addEventListener('hardwareBackPress', () => { return true })
+    this.BackHandler = BackHandler.addEventListener('hardwareBackPress', () => { return true })
 
     if (!this.props.connected) {
       Toast.show('You are disconnected from the Internet', Toast.LONG)
@@ -480,6 +480,8 @@ class audioRoom extends Component {
   }
 
   async componentWillUnmount() {
+
+    this.BackHandler.remove()
 
     // BackHandler.removeEventListener('hardwareBackPress')
     try {
