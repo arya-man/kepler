@@ -481,6 +481,8 @@ class audioRoom extends Component {
 
   async componentWillUnmount() {
 
+    database().ref(`e/${this.props.navigation.getParam('roomId')}`).off()
+
     this.BackHandler.remove()
 
     // BackHandler.removeEventListener('hardwareBackPress')
@@ -500,7 +502,7 @@ class audioRoom extends Component {
     database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).off()
     database().ref(`audience/${this.props.navigation.getParam('roomId')}`).off()
     database().ref(`q/${this.props.navigation.getParam('roomId')}`).off()
-    database().ref(`e/${this.props.navigation.getParam('roomId')}`).off()
+    
 
   }
 
