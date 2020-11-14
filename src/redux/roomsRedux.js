@@ -25,13 +25,24 @@ export const GET_CONNECTED = 'GET_CONNECTED'
 
 export const FLUSH_ROOM = 'FLUSH_ROOM'
 
-const INITIAL_STATE = { roomAudience: [], roomHosts: [], roomQueue: [], rooms: [], connected: false }
+export const ADD_AGORA_HOSTS = 'ADD_AGORA_HOSTS'
+export const REMOVE_AGORA_HOSTS = 'REMOVE_AGORA_HOSTS'
+
+
+const INITIAL_STATE = { roomAudience: [], roomHosts: [], roomQueue: [], rooms: [], connected: false , agoraHosts: {}}
 
 export default function roomsRedux(state = INITIAL_STATE, action) {
     switch (action.type) {
 
+        case ADD_AGORA_HOSTS:
+            return {...state , agoraHosts: {[action.payload.agoraId]: action.payload.username , ...state.agoraHosts}}
+
+        case REMOVE_AGORA_HOSTS:
+            const {[action.payload.agoraId]: removedValue , ...leftOver} = state.agoraHosts
+            return {...state , agoraHosts: leftOver}
+
         case FLUSH_ROOM:
-            return { ...state, roomAudience: [], roomHosts: [], roomQueue: [] }
+            return { ...state, roomAudience: [], roomHosts: [], roomQueue: [], agoraHosts: {}}
 
         case GET_CONNECTED:
             return { ...state, connected: action.payload }

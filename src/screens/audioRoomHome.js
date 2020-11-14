@@ -166,10 +166,6 @@ class audioRoomHome extends Component {
       })
     })
 
-    database().ref('a').onDisconnect().remove(() => {
-      console.log("WRITTEN")
-    })
-
     this.getRooms()
 
   }
@@ -185,19 +181,6 @@ class audioRoomHome extends Component {
       }
       else {
 
-        database().ref('a').onDisconnect().remove(e => {
-          if(e === null) {
-            console.log("CANCELLED")
-          }
-          else {
-            console.log("ERROR CANCEL")
-          }
-        })
-
-        database().ref('a').onDisconnect().remove(() => {
-          console.log(" 2 WRITTEN")
-        })
-
         Toast.show('Re-connected!', Toast.SHORT)
 
       }
@@ -212,12 +195,6 @@ class audioRoomHome extends Component {
     database().ref('.info/connected').off()
 
   }
-
-  // componentDidUpdate(prevProps , prevState) {
-  //   if(this.props.connected !== prevProps.connected) {
-  //     console.log("CONNECTED", prevProps.connected , this.props.connected )
-  //   }
-  // }
 
   render() {
     return (
@@ -406,7 +383,6 @@ class audioRoomHome extends Component {
                                   return res.json()
                                 })
                                 .then((res) => {
-                                  console.log("TYPE PF TOKEN", typeof (res.token))
                                   this.toggleCreateRoomModal()
                                   this.setState({ createLoading: false })
                                   this.props.navigation.navigate('audioRoom', { hashtag: this.state.hashtag, caption: this.state.caption, roomId: roomId, role: 3, agoraToken: res.token })
@@ -600,7 +576,7 @@ class audioRoomHome extends Component {
                                 return res.json()
                               })
                               .then((res) => {
-                                console.log("TYPE OF TOKEN", typeof (res.token))
+                                //console.log("TYPE OF TOKEN", typeof (res.token))
                                 this.setState({ buttonFetching: false })
                                 this.props.navigation.navigate('audioRoom', { caption: item.caption, hashtag: item.hashtag, roomId: item.id, role: 0, agoraToken: res.token })
                               })

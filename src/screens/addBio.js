@@ -59,17 +59,6 @@ class openingScreen extends Component {
     }
   }
 
-  _keyboardDidShow = () => {
-    // console.log("ON");
-    // this.changeKeyboardState(true);
-    this.setState({ keyboardOn: true });
-  };
-
-  _keyboardDidHide = () => {
-    // console.log("OFF");
-    // this.changeKeyboardState(false);
-    this.setState({ keyboardOn: false });
-  };
   onChangeText = (key, val) => {
     this.setState({ [key]: val });
   };

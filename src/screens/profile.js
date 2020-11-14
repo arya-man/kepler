@@ -217,7 +217,6 @@ export class openingScreen extends Component {
               />
             </Box>
           </TouchableOpacity>
-          {/*console.log('prof' + this.props.navigation.getParam('newPhotoLink'))*/}
           <TouchableOpacity
             onPress={async () => {
               try {
