@@ -657,8 +657,8 @@ class audioRoom extends Component {
           />
 
           <ErrorPopup
-            title="Room Ended"
-            subTitle='The room was ended because there were no speakers. Please refresh the home page.'
+            title="TownHall Ended"
+            subTitle='The hall was ended because there were no speakers. Please refresh the home page.'
             okButtonText="GO TO HOME"
             clickFunction={() => {
               this.setState({ roomEnded: false })

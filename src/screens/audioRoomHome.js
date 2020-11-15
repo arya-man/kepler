@@ -244,7 +244,7 @@ class audioRoomHome extends Component {
           <CreateRoomButton
             height={40}
             width={300}
-            text="CREATE ROOM"
+            text="CREATE TOWNHALL"
             borderRadius={20}
             createRoom={async () => {
               var audio = true
@@ -256,11 +256,11 @@ class audioRoomHome extends Component {
                   this.setState({ createRoomModalVisible: true })
                 }
                 else {
-                  Toast.showWithGravity('Please give permission to access to audio in order to create a room', Toast.SHORT, Toast.CENTER)
+                  Toast.showWithGravity('Please give permission to access to audio in order to create a townhall', Toast.SHORT, Toast.CENTER)
                 }
               }
               else {
-                Toast.showWithGravity('Disconnected from internet. Can\'t create Room', Toast.SHORT, Toast.CENTER)
+                Toast.showWithGravity('Disconnected from internet. Can\'t create hall', Toast.SHORT, Toast.CENTER)
               }
             }}
           />
@@ -303,8 +303,18 @@ class audioRoomHome extends Component {
                     color: '#4e7bb4',
                     fontWeight: 'bold',
                     fontSize: 20,
+                    alignSelf: 'center'
                   }}>
-                  Create Audioroom
+                  🏛
+                </Text>
+                <Text
+                  style={{
+                    color: '#4e7bb4',
+                    fontWeight: 'bold',
+                    fontSize: 20,
+                    alignSelf: 'center'
+                  }}>
+                  📃
                 </Text>
                 <Icon
                   name="x-circle"
@@ -329,7 +339,7 @@ class audioRoomHome extends Component {
                 borderRadius={20}
                 style={{ alignSelf: 'center', marginTop: 10 }}>
                 <TextInput
-                  placeholder="Hashtag/Title of the room"
+                  placeholder="Title of the hall"
                   placeholderTextColor="#B5BFD0"
                   style={{
                     fontWeight: 'bold',
@@ -368,7 +378,7 @@ class audioRoomHome extends Component {
                   width={275}
                   loading={this.state.createLoading}
                   borderRadius={20}
-                  text="CREATE ROOM"
+                  text="START TOWNHALL"
                   createRoom={() => {
 
                     if (!this.state.createLoading) {
@@ -416,11 +426,11 @@ class audioRoomHome extends Component {
                             })
                         }
                         else {
-                          Toast.show('Please enter the title of the room', Toast.SHORT)
+                          Toast.show('Please enter the title of the hall', Toast.SHORT)
                         }
                       }
                       else {
-                        Toast.show('Disconnected from internet. Can\'t create Room', Toast.SHORT)
+                        Toast.show('Disconnected from internet. Can\'t create hall', Toast.SHORT)
                       }
 
                     }
@@ -456,7 +466,7 @@ class audioRoomHome extends Component {
         {/* While making a flatlist here add marginBottom of 60. */}
         <ErrorPopup
           title="Error"
-          subTitle='There was an error while fetching rooms. Please Retry'
+          subTitle='There was an error while fetching townhalls. Please Retry'
           okButtonText="OK"
           clickFunction={() => {
 
@@ -492,7 +502,7 @@ class audioRoomHome extends Component {
                 marginTop: 20,
               }}>
               {' '}
-                  No rooms yet.
+                  No TownHalls around you yet.
                 </Text>
             <Text
               style={{
@@ -601,12 +611,12 @@ class audioRoomHome extends Component {
                               })
                           }
                           else {
-                            Toast.showWithGravity('Please give audio permission to join a room', Toast.SHORT, Toast.CENTER)
+                            Toast.showWithGravity('Please give audio permission to join a townhall', Toast.SHORT, Toast.CENTER)
                           }
 
                         }
                         else {
-                          Toast.showWithGravity('You have to be connected to the Internet to join a room', Toast.SHORT, Toast.CENTER)
+                          Toast.showWithGravity('You have to be connected to the Internet to join a townhall', Toast.SHORT, Toast.CENTER)
                         }
                       }}
                       fetching={this.state.buttonFetching}

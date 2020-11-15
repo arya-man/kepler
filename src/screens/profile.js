@@ -263,7 +263,7 @@ export class openingScreen extends Component {
                   alignSelf: 'center',
                   color: '#fff',
                   fontWeight: 'bold',
-                  backgroundColor: '#EA688A',
+                  backgroundColor: '#4e7bb4',
                   paddingHorizontal: 30,
                   paddingVertical: 1.5,
                 }}>
@@ -418,7 +418,7 @@ export class openingScreen extends Component {
         <Video
           source={require('../assets/loader3.mp4')}
           repeat={true}
-          style={{ width: screenHeight * 0.30, height: screenHeight * 0.30, alignSelf: 'center', marginBottom: screenHeight * 0.02 }}
+          style={{ width: screenHeight * 0.30, height: screenHeight * 0.30, alignSelf: 'center', marginBottom: screenHeight * 0.025 }}
           resizeMode='contain'
         />
       </View>

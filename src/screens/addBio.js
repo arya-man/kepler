@@ -204,12 +204,12 @@ class openingScreen extends Component {
                       alignSelf: "center",
                       color: "#fff",
                       fontWeight: "bold",
-                      backgroundColor: "#EA688A",
+                      backgroundColor: "#4e7bb4",
                       paddingHorizontal: 20,
                       paddingVertical: 1,
                     }}
                   >
-                    Edit DP
+                    Edit
               </Text>
                 </Box>
               </TouchableOpacity>
