@@ -11,7 +11,7 @@ import {
   Modal,
   TextInput,
   Platform,
-  PermissionsAndroid
+  PermissionsAndroid,
 } from 'react-native';
 import 'react-native-get-random-values'
 import Icon from 'react-native-vector-icons/Feather';
@@ -31,6 +31,7 @@ import {
   PulseIndicator,
 } from 'react-native-indicators';
 import messaging from '@react-native-firebase/messaging'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 class audioRoomHome extends Component {
   constructor(props) {
@@ -156,6 +157,18 @@ class audioRoomHome extends Component {
 
   async componentDidMount() {
 
+    // database().ref('xyz').limitToFirst(1).once('value' , snap => {
+    //   console.log("SNAP",snap)
+    // })
+
+    var bioDone = await AsyncStorage.getItem('bioDone')
+
+    if(bioDone === null) {
+
+      await AsyncStorage.setItem('bioDone', 'done')
+
+    }
+
     database().ref('dummy').on('value', snap => {
 
     })
@@ -169,7 +182,11 @@ class audioRoomHome extends Component {
 
     this.getRooms()
 
-    messaging().subscribeToTopic('all').catch()
+    if(Platform.OS === 'android') {
+
+      messaging().subscribeToTopic('all').catch()
+
+    }
 
   }
 
@@ -177,17 +194,12 @@ class audioRoomHome extends Component {
 
     if(this.props.connected !== prevProps.connected) {
 
-      if(!this.props.connected) {
-
-        Toast.show('Disconnected from Internet', Toast.LONG)
-
-      }
-      else {
+      if(this.props.connected) {
 
         Toast.show('Re-connected!', Toast.SHORT)
 
       }
-
+      
     }
 
   }
@@ -204,7 +216,7 @@ class audioRoomHome extends Component {
       <SafeAreaView
         style={{
           flex: 1,
-          backgroundColor: 'rgba(234,235,243,1)',
+          backgroundColor: 'rgb(233, 235, 244)',
           // height: screenHeight,
         }}>
         <TopBar
@@ -222,7 +234,7 @@ class audioRoomHome extends Component {
             paddingBottom: 10,
             borderTopWidth: 2,
             borderTopColor: 'rgba(191,191,191,0.3)',
-            backgroundColor: 'rgba(234,235,243,1)',
+            backgroundColor: 'rgb(233, 235, 244)',
             alignItems: 'center',
             width: '100%',
             position: 'absolute',
@@ -275,7 +287,7 @@ class audioRoomHome extends Component {
                 width: '80%',
                 borderWidth: 3,
                 borderColor: '#e5e5e5',
-                backgroundColor: 'rgba(234,235,243,1)',
+                backgroundColor: 'rgb(233, 235, 244)',
                 borderRadius: 10,
               }}>
               <View
@@ -635,7 +647,7 @@ class FeedbackModal extends Component {
               width: '80%',
               borderWidth: 3,
               borderColor: '#e5e5e5',
-              backgroundColor: 'rgba(234,235,243,1)',
+              backgroundColor: 'rgb(233, 235, 244)',
               borderRadius: 10,
             }}>
             <View
@@ -838,7 +850,7 @@ export class TopBar extends Component {
             flexDirection: 'row',
             justifyContent: 'space-between',
             paddingRight: 10,
-            backgroundColor: 'rgba(234,235,243,1)',
+            backgroundColor: 'rgb(233, 235, 244)',
           }}>
           <View style={{ marginTop: 20, marginLeft: 5 }}>
             <Material
@@ -883,7 +895,7 @@ export class TopBar extends Component {
                 height: 30,
                 width: 30,
                 borderRadius: 15,
-                backgroundColor: 'rgba(234,235,243,1)',
+                backgroundColor: 'rgb(233, 235, 244)',
                 elevation: 10,
               }}
               onPress={this.props.navigateToEditProfile}>
@@ -1033,7 +1045,7 @@ export class Photo extends Component {
             height: 55,
             width: 55,
             borderRadius: 10,
-            backgroundColor: 'rgba(234,235,243,1)',
+            backgroundColor: 'rgb(233, 235, 244)',
             borderWidth: 1,
             borderColor: '#e5e5e5',
             alignSelf: 'center',

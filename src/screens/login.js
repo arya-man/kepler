@@ -123,7 +123,7 @@ class openingScreen extends Component {
         <View
           style={{
             height: screenHeight,
-            backgroundColor: "rgba(234,235,243,1)",
+            backgroundColor: "rgb(233, 235, 244)",
             //   justifyContent: 'center',
           }}
         >
@@ -293,7 +293,7 @@ class openingScreen extends Component {
             <Video
             source={require('../assets/loader3.mp4')}
             repeat={true}
-            style={{ width: screenHeight* 0.37, height: screenHeight* 0.37, alignSelf: 'center' , marginTop: screenHeight * 0.01,}}
+            style={{ width: screenHeight* 0.30, height: screenHeight* 0.30, alignSelf: 'center' , marginTop: screenHeight * 0.05}}
             resizeMode='contain'
           />
 

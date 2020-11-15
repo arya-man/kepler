@@ -193,7 +193,7 @@ export class openingScreen extends Component {
       )
     }
     return (
-      <View style={{ height: screenHeight, backgroundColor: 'rgba(234,235,243,1)' }}>
+      <View style={{ height: screenHeight, backgroundColor: 'rgb(233, 235, 244)' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
           <ErrorPopup
             title="Error"
@@ -418,7 +418,7 @@ export class openingScreen extends Component {
         <Video
           source={require('../assets/loader3.mp4')}
           repeat={true}
-          style={{ width: screenHeight * 0.40, height: screenHeight * 0.40, alignSelf: 'center', marginBottom: screenHeight * 0.04 }}
+          style={{ width: screenHeight * 0.30, height: screenHeight * 0.30, alignSelf: 'center', marginBottom: screenHeight * 0.02 }}
           resizeMode='contain'
         />
       </View>

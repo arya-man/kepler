@@ -132,16 +132,19 @@ export default class openingScreen extends Component {
     // console.log(this.state)
     auth()
       .createUserWithEmailAndPassword(email, password)
-      .then(response => {
+      .then(async response => {
         const { username, email } = this.state;
 
         var user_uid = response.user.uid;
-        AsyncStorage.setItem("userId", user_uid);
+        await AsyncStorage.setItem("userId", user_uid).catch()
+        
         const data = {
           email: email,
           username: username,
           uid: user_uid
         };
+
+        await AsyncStorage.setItem('data' , JSON.stringify(data)).catch()
 
         firestore()
           .collection("Users")
@@ -188,7 +191,7 @@ export default class openingScreen extends Component {
         <View
           style={{
             // flex: 1,
-            backgroundColor: "rgba(234,235,243,1)",
+            backgroundColor: "rgb(233, 235, 244)",
             justifyContent: "center",
             height: screenHeight
           }}
@@ -443,7 +446,7 @@ export default class openingScreen extends Component {
           <Video
             source={require('../assets/loader3.mp4')}
             repeat={true}
-            style={{ width: screenHeight * 0.37, height: screenHeight * 0.37, alignSelf: 'center', marginBottom: screenHeight * 0.035 }}
+            style={{ width: screenHeight * 0.30, height: screenHeight * 0.30, alignSelf: 'center', marginBottom: screenHeight * 0.035 }}
             resizeMode='contain'
           />
         </View>
