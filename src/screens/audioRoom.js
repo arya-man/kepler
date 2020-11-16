@@ -46,7 +46,6 @@ class audioRoom extends Component {
       loading: true,
       roomEnded: false,
       talking: {},
-      disconnectedModal: false,
       leave: false
     };
     this.BackHandler
@@ -514,8 +513,6 @@ class audioRoom extends Component {
 
         }
 
-        this.setState({ disconnectedModal: true })
-
         this.timerToTheNotification(this.state.bounceValue)
 
       }
@@ -643,17 +640,6 @@ class audioRoom extends Component {
               this.props.navigation.goBack()
             }}
             modalVisible={this.state.agoraInitError}
-          />
-
-          <ErrorPopup
-            title="Disconnected"
-            subTitle='Sorry about that, but we currently cannot recover from a dropped interet connection. Please Go to the home screen and try joining again.'
-            okButtonText="GO TO HOME"
-            clickFunction={() => {
-              this.setState({ disconnectedModal: false })
-              this.props.navigation.goBack()
-            }}
-            modalVisible={this.state.disconnectedModal}
           />
 
           <ErrorPopup
