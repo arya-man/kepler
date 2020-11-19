@@ -140,7 +140,7 @@ export default class openingScreen extends Component {
         
         const data = {
           email: email,
-          username: username,
+          username: username.toLowerCase(),
           uid: user_uid
         };
 
@@ -149,7 +149,7 @@ export default class openingScreen extends Component {
         firestore()
           .collection("Users")
           .doc(username.toLowerCase())
-          .set(data);
+          .set(data)
 
         firestore()
           .collection("Users")
@@ -158,7 +158,7 @@ export default class openingScreen extends Component {
           .then(function (user) {
             // console.log(user);
             this.props.navigation.navigate('addBio', {
-              username: username,
+              username: username.toLowerCase(),
               uid: user_uid,
               email: email
             });

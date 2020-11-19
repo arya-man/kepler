@@ -392,6 +392,15 @@ class audioRoomHome extends Component {
                             na: 0,
                             nh: 0,
                             caption: this.state.caption,
+                            admin: {
+                              [this.props.user.user.username]: {
+                                bio: this.props.user.user.bio,
+                                photoUrl: this.props.user.user.photoUrl
+                              }
+                            }
+                          })
+                          .then(() => {
+                            database().ref(`a/${roomId}`).set(1)
                           })
                             .then(() => {
                               fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
@@ -420,9 +429,15 @@ class audioRoomHome extends Component {
                             })
                             .catch(() => {
                               database().ref(`rooms/${roomId}`).remove().catch()
+                              database().ref(`na/${roomId}`).remove().catch()
                               this.setState({ createLoading: false })
                               Toast.show('No Internet Connection', Toast.SHORT)
                               this.toggleCreateRoomModal()
+                            })
+                            .catch(() => {
+                              database().ref(`rooms/${roomId}`).remove().catch()
+                              this.setState({ createLoading: false })
+                              Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
                             })
                         }
                         else {
