@@ -23,7 +23,7 @@
     "prop-types": "^15.7.2",
     "react": "16.13.1",
     "react-native": "0.63.3",
-    "react-native-agora": "^3.0.1",
+    "react-native-agora": "^3.1.2",
     "react-native-gesture-handler": "^1.8.0",
     "react-native-get-random-values": "^1.5.0",
     "react-native-image-crop-picker": "^0.35.1",
@@ -38,13 +38,13 @@
     "react-native-svg": "^12.1.0",
     "react-native-swiper": "^1.6.0",
     "react-native-vector-icons": "^7.1.0",
+    "react-native-video": "^5.1.0-alpha8",
     "react-navigation": "^4.4.3",
     "react-navigation-stack": "^2.10.1",
     "react-redux": "^7.2.2",
     "redux": "^4.0.5",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.3.0",
-    "socket.io-client": "^3.0.1",
     "uuid": "^8.3.1"
   },
   "devDependencies": {
@@ -59,10 +59,5 @@
   },
   "jest": {
     "preset": "react-native"
-  },
-  "rnpm": {
-    "assets": [
-   "./assets/fonts/"
-    ]
   }
 }

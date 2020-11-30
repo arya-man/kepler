@@ -48,7 +48,7 @@ export default class neumorphTest extends Component {
       <View
         style={[
           {
-            //   backgroundColor: 'rgba(234,235,243,1)',
+            //   backgroundColor: 'rgb(233, 235, 244)',
             width: widthB + 0.2 * change,
             height: heightB + yChange,
             //   marginLeft: 50,

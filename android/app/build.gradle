@@ -156,9 +156,9 @@ android {
         // },
         release {
             storeFile file('keplr.keystore')
-            storePassword 'Trex#1'
+            storePassword 'aryaman'
             keyAlias 'aryaman'
-            keyPassword 'Trex#1'
+            keyPassword 'aryaman'
         }
     }
     buildTypes {
@@ -171,6 +171,7 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            signingConfig signingConfigs.release
         }
     }
 

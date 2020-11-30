@@ -5,10 +5,12 @@ import {
   Image,
   TextInput,
   TouchableWithoutFeedback,
-  KeyboardAvoidingView,
   Keyboard,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  Dimensions,
+  Platform,
+  SafeAreaView,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import Box from '../screens/neumorphButton';
@@ -20,14 +22,17 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import ErrorPopup from './errorPopup'
 import { connect } from 'react-redux'
 import { GET_USER } from '../redux/userRedux'
+import Video from 'react-native-video'
 
-var BASE64 = ''
+const screenHeight = Dimensions.get('window').height
+const screenWidth = Dimensions.get('window').width
+
 class openingScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
       keyboardOn: false,
-      photoUrl: undefined,
+      photoUrl: "https://source.unsplash.com/random",
       photoUrlBase64: '',
       firstName: '',
       lastName: '',
@@ -40,33 +45,9 @@ class openingScreen extends Component {
       fieldMessage: '',
       authMessage: '',
     };
-    this.keyboardCheck = this.keyboardCheck.bind(this);
     this.onChangeText = this.onChangeText.bind(this)
     this.addUserDetails = this.addUserDetails.bind(this)
-    this.keyboardCheck();
     this.imageNot
-  }
-
-  keyboardCheck = () => {
-    this.keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      this._keyboardDidShow
-    );
-    this.keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      this._keyboardDidHide
-    );
-  };
-
-  componentDidMount() {
-    // console.log("NAVIGATION USERNAME", this.props.navigation.getParam('username'))
-    // console.log("NAVIGATION UID", this.props.navigation.getParam('uid'))
-    // console.log("NAVIGATION EMAIL", this.props.navigation.getParam('email'))
-  }
-
-  componentWillUnmount() {
-    this.keyboardDidShowListener.remove();
-    this.keyboardDidHideListener.remove();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -79,17 +60,6 @@ class openingScreen extends Component {
     }
   }
 
-  _keyboardDidShow = () => {
-    // console.log("ON");
-    // this.changeKeyboardState(true);
-    this.setState({ keyboardOn: true });
-  };
-
-  _keyboardDidHide = () => {
-    // console.log("OFF");
-    // this.changeKeyboardState(false);
-    this.setState({ keyboardOn: false });
-  };
   onChangeText = (key, val) => {
     this.setState({ [key]: val });
   };
@@ -98,17 +68,17 @@ class openingScreen extends Component {
       this.setState({ fieldMessage: 'Choose Image By Clicking on the Top Right Icon to Proceed' })
       return
     }
-    if(this.state.firstName == '' || this.state.lastName == '' || this.state.bio == ''){
+    if (this.state.firstName == '' || this.state.lastName == '' || this.state.bio == '') {
       this.setState({
-        fieldMessage:'Please Fill all the Fields',
-        fieldmodalVisible:true
+        fieldMessage: 'Please Fill all the Fields',
+        fieldmodalVisible: true
       })
       return
     }
     this.setState({ isLoading: true })
     const ref = storage().ref(this.state.username.toLowerCase() + '/dp.png');
-    await ref.putFile(this.state.photoUrl);
-    var url = await ref.getDownloadURL();
+    // await ref.putFile(this.state.photoUrl);
+    // var url = await ref.getDownloadURL();
     firestore()
       .collection('Users')
       .doc(this.state.username.toLowerCase())
@@ -116,7 +86,7 @@ class openingScreen extends Component {
         firstName: this.state.firstName,
         lastName: this.state.lastName,
         bio: this.state.bio,
-        photoUrl: url,
+        photoUrl: "https://source.unsplash.com/random",
       })
       .then(() => {
         firestore()
@@ -137,12 +107,13 @@ class openingScreen extends Component {
             firstName: this.state.firstName,
             lastName: this.state.lastName,
             bio: this.state.bio,
-            photoUrl: url,
+            photoUrl: "https://source.unsplash.com/random",
             username: this.props.navigation.getParam('username'),
             uid: this.props.navigation.getParam('uid'),
             email: this.props.navigation.getParam('email'),
           }
         })
+        AsyncStorage.setItem('bioDone', 'done').catch()
         this.props.navigation.navigate("openingScreen")
         // console.log('User updated!');
       })
@@ -164,7 +135,7 @@ class openingScreen extends Component {
 
 
       return (
-        <View style={{ flex: 1, backgroundColor: "rgba(234,235,243,1)" }}>
+        <SafeAreaView style={{ height: screenHeight, backgroundColor: "rgb(233, 235, 244)" }}>
           <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
 
             <ErrorPopup
@@ -234,12 +205,12 @@ class openingScreen extends Component {
                       alignSelf: "center",
                       color: "#fff",
                       fontWeight: "bold",
-                      backgroundColor: "#EA688A",
+                      backgroundColor: "#4e7bb4",
                       paddingHorizontal: 20,
                       paddingVertical: 1,
                     }}
                   >
-                    Edit DP
+                    Edit
               </Text>
                 </Box>
               </TouchableOpacity>
@@ -298,6 +269,7 @@ class openingScreen extends Component {
                       fontWeight: "bold",
                       paddingHorizontal: 20,
                       width: "100%",
+                      paddingTop: 15,
                     }}
                     onChangeText={(val) => this.onChangeText("firstName", val)}
                   />
@@ -316,6 +288,7 @@ class openingScreen extends Component {
                         fontWeight: "bold",
                         paddingHorizontal: 20,
                         width: 260,
+                        paddingTop: 15,
                       }}
                       onChangeText={(val) => this.onChangeText("lastName", val)}
 
@@ -330,7 +303,7 @@ class openingScreen extends Component {
                 >
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TextInput
-                      placeholder="Bio. eg: Anime Fanatic (ﾉ◕ヮ◕)."
+                      placeholder="Bio. eg: El Psy Congroo (ﾉ◕ヮ◕)."
                       multiline={true}
                       numberOfLines={3}
                       textAlignVertical="top"
@@ -338,6 +311,7 @@ class openingScreen extends Component {
                         fontWeight: "bold",
                         paddingHorizontal: 20,
                         width: 260,
+                        paddingTop: 15,
                       }}
                       onChangeText={(val) => this.onChangeText("bio", val)}
                     />
@@ -377,8 +351,7 @@ class openingScreen extends Component {
               </View>
             </TouchableWithoutFeedback>
           </KeyboardAwareScrollView>
-          <KeyboardAvoidingView behavior="position">
-            <View
+          {/* <View
               style={{
                 width: "100%",
                 bottom: this.state.keyboardOn ? -500 : -20,
@@ -388,11 +361,17 @@ class openingScreen extends Component {
               <Image
                 source={require("../assets/logo.png")}
                 // style={{borderWidth: 1, borderColor: 'black'}}
-                style={{alignSelf:'center', height: 100, width: 100, marginBottom: '10%'}}
+                style={{ alignSelf: 'center', height: 100, width: 100, marginBottom: '10%' }}
               />
-            </View>
-          </KeyboardAvoidingView>
-        </View>
+            </View> */}
+          <Video
+            source={require('../assets/loader3.mp4')}
+            repeat={true}
+            style={{ width: screenHeight * 0.30, height: screenHeight * 0.30, alignSelf: 'center', marginBottom: screenHeight * 0.04 }}
+            resizeMode='contain'
+          />
+
+        </SafeAreaView>
       );
     }
   }

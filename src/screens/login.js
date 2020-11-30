@@ -1,4 +1,4 @@
-import React, {useEffect,useRef, Component } from "react";
+import React, { Component } from "react";
 import {
   Text,
   View,
@@ -8,7 +8,9 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  Dimensions,
+  SafeAreaView,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import Box from '../screens/neumorphButton'
@@ -17,8 +19,12 @@ import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ErrorPopup from './errorPopup'
-import {GET_USER} from '../redux/userRedux'
-import {connect} from 'react-redux'
+import { GET_USER } from '../redux/userRedux'
+import { connect } from 'react-redux'
+import Video from 'react-native-video'
+
+const screenHeight = Dimensions.get('window').height
+const screenWidth = Dimensions.get('window').width
 
 class openingScreen extends Component {
   constructor(props) {
@@ -36,47 +42,14 @@ class openingScreen extends Component {
     };
 
     this.onChangeText = this.onChangeText.bind(this);
-    this.keyboardCheck = this.keyboardCheck.bind(this);
     this.onPressLogin = this.onPressLogin.bind(this)
-    this.keyboardCheck();
-    // const inputElementRef = useRef(null);
-    // inputElementRef.current.setNativeProps({
-    //   style: {fontFamily: 'Roboto-Bold'}
-    // });
   }
-  keyboardCheck = () => {
-    this.keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      this._keyboardDidShow
-    );
-    this.keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      this._keyboardDidHide
-    );
-  };
 
   componentDidUpdate(prevProps, prevState) {
     if (this.state.authMessage !== prevState.authMessage && this.state.authMessage !== '') {
       this.setState({ authmodalVisible: true })
     }
   }
-
-  componentWillUnmount() {
-    this.keyboardDidShowListener.remove();
-    this.keyboardDidHideListener.remove();
-  }
-
-  _keyboardDidShow = () => {
-    // console.log("ON");
-    // this.changeKeyboardState(true);
-    this.setState({ keyboardOn: true });
-  };
-
-  _keyboardDidHide = () => {
-    // console.log("OFF");
-    // this.changeKeyboardState(false);
-    this.setState({ keyboardOn: false });
-  };
 
   _changeIcon = () => {
     this.state.icon !== "eye-off"
@@ -139,12 +112,6 @@ class openingScreen extends Component {
       });
   };
   render() {
-    const inputElementRef = useRef(null);
-    useEffect(()=>{
-      inputElementRef.current.setNativeProps({
-        style: {fontFamily: 'Roboto-Bold'}
-      });
-    }, []);
     if (this.state.isLoading === true) {
       return (
         <View style={{ flex: 1, justifyContent: "center" }}>
@@ -154,10 +121,10 @@ class openingScreen extends Component {
     }
     else {
       return (
-        <View
+        <SafeAreaView
           style={{
-            flex: 1,
-            backgroundColor: "rgba(234,235,243,1)",
+            height: screenHeight,
+            backgroundColor: "rgb(233, 235, 244)",
             //   justifyContent: 'center',
           }}
         >
@@ -177,7 +144,7 @@ class openingScreen extends Component {
             subTitle={this.state.authMessage}
             okButtonText="OK"
             clickFunction={() => {
-              this.setState({authMessage: ''})
+              this.setState({ authMessage: '' })
               this.setState({ authmodalVisible: !this.state.authmodalVisible }); //Always keep this thing here
             }}
             modalVisible={this.state.authmodalVisible}
@@ -207,9 +174,9 @@ class openingScreen extends Component {
                     placeholderColor="#B5BFD0"
                     style={{
                       fontWeight: "bold",
-                      // fontFamily: 'Roboto-Bold',
                       paddingHorizontal: 20,
                       width: "100%",
+                      paddingTop:15,
                     }}
                     onChangeText={(val) => this.onChangeText("email", val)}
                   />
@@ -222,15 +189,14 @@ class openingScreen extends Component {
                 >
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TextInput
-                      ref={inputElementRef}
                       placeholder="Password"
                       placeholderColor="#B5BFD0"
                       secureTextEntry={this.state.hidePassword}
                       style={{
                         fontWeight: "bold",
                         paddingHorizontal: 20,
-                        // fontFamily: 'Roboto-Bold',
                         width: 260,
+                        paddingTop:15,
                       }}
                       onChangeText={(val) => this.onChangeText("password", val)}
                     />
@@ -239,6 +205,9 @@ class openingScreen extends Component {
                       size={20}
                       color="#B5BFD0"
                       onPress={() => this._changeIcon()}
+                      style = {{
+                        paddingTop:15,
+                      }}
                     />
                   </View>
                 </Box>
@@ -308,31 +277,40 @@ class openingScreen extends Component {
               </View>
             </TouchableWithoutFeedback>
           </KeyboardAvoidingView>
-          {!this.state.keyboardOn && (
-            <View
+          {/* <View
               style={{
                 width: "100%",
-                bottom: 0,
+                bottom: 100,
                 // marginTop: "15%",
                 position: "absolute",
               }}
-            >
-              <Image
-                source={require("../assets/group.png")}
-                style={{ width: "100%", zIndex: -1 }}
+            > */}
+          {/* <Image
+                source={require("../assets/logo.png")}
                 // style={{borderWidth: 1, borderColor: 'black'}}
-                // style={{alignSelf:'center', height: 100, width: 100, marginBottom: '10%'}}
+                style={{alignSelf:'center', height: 100, width: 100, marginBottom: '10%'}}
+              /> */}
+          {/* <Video
+                source={require('../assets/loader.mp4')}
+                style={{width:'100%', height: 300}}
+                repeat={true}
               />
-            </View>
-          )}
-        </View>
+            </View> */}
+            <Video
+            source={require('../assets/loader3.mp4')}
+            repeat={true}
+            style={{ width: screenHeight* 0.30, height: screenHeight* 0.30, alignSelf: 'center' , marginTop: screenHeight * 0.05}}
+            resizeMode='contain'
+          />
+
+        </SafeAreaView>
       );
     }
   }
 }
 
 const mapStateToProps = state => {
-  return({
+  return ({
     user: state.user
   })
 }

@@ -8,7 +8,9 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  Dimensions,
+  SafeAreaView
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import Box from './neumorphButton';
@@ -18,6 +20,10 @@ import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import ErrorPopup from './errorPopup'
+import Video from 'react-native-video'
+
+const screenHeight = Dimensions.get('window').height
+const screenWidth = Dimensions.get('window').width
 
 export default class openingScreen extends Component {
   constructor(props) {
@@ -40,22 +46,10 @@ export default class openingScreen extends Component {
     };
     this.onChangeText = this.onChangeText.bind(this);
     this.checkUsername = this.checkUsername.bind(this);
-    this.keyboardCheck = this.keyboardCheck.bind(this);
     this.onRegister = this.onRegister.bind(this)
     this.matchPassword = this.matchPassword.bind(this)
-    this.keyboardCheck();
 
   }
-  keyboardCheck = () => {
-    this.keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      this._keyboardDidShow
-    );
-    this.keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      this._keyboardDidHide
-    );
-  };
 
   componentDidUpdate(prevProps, prevState) {
     if (this.state.authMessage !== prevState.authMessage && this.state.authMessage !== '') {
@@ -66,23 +60,6 @@ export default class openingScreen extends Component {
       this.setState({ fieldmodalVisible: true })
     }
   }
-
-  componentWillUnmount() {
-    this.keyboardDidShowListener.remove();
-    this.keyboardDidHideListener.remove();
-  }
-
-  _keyboardDidShow = () => {
-    // console.log("ON");
-    // this.changeKeyboardState(true);
-    this.setState({ keyboardOn: true });
-  };
-
-  _keyboardDidHide = () => {
-    // console.log("OFF");
-    // this.changeKeyboardState(false);
-    this.setState({ keyboardOn: false });
-  };
 
   _changeIcon2 = () => {
     this.state.icon2 !== "eye-off"
@@ -133,20 +110,21 @@ export default class openingScreen extends Component {
       return 1
   }
   onRegister() {
-    if(this.state.username == '' || this.state.email == '' || this.state.password == ''){
+    
+    if (this.state.username == '' || this.state.email == '' || this.state.password == '') {
       this.setState({
         fieldMessage: 'Please Fill all the Fields!',
-        fieldmodalVisible:true
+        fieldmodalVisible: true
       })
       return;
     }
     if (!this.state.usernameAvailable) {
       // alert("Username Not Available")
-      this.setState({fieldMessage: 'Username Not Available'})
+      this.setState({ fieldMessage: 'Username Not Available' })
       return;
     }
     if (!this.matchPassword(this.state.confirmPassword)) {
-      this.setState({fieldMessage: 'Passwords Don\'t Match'})
+      this.setState({ fieldMessage: 'Passwords Don\'t Match' })
       // alert('password Doesn\'t Match')
       return;
     }
@@ -155,21 +133,24 @@ export default class openingScreen extends Component {
     // console.log(this.state)
     auth()
       .createUserWithEmailAndPassword(email, password)
-      .then(response => {
+      .then(async response => {
         const { username, email } = this.state;
 
         var user_uid = response.user.uid;
-        AsyncStorage.setItem("userId", user_uid);
+        await AsyncStorage.setItem("userId", user_uid).catch()
+        
         const data = {
           email: email,
-          username: username,
+          username: username.toLowerCase(),
           uid: user_uid
         };
+
+        await AsyncStorage.setItem('data' , JSON.stringify(data)).catch()
 
         firestore()
           .collection("Users")
           .doc(username.toLowerCase())
-          .set(data);
+          .set(data)
 
         firestore()
           .collection("Users")
@@ -178,7 +159,7 @@ export default class openingScreen extends Component {
           .then(function (user) {
             // console.log(user);
             this.props.navigation.navigate('addBio', {
-              username: username,
+              username: username.toLowerCase(),
               uid: user_uid,
               email: email
             });
@@ -187,14 +168,14 @@ export default class openingScreen extends Component {
           .catch(function (error) {
             const { code, message } = error;
             this.setState({ isLoading: false })
-            this.setState({authMessage: message})
+            this.setState({ authMessage: message })
             // alert(message);
           });
       })
       .catch(error => {
         const { code, message } = error;
         this.setState({ isLoading: false })
-        this.setState({authMessage: message})
+        this.setState({ authMessage: message })
         // alert(message);
       });
   }
@@ -208,11 +189,13 @@ export default class openingScreen extends Component {
     }
     else {
       return (
-        <View
+
+        <SafeAreaView
           style={{
-            flex: 1,
-            backgroundColor: "rgba(234,235,243,1)",
+            // flex: 1,
+            backgroundColor: "rgb(233, 235, 244)",
             justifyContent: "center",
+            height: screenHeight
           }}
         >
 
@@ -221,7 +204,7 @@ export default class openingScreen extends Component {
             subTitle={this.state.fieldMessage}
             okButtonText="OK"
             clickFunction={() => {
-              this.setState({fieldMessage: ''})
+              this.setState({ fieldMessage: '' })
               this.setState({ fieldmodalVisible: !this.state.fieldmodalVisible }); //Always keep this thing here
             }}
             modalVisible={this.state.fieldmodalVisible}
@@ -290,21 +273,22 @@ export default class openingScreen extends Component {
                         fontWeight: "bold",
                         paddingHorizontal: 20,
                         width: "100%",
+                        paddingTop:15,
                       }}
                       onChangeText={(val) => this.onChangeText("username", val)}
                     />
                   </Box>
                   {this.state.username != '' && (
                     <Text style={{
-                      color:this.state.usernameAvailable ? "#4e7bb4" : "#ea688a", 
-                      marginLeft:"15%",
-                      fontWeight:"bold"
+                      color: this.state.usernameAvailable ? "#4e7bb4" : "#ea688a",
+                      marginLeft: "15%",
+                      fontWeight: "bold"
 
                     }}>
-                      {this.state.usernameAvailable? `${this.state.username} is available`: `${this.state.username} is not available`}
-                      </Text>
+                      {this.state.usernameAvailable ? `${this.state.username} is available` : `${this.state.username} is not available`}
+                    </Text>
                   )}
-                    
+
                 </View>
                 <Box
                   height={50}
@@ -320,6 +304,7 @@ export default class openingScreen extends Component {
                         fontWeight: "bold",
                         paddingHorizontal: 20,
                         width: "100%",
+                        paddingTop:15,
                       }}
                       onChangeText={(val) => this.onChangeText("email", val)}
                     />
@@ -340,13 +325,14 @@ export default class openingScreen extends Component {
                         fontWeight: "bold",
                         paddingHorizontal: 20,
                         width: 260,
+                        paddingTop:15,
                       }}
                       onChangeText={(val) => this.onChangeText("password", val)}
                     />
                   </View>
                 </Box>
                 <View>
-                
+
                   <Box
                     height={50}
                     width={300}
@@ -362,6 +348,7 @@ export default class openingScreen extends Component {
                           fontWeight: "bold",
                           paddingHorizontal: 20,
                           width: 260,
+                          paddingTop:15,
                         }}
                         onChangeText={(val) =>
                           this.onChangeText("confirmPassword", val)
@@ -372,18 +359,21 @@ export default class openingScreen extends Component {
                         size={20}
                         color="#B5BFD0"
                         onPress={this._changeIcon2}
+                        style = {{
+                          paddingTop:15,
+                        }}
                       />
                     </View>
                   </Box>
                   {this.state.confirmPassword != '' && this.state.passwordsDontMatch && (
                     <Text style={{
-                      color:this.state.passwordsDontMatch ? "#ea688a":"#4e7bb4" , 
-                      marginLeft:"15%",
-                      fontWeight:"bold"
+                      color: this.state.passwordsDontMatch ? "#ea688a" : "#4e7bb4",
+                      marginLeft: "15%",
+                      fontWeight: "bold"
 
                     }}>
                       {"Passwords Don't Match"}
-                      </Text>
+                    </Text>
                   )}
                 </View>
                 <LinearGradient
@@ -446,7 +436,7 @@ export default class openingScreen extends Component {
           </KeyboardAwareScrollView>
           {/* </KeyboardAvoidingView> */}
           <KeyboardAvoidingView behavior="position">
-            <View
+            {/* <View
               style={{
                 width: "100%",
                 position: "absolute",
@@ -456,14 +446,19 @@ export default class openingScreen extends Component {
               }}
             >
               <Image
-                source={require("../assets/group.png")}
-                style={{ width: "100%", zIndex: -1 }}
+                source={require("../assets/logo.png")}
                 // style={{borderWidth: 1, borderColor: 'black'}}
-                // style={{alignSelf:'center', height: 100, width: 100, marginBottom: '10%'}}
+                style={{alignSelf:'center', height: 100, width: 100, marginBottom: '10%'}}
               />
-            </View>
+            </View> */}
           </KeyboardAvoidingView>
-        </View>
+          <Video
+            source={require('../assets/loader3.mp4')}
+            repeat={true}
+            style={{ width: screenHeight * 0.30, height: screenHeight * 0.30, alignSelf: 'center', marginBottom: screenHeight * 0.035 }}
+            resizeMode='contain'
+          />
+        </SafeAreaView>
       );
     }
 

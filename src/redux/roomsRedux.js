@@ -23,15 +23,30 @@ export const CONNECTED_QUEUE = 'CONNECTED_QUEUE'
 
 export const GET_CONNECTED = 'GET_CONNECTED'
 
-export const CLEAR_ROOM = 'CLEAR_ROOM'
+export const FLUSH_ROOM = 'FLUSH_ROOM'
 
-const INITIAL_STATE = { roomAudience: [], roomHosts: [], roomQueue: [], rooms: [], connected: false }
+export const ADD_AGORA_HOSTS = 'ADD_AGORA_HOSTS'
+export const REMOVE_AGORA_HOSTS = 'REMOVE_AGORA_HOSTS'
+export const AM_I_TALKING = 'AM_I_TALKING'
+
+
+const INITIAL_STATE = { roomAudience: [], roomHosts: [], roomQueue: [], rooms: [], connected: false , agoraHosts: {} , AmItalking: 0}
 
 export default function roomsRedux(state = INITIAL_STATE, action) {
     switch (action.type) {
 
-        case CLEAR_ROOM:
-            return { ...state, roomAudience: [], roomHosts: [], roomQueue: [] }
+        case AM_I_TALKING:
+            return {...state , AmItalking: action.payload}
+
+        case ADD_AGORA_HOSTS:
+            return {...state , agoraHosts: {[action.payload.agoraId]: action.payload.username , ...state.agoraHosts}}
+
+        case REMOVE_AGORA_HOSTS:
+            const {[action.payload.agoraId]: removedValue , ...leftOver} = state.agoraHosts
+            return {...state , agoraHosts: leftOver}
+
+        case FLUSH_ROOM:
+            return { ...state, roomAudience: [], roomHosts: [], roomQueue: [], agoraHosts: {} , AmItalking: 0}
 
         case GET_CONNECTED:
             return { ...state, connected: action.payload }

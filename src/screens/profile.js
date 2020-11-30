@@ -8,7 +8,10 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  Dimensions,
+  Platform,
+  SafeAreaView
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Box from '../screens/neumorphButton';
@@ -21,8 +24,12 @@ import firestore from "@react-native-firebase/firestore"
 import storage from "@react-native-firebase/storage"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import ErrorPopup from './errorPopup'
-import {persistor} from '../redux'
+import { persistor } from '../redux'
 import auth from '@react-native-firebase/auth'
+import Video from 'react-native-video'
+
+const screenHeight = Dimensions.get('window').height
+const screenWidth = Dimensions.get('window').width
 
 export class openingScreen extends Component {
   constructor(props) {
@@ -48,10 +55,10 @@ export class openingScreen extends Component {
     this.setState({ [key]: val });
   };
   doneFunction = async () => {
-    if(this.state.firstName == '' || this.state.lastName == '' || this.state.bio==''){
+    if (this.state.firstName == '' || this.state.lastName == '' || this.state.bio == '') {
       this.setState({
-        authmodalVisible:true,
-        authMessage:"Please Fill all the Fields!"
+        authmodalVisible: true,
+        authMessage: "Please Fill all the Fields!"
       })
     }
     this.setState({ isLoading: true })
@@ -124,7 +131,7 @@ export class openingScreen extends Component {
             }.bind(this))
             .catch(function (error) {
               const { code, message } = error;
-              this.setState({authMessage: message})
+              this.setState({ authMessage: message })
             });
           // console.log('User updated!');
         })
@@ -138,13 +145,13 @@ export class openingScreen extends Component {
     this.setState({ isLoading: false })
     // console.log('DONE');
   };
-  logOutFunction = async()=>{
+  logOutFunction = async () => {
     await auth().signOut()
     var keys = await AsyncStorage.getAllKeys()
     await AsyncStorage.multiRemove(keys)
     await persistor.purge()
     this.props.navigation.navigate('auth')
-}
+  }
   keyboardCheck = () => {
     this.keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
@@ -187,8 +194,8 @@ export class openingScreen extends Component {
       )
     }
     return (
-      <View style={{ flex: 1, backgroundColor: 'rgba(234,235,243,1)' }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' ,}}>
+      <SafeAreaView style={{ height: screenHeight, backgroundColor: 'rgb(233, 235, 244)' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
           <ErrorPopup
             title="Error"
             subTitle={this.state.authMessage}
@@ -200,7 +207,7 @@ export class openingScreen extends Component {
             modalVisible={this.state.authmodalVisible}
           />
           <TouchableOpacity
-            style={{ marginLeft: -190 , marginTop: 5 }}
+            style={{ marginLeft: -190, marginTop: 5 }}
             onPress={() => this.props.navigation.goBack()}>
             <Box height={50} width={50} borderRadius={10}>
               <Icon
@@ -211,17 +218,16 @@ export class openingScreen extends Component {
               />
             </Box>
           </TouchableOpacity>
-          {/*console.log('prof' + this.props.navigation.getParam('newPhotoLink'))*/}
           <TouchableOpacity
             onPress={async () => {
               try {
                 var image = await ImagePicker.openPicker({
-                  height: 100,
-                  width: 100,
+                  height: 500,
+                  width: 500,
                   cropping: true
                 })
                 this.setState({
-                  photoUrl: image['path'],
+                  photoUrl: Platform.OS === 'ios' ? image.replace('file://', '') : image['path'],
                   mime: image['mime'],
                   imageUpdated: true
                 })
@@ -258,7 +264,7 @@ export class openingScreen extends Component {
                   alignSelf: 'center',
                   color: '#fff',
                   fontWeight: 'bold',
-                  backgroundColor: '#EA688A',
+                  backgroundColor: '#4e7bb4',
                   paddingHorizontal: 30,
                   paddingVertical: 1.5,
                 }}>
@@ -285,6 +291,7 @@ export class openingScreen extends Component {
                     paddingHorizontal: 20,
                     width: '90%',
                     color: '#7f7f7f',
+                    paddingTop: 15,
                   }}
                   onChangeText={(val) => this.onChangeText("firstName", val)}
                 />
@@ -309,6 +316,7 @@ export class openingScreen extends Component {
                     paddingHorizontal: 20,
                     width: '90%',
                     color: '#7f7f7f',
+                    paddingTop: 15,
                   }}
                   onChangeText={(val) => this.onChangeText("lastName", val)}
 
@@ -336,6 +344,7 @@ export class openingScreen extends Component {
                     paddingHorizontal: 20,
                     width: '90%',
                     color: '#7f7f7f',
+                    paddingTop: 15,
                   }}
                   onChangeText={(val) => this.onChangeText("bio", val)}
 
@@ -397,7 +406,7 @@ export class openingScreen extends Component {
           </TouchableWithoutFeedback>
         </KeyboardAwareScrollView>
         <KeyboardAvoidingView behavior="position">
-          <View
+          {/* <View
             style={{
               width: '100%',
               bottom: this.state.keyboardOn ? -500 : -20,
@@ -407,9 +416,16 @@ export class openingScreen extends Component {
               source={require('../assets/group.png')}
               style={{ width: '100%', zIndex: -1 }}
             />
-          </View>
+          </View> */}
+
         </KeyboardAvoidingView>
-      </View>
+        <Video
+          source={require('../assets/loader3.mp4')}
+          repeat={true}
+          style={{ width: screenHeight * 0.30, height: screenHeight * 0.30, alignSelf: 'center', marginBottom: screenHeight * 0.025 }}
+          resizeMode='contain'
+        />
+      </SafeAreaView>
     );
   }
 }

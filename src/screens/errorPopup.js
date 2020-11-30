@@ -13,7 +13,7 @@
 // To try to out use 'test.js' in 'screens'.
 
 import React, { Component } from "react";
-import { Text, View, Modal, Dimensions, TouchableOpacity } from "react-native";
+import { Text, View, Modal, Dimensions, TouchableOpacity, SafeAreaView } from "react-native";
 import Box from "./neumorphButton";
 import LinearGradient from "react-native-linear-gradient";
 import PropTypes from "prop-types";
@@ -21,7 +21,7 @@ const screenWidth = Math.round(Dimensions.get("window").width);
 export default class defaultErrorPopup extends Component {
   render() {
     return (
-      <View>
+      <SafeAreaView>
         <Modal
           animationType="fade"
           transparent={true}
@@ -42,7 +42,7 @@ export default class defaultErrorPopup extends Component {
               style={{
                 // height: 200,
                 width: "80%",
-                backgroundColor: "rgba(234,235,243,1)",
+                backgroundColor: "rgb(233, 235, 244)",
                 borderRadius: 10,
                 alignItems: "center",
               }}
@@ -132,7 +132,7 @@ export default class defaultErrorPopup extends Component {
             </View>
           </View>
         </Modal>
-      </View>
+      </SafeAreaView>
     );
   }
 }

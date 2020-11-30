@@ -10,9 +10,8 @@ import {
   ActivityIndicator,
   Modal,
   TextInput,
-  Keyboard,
   Platform,
-  PermissionsAndroid
+  PermissionsAndroid,
 } from 'react-native';
 import 'react-native-get-random-values'
 import Icon from 'react-native-vector-icons/Feather';
@@ -31,6 +30,8 @@ import { v4 as uuidv4 } from 'uuid'
 import {
   PulseIndicator,
 } from 'react-native-indicators';
+import messaging from '@react-native-firebase/messaging'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 class audioRoomHome extends Component {
   constructor(props) {
@@ -48,7 +49,8 @@ class audioRoomHome extends Component {
       modalVisible: false,
       createError: false,
       createLoading: false,
-      refreshing: false
+      refreshing: false,
+      location: '',
     };
 
     PermissionsAndroid.request('android.permission.RECORD_AUDIO')
@@ -61,12 +63,74 @@ class audioRoomHome extends Component {
     });
   };
 
+  // getRooms = () => {
 
-  onRefresh = () => {
-    console.log("ONREFRESH")
-  };
+  //   if (this.state.location === '') {
+
+  //     fetch('https://ipapi.co/json/')
+  //       .then((data) => {
+  //         return data.json()
+  //       })
+  //       .then((data) => {
+
+  //         console.log("DATA", data)
+
+  //         this.setState({ location: data.country })
+
+  //         database().ref('rooms').orderByChild('location').equalTo(data.country).once('value')
+  //           .then((query) => {
+  //             var arr = []
+  //             query.forEach(doc => {
+  //               var obj = { id: doc.key }
+  //               obj = { ...obj, ...doc.val() }
+  //               arr.push(obj)
+  //               // console.log("OBJ", obj)
+  //             })
+  //             this.props.dispatch({
+  //               type: GET_ROOMS,
+  //               payload: arr
+  //             })
+  //           })
+  //           .catch(() => {
+  //             this.setState({ getError: true })
+  //           })
+
+  //       })
+  //       .catch((err) => {
+  //         console.log("ERROR LOCATION", err)
+  //         this.setState({ getError: true })
+  //       })
+  //   }
+
+  //   else {
+
+  //     database().ref('rooms').orderByChild('location').equalTo(this.state.loading).once('value')
+  //       .then((query) => {
+  //         var arr = []
+  //         query.forEach(doc => {
+  //           var obj = { id: doc.key }
+  //           obj = { ...obj, ...doc.val() }
+  //           arr.push(obj)
+  //           // console.log("OBJ", obj)
+  //         })
+  //         this.props.dispatch({
+  //           type: GET_ROOMS,
+  //           payload: arr
+  //         })
+  //       })
+  //       .catch(() => {
+  //         this.setState({ getError: true })
+  //       })
+
+  //   }
+
+  //   this.setState({ loading: false })
+  //   this.setState({ refreshing: false })
+
+  // }
 
   getRooms = () => {
+
     database().ref('rooms').once('value')
       .then((query) => {
         var arr = []
@@ -80,19 +144,30 @@ class audioRoomHome extends Component {
           type: GET_ROOMS,
           payload: arr
         })
-        this.setState({ loading: false })
-        this.setState({ refreshing: false })
       })
       .catch(() => {
-        this.setState({ refreshing: false })
-        this.setState({ loading: false })
         this.setState({ getError: true })
       })
+
+    this.setState({ loading: false })
+    this.setState({ refreshing: false })
 
   }
 
 
   async componentDidMount() {
+
+    // database().ref('xyz').limitToFirst(1).once('value' , snap => {
+    //   console.log("SNAP",snap)
+    // })
+
+    var bioDone = await AsyncStorage.getItem('bioDone')
+
+    if(bioDone === null) {
+
+      await AsyncStorage.setItem('bioDone', 'done')
+
+    }
 
     database().ref('dummy').on('value', snap => {
 
@@ -107,12 +182,24 @@ class audioRoomHome extends Component {
 
     this.getRooms()
 
+    if(Platform.OS === 'android') {
+
+      messaging().subscribeToTopic('all').catch()
+
+    }
+
   }
 
   componentDidUpdate(prevProps, prevState) {
 
-    if (this.state.createLoading !== prevState.createLoading) {
-      console.log("CREATE LOADING", this.state.createLoading)
+    if(this.props.connected !== prevProps.connected) {
+
+      if(this.props.connected) {
+
+        Toast.show('Re-connected!', Toast.SHORT)
+
+      }
+      
     }
 
   }
@@ -124,18 +211,12 @@ class audioRoomHome extends Component {
 
   }
 
-  // componentDidUpdate(prevProps , prevState) {
-  //   if(this.props.connected !== prevProps.connected) {
-  //     console.log("CONNECTED", prevProps.connected , this.props.connected )
-  //   }
-  // }
-
   render() {
     return (
       <SafeAreaView
         style={{
           flex: 1,
-          backgroundColor: 'rgba(234,235,243,1)',
+          backgroundColor: 'rgb(233, 235, 244)',
           // height: screenHeight,
         }}>
         <TopBar
@@ -153,7 +234,7 @@ class audioRoomHome extends Component {
             paddingBottom: 10,
             borderTopWidth: 2,
             borderTopColor: 'rgba(191,191,191,0.3)',
-            backgroundColor: 'rgba(234,235,243,1)',
+            backgroundColor: 'rgb(233, 235, 244)',
             alignItems: 'center',
             width: '100%',
             position: 'absolute',
@@ -163,7 +244,7 @@ class audioRoomHome extends Component {
           <CreateRoomButton
             height={40}
             width={300}
-            text="CREATE ROOM"
+            text="CREATE TOWNHALL"
             borderRadius={20}
             createRoom={async () => {
               var audio = true
@@ -175,11 +256,11 @@ class audioRoomHome extends Component {
                   this.setState({ createRoomModalVisible: true })
                 }
                 else {
-                  Toast.showWithGravity('Please give permission to access to audio in order to create a room', Toast.SHORT, Toast.CENTER)
+                  Toast.showWithGravity('Please give permission to access to audio in order to create a townhall', Toast.SHORT, Toast.CENTER)
                 }
               }
               else {
-                Toast.showWithGravity('Disconnected from internet. Can\'t create Room', Toast.SHORT, Toast.CENTER)
+                Toast.showWithGravity('Disconnected from internet. Can\'t create hall', Toast.SHORT, Toast.CENTER)
               }
             }}
           />
@@ -206,7 +287,7 @@ class audioRoomHome extends Component {
                 width: '80%',
                 borderWidth: 3,
                 borderColor: '#e5e5e5',
-                backgroundColor: 'rgba(234,235,243,1)',
+                backgroundColor: 'rgb(233, 235, 244)',
                 borderRadius: 10,
               }}>
               <View
@@ -222,8 +303,18 @@ class audioRoomHome extends Component {
                     color: '#4e7bb4',
                     fontWeight: 'bold',
                     fontSize: 20,
+                    alignSelf: 'center'
                   }}>
-                  Create Audioroom
+                  🏛
+                </Text>
+                <Text
+                  style={{
+                    color: '#4e7bb4',
+                    fontWeight: 'bold',
+                    fontSize: 20,
+                    alignSelf: 'center'
+                  }}>
+                  📃
                 </Text>
                 <Icon
                   name="x-circle"
@@ -248,12 +339,13 @@ class audioRoomHome extends Component {
                 borderRadius={20}
                 style={{ alignSelf: 'center', marginTop: 10 }}>
                 <TextInput
-                  placeholder="Hashtag/Title of the room"
+                  placeholder="Title of the hall"
                   placeholderTextColor="#B5BFD0"
                   style={{
                     fontWeight: 'bold',
                     paddingHorizontal: 20,
                     width: '100%',
+                    paddingTop : 10,
                   }}
                   onChangeText={(text) => {
                     this.setState({ hashtag: text });
@@ -275,6 +367,7 @@ class audioRoomHome extends Component {
                     fontWeight: 'bold',
                     paddingHorizontal: 20,
                     width: '100%',
+                    paddingTop: 10,
                   }}
                   onChangeText={(text) => {
                     this.setState({ caption: text });
@@ -287,7 +380,7 @@ class audioRoomHome extends Component {
                   width={275}
                   loading={this.state.createLoading}
                   borderRadius={20}
-                  text="CREATE ROOM"
+                  text="START TOWNHALL"
                   createRoom={() => {
 
                     if (!this.state.createLoading) {
@@ -301,64 +394,60 @@ class audioRoomHome extends Component {
                             na: 0,
                             nh: 0,
                             caption: this.state.caption,
+                            admin: {
+                              [this.props.user.user.username]: {
+                                bio: this.props.user.user.bio,
+                                photoUrl: this.props.user.user.photoUrl
+                              }
+                            }
+                          })
+                          .then(() => {
+                            database().ref(`a/${roomId}`).set(1)
                           })
                             .then(() => {
-                              database().ref(`hosts/${roomId}`).set({
-                                [`${this.props.user.user.username}`]: {
-                                  value: -1,
-                                  photoUrl: this.props.user.user.photoUrl
-                                }
+                              fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
+                                method: 'POST',
+                                headers: {
+                                  Accept: 'application/json',
+                                  'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                  roomId: roomId
+                                })
                               })
-                                .then(() => {
-                                  fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
-                                    method: 'POST',
-                                    headers: {
-                                      Accept: 'application/json',
-                                      'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({
-                                      roomId: roomId
-                                    })
-                                  })
-                                    .then((res) => {
-                                      return res.json()
-                                    })
-                                    .then((res) => {
-                                      console.log("TYPE PF TOKEN", typeof (res.token))
-                                      this.toggleCreateRoomModal()
-                                      this.setState({ createLoading: false })
-                                      this.props.navigation.navigate('audioRoom', { hashtag: this.state.hashtag, caption: this.state.caption, roomId: roomId, role: 3, agoraToken: res.token })
-                                    })
-                                    .catch((err) => {
-                                      database().ref(`rooms/${roomId}`).remove().catch()
-                                      database().ref(`hosts/${roomId}`).remove().catch()
-                                      console.log("ERROR INSIDE", err)
-                                      this.setState({ createLoading: false })
-                                      Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
-                                    })
-
+                                .then((res) => {
+                                  return res.json()
+                                })
+                                .then((res) => {
+                                  this.toggleCreateRoomModal()
+                                  this.setState({ createLoading: false })
+                                  this.props.navigation.navigate('audioRoom', { hashtag: this.state.hashtag, caption: this.state.caption, roomId: roomId, role: 3, agoraToken: res.token })
                                 })
                                 .catch((err) => {
-                                  database().ref(`hosts/${roomId}`).remove().catch()
-                                  console.log("ERROR OUTSIDE", err)
+                                  database().ref(`rooms/${roomId}`).remove().catch()
                                   this.setState({ createLoading: false })
-                                  Toast.show('We encountered an error. Please Try Again.', Toast.SHORT)
-                                  this.toggleCreateRoomModal()
+                                  Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
                                 })
                             })
                             .catch(() => {
                               database().ref(`rooms/${roomId}`).remove().catch()
+                              database().ref(`na/${roomId}`).remove().catch()
                               this.setState({ createLoading: false })
                               Toast.show('No Internet Connection', Toast.SHORT)
                               this.toggleCreateRoomModal()
                             })
+                            .catch(() => {
+                              database().ref(`rooms/${roomId}`).remove().catch()
+                              this.setState({ createLoading: false })
+                              Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
+                            })
                         }
                         else {
-                          Toast.show('Please enter the title of the room', Toast.SHORT)
+                          Toast.show('Please enter the title of the hall', Toast.SHORT)
                         }
                       }
                       else {
-                        Toast.show('Disconnected from internet. Can\'t create Room', Toast.SHORT)
+                        Toast.show('Disconnected from internet. Can\'t create hall', Toast.SHORT)
                       }
 
                     }
@@ -394,7 +483,7 @@ class audioRoomHome extends Component {
         {/* While making a flatlist here add marginBottom of 60. */}
         <ErrorPopup
           title="Error"
-          subTitle='There was an error while fetching rooms. Please Retry'
+          subTitle='There was an error while fetching townhalls. Please Retry'
           okButtonText="OK"
           clickFunction={() => {
 
@@ -402,9 +491,10 @@ class audioRoomHome extends Component {
           }}
           modalVisible={this.state.getError}
         />
+
         {this.state.loading ? (
           <View style={{ flex: 1, justifyContent: 'center', marginBottom: 60 }}>
-            <ActivityIndicator size="large" color="#EA7A7F" />
+            <ActivityIndicator size="large" color="#4e7bb4" />
           </View>
         ) : this.props.rooms.length === 0 ? (
           <View
@@ -429,7 +519,7 @@ class audioRoomHome extends Component {
                 marginTop: 20,
               }}>
               {' '}
-                  No rooms yet.
+                  No TownHalls around you yet.
                 </Text>
             <Text
               style={{
@@ -442,31 +532,33 @@ class audioRoomHome extends Component {
               {' '}
                   Go on, create one!
                 </Text>
-
-            <Text
-              style={{
-
-                alignSelf: 'center',
-                color: "#4e7bb4",
-                fontWeight: 'bold',
-                fontSize: 23,
-                marginTop: 5,
-              }}
-              onPress={() => {
-                this.getRooms()
-                // console.log("REFRESH")
-              }}
-            >
-              {' '}
+            <TouchableOpacity onPress={() => {
+              this.setState({ loading: true })
+              this.getRooms()
+            }}>
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  color: "#4e7bb4",
+                  fontWeight: 'bold',
+                  fontSize: 23,
+                  marginTop: 5,
+                }}
+              >
+                {' '}
                   Refresh
                 </Text>
+            </TouchableOpacity>
           </View>
         ) : (
               <FlatList
                 style={{ marginBottom: 60, marginTop: 30 }}
                 data={this.props.rooms}
                 refreshing={this.state.refreshing}
-                onRefresh={this.getRooms}
+                onRefresh={() => {
+                  this.setState({ refreshing: true })
+                  this.getRooms()
+                }}
                 keyExtractor={(item) => item['id']}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => {
@@ -526,7 +618,7 @@ class audioRoomHome extends Component {
                                 return res.json()
                               })
                               .then((res) => {
-                                console.log("TYPE OF TOKEN", typeof (res.token))
+                                //console.log("TYPE OF TOKEN", typeof (res.token))
                                 this.setState({ buttonFetching: false })
                                 this.props.navigation.navigate('audioRoom', { caption: item.caption, hashtag: item.hashtag, roomId: item.id, role: 0, agoraToken: res.token })
                               })
@@ -536,12 +628,12 @@ class audioRoomHome extends Component {
                               })
                           }
                           else {
-                            Toast.showWithGravity('Please give audio permission to join a room', Toast.SHORT, Toast.CENTER)
+                            Toast.showWithGravity('Please give audio permission to join a townhall', Toast.SHORT, Toast.CENTER)
                           }
 
                         }
                         else {
-                          Toast.showWithGravity('You have to be connected to the Internet to join a room', Toast.SHORT, Toast.CENTER)
+                          Toast.showWithGravity('You have to be connected to the Internet to join a townhall', Toast.SHORT, Toast.CENTER)
                         }
                       }}
                       fetching={this.state.buttonFetching}
@@ -582,7 +674,7 @@ class FeedbackModal extends Component {
               width: '80%',
               borderWidth: 3,
               borderColor: '#e5e5e5',
-              backgroundColor: 'rgba(234,235,243,1)',
+              backgroundColor: 'rgb(233, 235, 244)',
               borderRadius: 10,
             }}>
             <View
@@ -635,6 +727,7 @@ class FeedbackModal extends Component {
                   paddingHorizontal: 20,
                   width: '100%',
                   color: '#7f7f7f',
+                  paddingTop: 15,
                 }}
               />
             </Box>
@@ -785,7 +878,7 @@ export class TopBar extends Component {
             flexDirection: 'row',
             justifyContent: 'space-between',
             paddingRight: 10,
-            backgroundColor: 'rgba(234,235,243,1)',
+            backgroundColor: 'rgb(233, 235, 244)',
           }}>
           <View style={{ marginTop: 20, marginLeft: 5 }}>
             <Material
@@ -830,7 +923,7 @@ export class TopBar extends Component {
                 height: 30,
                 width: 30,
                 borderRadius: 15,
-                backgroundColor: 'rgba(234,235,243,1)',
+                backgroundColor: 'rgb(233, 235, 244)',
                 elevation: 10,
               }}
               onPress={this.props.navigateToEditProfile}>
@@ -980,7 +1073,7 @@ export class Photo extends Component {
             height: 55,
             width: 55,
             borderRadius: 10,
-            backgroundColor: 'rgba(234,235,243,1)',
+            backgroundColor: 'rgb(233, 235, 244)',
             borderWidth: 1,
             borderColor: '#e5e5e5',
             alignSelf: 'center',

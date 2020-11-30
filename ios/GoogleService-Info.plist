@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>357725378074-5crpj453cvbe7khkj0ma9ep1cbdahj6f.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.357725378074-5crpj453cvbe7khkj0ma9ep1cbdahj6f</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDuhxXxPxg1dJFuS2g5_6HRo-8RCwR3nNc</string>
+	<key>GCM_SENDER_ID</key>
+	<string>357725378074</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.reactjs.native.example.keplr</string>
+	<key>PROJECT_ID</key>
+	<string>keplr-4ff01</string>
+	<key>STORAGE_BUCKET</key>
+	<string>keplr-4ff01.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:357725378074:ios:c6707d86b8e4d4c2f0a3a3</string>
+	<key>DATABASE_URL</key>
+	<string>https://keplr-4ff01.firebaseio.com</string>
+</dict>
+</plist>
