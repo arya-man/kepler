@@ -148,7 +148,9 @@ export default class openingScreen extends Component {
                 height={50}
                 width={300}
                 borderRadius={25}
-                style={{ alignSelf: 'center' }}>
+                style={{ alignSelf: 'center' }}
+                styleChildren={{ justifyContent: 'center'}}
+                >
                 <TextInput
                   placeholder="Enter Email Address"
                   placeholderColor="#B5BFD0"
@@ -156,7 +158,6 @@ export default class openingScreen extends Component {
                     fontWeight: 'bold',
                     paddingHorizontal: 20,
                     width: '100%',
-                    paddingTop:15,
                   }}
                   onChangeText={(val) => this.setState({ email: val })}
 

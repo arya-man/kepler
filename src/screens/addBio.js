@@ -206,8 +206,9 @@ class openingScreen extends Component {
                       color: "#fff",
                       fontWeight: "bold",
                       backgroundColor: "#4e7bb4",
-                      paddingHorizontal: 20,
+                      paddingHorizontal: '40%',
                       paddingVertical: 1,
+                      width:'100%'
                     }}
                   >
                     Edit
@@ -261,6 +262,7 @@ class openingScreen extends Component {
                   width={300}
                   borderRadius={25}
                   style={{ alignSelf: "center" }}
+                  styleChildren={{ justifyContent: 'center'}}
                 >
                   <TextInput
                     placeholder="First Name"
@@ -269,7 +271,6 @@ class openingScreen extends Component {
                       fontWeight: "bold",
                       paddingHorizontal: 20,
                       width: "100%",
-                      paddingTop: 15,
                     }}
                     onChangeText={(val) => this.onChangeText("firstName", val)}
                   />
@@ -279,6 +280,7 @@ class openingScreen extends Component {
                   width={300}
                   borderRadius={25}
                   style={{ alignSelf: "center" }}
+                  styleChildren={{ justifyContent: 'center'}}  
                 >
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TextInput
@@ -288,7 +290,6 @@ class openingScreen extends Component {
                         fontWeight: "bold",
                         paddingHorizontal: 20,
                         width: 260,
-                        paddingTop: 15,
                       }}
                       onChangeText={(val) => this.onChangeText("lastName", val)}
 
@@ -300,6 +301,7 @@ class openingScreen extends Component {
                   width={300}
                   borderRadius={25}
                   style={{ alignSelf: "center", marginLeft: 10 }}
+                  styleChildren={{ justifyContent: 'center'}}
                 >
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TextInput
@@ -311,7 +313,6 @@ class openingScreen extends Component {
                         fontWeight: "bold",
                         paddingHorizontal: 20,
                         width: 260,
-                        paddingTop: 15,
                       }}
                       onChangeText={(val) => this.onChangeText("bio", val)}
                     />

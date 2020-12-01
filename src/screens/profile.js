@@ -265,7 +265,8 @@ export class openingScreen extends Component {
                   color: '#fff',
                   fontWeight: 'bold',
                   backgroundColor: '#4e7bb4',
-                  paddingHorizontal: 30,
+                  width: '100%',
+                  paddingHorizontal: '40%',
                   paddingVertical: 1.5,
                 }}>
                 Edit
@@ -281,7 +282,9 @@ export class openingScreen extends Component {
                 height={50}
                 width={300}
                 borderRadius={25}
-                style={{ alignSelf: 'center' }}>
+                style={{ alignSelf: 'center' }}
+                styleChildren={{ justifyContent: 'center'}}
+                >
                 <TextInput
                   placeholder="First Name"
                   defaultValue={this.state.firstName}
@@ -291,7 +294,6 @@ export class openingScreen extends Component {
                     paddingHorizontal: 20,
                     width: '90%',
                     color: '#7f7f7f',
-                    paddingTop: 15,
                   }}
                   onChangeText={(val) => this.onChangeText("firstName", val)}
                 />
@@ -306,7 +308,9 @@ export class openingScreen extends Component {
                 height={50}
                 width={300}
                 borderRadius={25}
-                style={{ alignSelf: 'center' }}>
+                style={{ alignSelf: 'center' }}
+                styleChildren={{ justifyContent: 'center'}}
+                >
                 <TextInput
                   placeholder="Last Name"
                   defaultValue={this.state.lastName}
@@ -316,7 +320,6 @@ export class openingScreen extends Component {
                     paddingHorizontal: 20,
                     width: '90%',
                     color: '#7f7f7f',
-                    paddingTop: 15,
                   }}
                   onChangeText={(val) => this.onChangeText("lastName", val)}
 

@@ -168,6 +168,7 @@ class openingScreen extends Component {
                   width={300}
                   borderRadius={25}
                   style={{ alignSelf: "center" }}
+                  styleChildren={{ justifyContent: 'center'}}
                 >
                   <TextInput
                     placeholder="Email"
@@ -176,7 +177,6 @@ class openingScreen extends Component {
                       fontWeight: "bold",
                       paddingHorizontal: 20,
                       width: "100%",
-                      paddingTop:15,
                     }}
                     onChangeText={(val) => this.onChangeText("email", val)}
                   />
@@ -186,8 +186,9 @@ class openingScreen extends Component {
                   width={300}
                   borderRadius={25}
                   style={{ alignSelf: "center" }}
+                  styleChildren={{ justifyContent: 'center'}}
                 >
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", justifyContent: 'center' }}>
                     <TextInput
                       placeholder="Password"
                       placeholderColor="#B5BFD0"
@@ -196,7 +197,6 @@ class openingScreen extends Component {
                         fontWeight: "bold",
                         paddingHorizontal: 20,
                         width: 260,
-                        paddingTop:15,
                       }}
                       onChangeText={(val) => this.onChangeText("password", val)}
                     />
@@ -206,7 +206,7 @@ class openingScreen extends Component {
                       color="#B5BFD0"
                       onPress={() => this._changeIcon()}
                       style = {{
-                        paddingTop:15,
+                        marginRight: 10
                       }}
                     />
                   </View>

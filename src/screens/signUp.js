@@ -265,6 +265,7 @@ export default class openingScreen extends Component {
                     width={300}
                     borderRadius={25}
                     style={{ alignSelf: "center" }}
+                    styleChildren={{ justifyContent: 'center'}}
                   >
                     <TextInput
                       placeholder="Username"
@@ -273,7 +274,6 @@ export default class openingScreen extends Component {
                         fontWeight: "bold",
                         paddingHorizontal: 20,
                         width: "100%",
-                        paddingTop:15,
                       }}
                       onChangeText={(val) => this.onChangeText("username", val)}
                     />
@@ -295,6 +295,7 @@ export default class openingScreen extends Component {
                   width={300}
                   borderRadius={25}
                   style={{ alignSelf: "center" }}
+                  styleChildren={{ justifyContent: 'center'}}
                 >
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TextInput
@@ -304,7 +305,6 @@ export default class openingScreen extends Component {
                         fontWeight: "bold",
                         paddingHorizontal: 20,
                         width: "100%",
-                        paddingTop:15,
                       }}
                       onChangeText={(val) => this.onChangeText("email", val)}
                     />
@@ -315,6 +315,7 @@ export default class openingScreen extends Component {
                   width={300}
                   borderRadius={25}
                   style={{ alignSelf: "center" }}
+                  styleChildren={{ justifyContent: 'center'}}
                 >
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TextInput
@@ -325,7 +326,6 @@ export default class openingScreen extends Component {
                         fontWeight: "bold",
                         paddingHorizontal: 20,
                         width: 260,
-                        paddingTop:15,
                       }}
                       onChangeText={(val) => this.onChangeText("password", val)}
                     />
@@ -338,6 +338,7 @@ export default class openingScreen extends Component {
                     width={300}
                     borderRadius={25}
                     style={{ alignSelf: "center" }}
+                    styleChildren={{ justifyContent: 'center'}}
                   >
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
                       <TextInput
@@ -348,7 +349,6 @@ export default class openingScreen extends Component {
                           fontWeight: "bold",
                           paddingHorizontal: 20,
                           width: 260,
-                          paddingTop:15,
                         }}
                         onChangeText={(val) =>
                           this.onChangeText("confirmPassword", val)
@@ -359,9 +359,6 @@ export default class openingScreen extends Component {
                         size={20}
                         color="#B5BFD0"
                         onPress={this._changeIcon2}
-                        style = {{
-                          paddingTop:15,
-                        }}
                       />
                     </View>
                   </Box>

@@ -12,6 +12,7 @@ import {
   TextInput,
   Platform,
   PermissionsAndroid,
+  Dimensions,
 } from 'react-native';
 import 'react-native-get-random-values'
 import Icon from 'react-native-vector-icons/Feather';
@@ -32,7 +33,7 @@ import {
 } from 'react-native-indicators';
 import messaging from '@react-native-firebase/messaging'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-
+const screenWidth = Dimensions.get('window').width
 class audioRoomHome extends Component {
   constructor(props) {
     super(props);
@@ -44,6 +45,9 @@ class audioRoomHome extends Component {
       caption: '',
       feedback: '',
       feedbackModalVisible: false,
+      referalModalVisible: false,
+      numberOfReferalsLeft: 1, //@aditya: Add here for number of Referals Left.
+      zeroReferals: false,
       loading: true,
       getError: false,
       modalVisible: false,
@@ -62,7 +66,17 @@ class audioRoomHome extends Component {
       createRoomModalVisible: !this.state.createRoomModalVisible,
     });
   };
-
+  onReferFunction = () => {
+    if(this.state.numberOfReferalsLeft === 0) {
+      this.setState({zeroReferals: true})
+      this.setState({referalModalVisible: false})
+    }
+    else {
+      console.log(this.state.numberOfReferalsLeft);
+      // @Aditya: Add you logic for refer here. The case for zero is handled.
+      
+    }
+  }
   // getRooms = () => {
 
   //   if (this.state.location === '') {
@@ -226,6 +240,9 @@ class audioRoomHome extends Component {
           navigateToEditProfile={() =>
             this.props.navigation.navigate('profile')
           }
+          referalModal={()=>{
+            this.setState({ referalModalVisible: true})
+          }}
         />
 
         {/* ~~~~~~ This is create room button located at the bottom. ~~~~~~ */}
@@ -337,7 +354,9 @@ class audioRoomHome extends Component {
                 height={40}
                 width={275}
                 borderRadius={20}
-                style={{ alignSelf: 'center', marginTop: 10 }}>
+                style={{ alignSelf: 'center', marginTop: 10 }}
+                styleChildren={{ justifyContent: 'center'}}
+                >
                 <TextInput
                   placeholder="Title of the hall"
                   placeholderTextColor="#B5BFD0"
@@ -345,7 +364,6 @@ class audioRoomHome extends Component {
                     fontWeight: 'bold',
                     paddingHorizontal: 20,
                     width: '100%',
-                    paddingTop : 10,
                   }}
                   onChangeText={(text) => {
                     this.setState({ hashtag: text });
@@ -377,7 +395,7 @@ class audioRoomHome extends Component {
               <View style={{ alignSelf: 'center', marginTop: 10 }}>
                 <CreateRoomButton
                   height={40}
-                  width={275}
+                  width={0.65*screenWidth}
                   loading={this.state.createLoading}
                   borderRadius={20}
                   text="START TOWNHALL"
@@ -458,6 +476,23 @@ class audioRoomHome extends Component {
             </View>
           </View>
         </Modal>
+        <ReferalModal
+          referalModalVisible={this.state.referalModalVisible}
+          toggleModal={()=>{
+            this.setState({ referalModalVisible: false})
+          }}
+          numberOfReferalsLeft={this.state.numberOfReferalsLeft}
+          onReferFunction={this.onReferFunction}
+        />
+        <ErrorPopup
+          title="Oops!"
+          subTitle='You have expired all your referals. Contact Us for more!'
+          okButtonText="OK"
+          clickFunction={() => {
+            this.setState({ zeroReferals: false })
+          }}
+          modalVisible={this.state.zeroReferals}
+        />
         {/* Add feedback submit function here. */}
         <FeedbackModal
           feedbackModalVisible={this.state.feedbackModalVisible}
@@ -654,6 +689,94 @@ class audioRoomHome extends Component {
     // }
   }
 }
+class ReferalModal extends Component {
+  render() {
+    return (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={this.props.referalModalVisible}
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.2)',
+        }}>
+            <View
+            style={{
+              paddingBottom: 20,
+              width: '80%',
+              borderWidth: 3,
+              borderColor: '#e5e5e5',
+              backgroundColor: 'rgb(233, 235, 244)',
+              borderRadius: 10,
+            }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  marginTop: 10,
+                  alignItems: 'center',
+                  paddingHorizontal: 15,
+                }}>
+                <Text
+                  style={{
+                    color: '#4e7bb4',
+                    fontWeight: 'bold',
+                    fontSize: 20,
+                  }}>
+                  Refer Now!
+                </Text>
+                <Icon
+                  name="x-circle"
+                  style={{ color: '#EA688A' }}
+                  size={25}
+                  onPress={this.props.toggleModal}
+                />
+              </View>
+              <View
+                style={{
+                  marginTop: 10,
+                  borderBottomColor: '#BFBFBF',
+                  borderBottomWidth: 2,
+                  borderRadius: 2,
+                  width: '100%',
+                  opacity: 0.2,
+                  marginBottom: 10,
+                }}
+              />
+              <Text style={{ fontSize: 18, color: '#7f7f7f', marginTop: 5, marginLeft: 20 }}>
+                Number of Referals left,
+              </Text>
+              <Text
+                ellipsizeMode="tail"
+                numberOfLines={1}
+                style={{
+                  color: '#4e7bb4',
+                  fontSize: 35,
+                  fontWeight: 'bold',
+                  // marginLeft: 27
+                  alignSelf: 'center'
+                }}>
+                {this.props.numberOfReferalsLeft}
+              </Text>
+              <View style={{ marginTop: 10, width: '100%', alignItems: 'center' }}>
+                <CreateRoomButton
+                  height={40}
+                  width={0.68*screenWidth}
+                  borderRadius={20}
+                  text="REFER"
+                  createRoom={this.props.onReferFunction}
+                />
+              </View>
+            </View>
+        </View>
+      </Modal>
+    )
+  }
+}
 class FeedbackModal extends Component {
   render() {
     return (
@@ -731,10 +854,10 @@ class FeedbackModal extends Component {
                 }}
               />
             </Box>
-            <View style={{ alignSelf: 'center', marginTop: 10 }}>
+            <View style={{ marginTop: 10, alignItems:'center', width: '100%' }}>
               <CreateRoomButton
                 height={40}
-                width={275}
+                width={0.6*screenWidth}
                 borderRadius={20}
                 text="SUBMIT"
                 createRoom={this.props.submitFunction}
@@ -881,12 +1004,18 @@ export class TopBar extends Component {
             backgroundColor: 'rgb(233, 235, 244)',
           }}>
           <View style={{ marginTop: 20, marginLeft: 5 }}>
-            <Material
-              name="feedback"
-              color="#7f7f7f"
-              size={25}
-              onPress={this.props.feedbackModal}
-            />
+            <View style={{flexDirection: 'row', justifyContent:'center'}}>
+              <TouchableOpacity onPress={this.props.feedbackModal}>
+              <Material
+                name="feedback"
+                color="#7f7f7f"
+                size={25}
+              />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={this.props.referalModal}>
+                <Text style={{marginLeft: 10, fontWeight: 'bold', fontSize: 17, color: '#e8597e'}}>Refer Friends!</Text>
+              </TouchableOpacity>
+            </View>
             <Text style={{ fontSize: 20, color: '#7f7f7f', marginTop: 15 }}>
               Hello,
             </Text>
