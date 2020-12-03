@@ -47,6 +47,7 @@ class audioRoomHome extends Component {
       feedbackModalVisible: false,
       referalModalVisible: false,
       numberOfReferalsLeft: 1, //@aditya: Add here for number of Referals Left.
+      referEmail: '', //@aditya: Here is the email.
       zeroReferals: false,
       loading: true,
       getError: false,
@@ -481,6 +482,9 @@ class audioRoomHome extends Component {
           toggleModal={()=>{
             this.setState({ referalModalVisible: false})
           }}
+          onChangeText={(text)=>{
+            this.setState({referEmail: text})
+          }}
           numberOfReferalsLeft={this.state.numberOfReferalsLeft}
           onReferFunction={this.onReferFunction}
         />
@@ -762,7 +766,25 @@ class ReferalModal extends Component {
                 }}>
                 {this.props.numberOfReferalsLeft}
               </Text>
-              <View style={{ marginTop: 10, width: '100%', alignItems: 'center' }}>
+              <Box
+                height={40}
+                width={0.68*screenWidth}
+                borderRadius={20}
+                style={{ alignSelf: 'center', marginTop: 10 }}
+                styleChildren={{ justifyContent: 'center'}}
+                >
+                <TextInput
+                  placeholder="Enter Email"
+                  placeholderTextColor="#B5BFD0"
+                  style={{
+                    fontWeight: 'bold',
+                    paddingHorizontal: 20,
+                    width: '100%',
+                  }}
+                  onChangeText={this.props.onChangeText}
+                />
+              </Box>
+              <View style={{ marginTop: 7, width: '100%', alignItems: 'center', marginLeft: 2 }}>
                 <CreateRoomButton
                   height={40}
                   width={0.68*screenWidth}
