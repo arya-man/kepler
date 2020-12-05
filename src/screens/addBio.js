@@ -136,8 +136,8 @@ class openingScreen extends Component {
 
       return (
         <SafeAreaView style={{ height: screenHeight, backgroundColor: "rgb(233, 235, 244)" }}>
+          <View>          
           <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-
             <ErrorPopup
               title="Cannot Proceed"
               subTitle={this.state.fieldMessage}
@@ -352,6 +352,7 @@ class openingScreen extends Component {
               </View>
             </TouchableWithoutFeedback>
           </KeyboardAwareScrollView>
+          </View>
           {/* <View
               style={{
                 width: "100%",
@@ -365,13 +366,14 @@ class openingScreen extends Component {
                 style={{ alignSelf: 'center', height: 100, width: 100, marginBottom: '10%' }}
               />
             </View> */}
-          <Video
-            source={require('../assets/loader3.mp4')}
-            repeat={true}
-            style={{ width: screenHeight * 0.30, height: screenHeight * 0.30, alignSelf: 'center', marginBottom: screenHeight * 0.04 }}
-            resizeMode='contain'
-          />
-
+          <View style={{flex: 1}}>
+              <Video
+              source={require('../assets/loader3.mp4')}
+              repeat={true}
+              style={{ width: "100%", height: '100%', alignSelf: 'center' , marginTop: 20}}
+              resizeMode='contain'
+              />
+          </View>
         </SafeAreaView>
       );
     }

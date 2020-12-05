@@ -198,7 +198,7 @@ export default class openingScreen extends Component {
             height: screenHeight
           }}
         >
-
+          <View>
           <ErrorPopup
             title="Cannot Proceed!"
             subTitle={this.state.fieldMessage}
@@ -431,8 +431,9 @@ export default class openingScreen extends Component {
               </View>
             </TouchableWithoutFeedback>
           </KeyboardAwareScrollView>
+          </View>
           {/* </KeyboardAvoidingView> */}
-          <KeyboardAvoidingView behavior="position">
+          {/* <KeyboardAvoidingView behavior="position"> */}
             {/* <View
               style={{
                 width: "100%",
@@ -448,13 +449,21 @@ export default class openingScreen extends Component {
                 style={{alignSelf:'center', height: 100, width: 100, marginBottom: '10%'}}
               />
             </View> */}
-          </KeyboardAvoidingView>
-          <Video
+          {/* </KeyboardAvoidingView> */}
+            <View style={{flex: 1}}>
+              <Video
+              source={require('../assets/loader3.mp4')}
+              repeat={true}
+              style={{ width: "100%", height: '100%', alignSelf: 'center' , marginTop: 20}}
+              resizeMode='contain'
+              />
+            </View>
+          {/* <Video
             source={require('../assets/loader3.mp4')}
             repeat={true}
             style={{ width: screenHeight * 0.30, height: screenHeight * 0.30, alignSelf: 'center', marginBottom: screenHeight * 0.035 }}
             resizeMode='contain'
-          />
+          /> */}
         </SafeAreaView>
       );
     }

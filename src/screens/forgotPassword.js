@@ -72,7 +72,7 @@ export default class openingScreen extends Component {
           backgroundColor: 'rgb(233, 235, 244)',
           //   justifyContent: 'center',
         }}>
-
+        <View> 
         <ErrorPopup
           title="Done"
           subTitle={this.state.modalMessage}
@@ -194,13 +194,15 @@ export default class openingScreen extends Component {
             </View>
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
-
-        <Video
-          source={require('../assets/loader3.mp4')}
-          repeat={true}
-          style={{ width: screenHeight * 0.30, height: screenHeight * 0.30, alignSelf: 'center', marginTop: screenHeight * 0.025 }}
-          resizeMode='contain'
-        />
+        </View>
+        <View style={{flex: 1, paddingTop: '20%'}}>
+              <Video
+              source={require('../assets/loader3.mp4')}
+              repeat={true}
+              style={{ width: "100%", height: '100%', alignSelf: 'center' }}
+              resizeMode='contain'
+              />
+        </View>
       </SafeAreaView>
     );
   }

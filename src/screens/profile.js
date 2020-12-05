@@ -195,6 +195,7 @@ export class openingScreen extends Component {
     }
     return (
       <SafeAreaView style={{ height: screenHeight, backgroundColor: 'rgb(233, 235, 244)' }}>
+        <View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
           <ErrorPopup
             title="Error"
@@ -408,7 +409,8 @@ export class openingScreen extends Component {
             </View>
           </TouchableWithoutFeedback>
         </KeyboardAwareScrollView>
-        <KeyboardAvoidingView behavior="position">
+        </View>
+        {/* <KeyboardAvoidingView behavior="position"> */}
           {/* <View
             style={{
               width: '100%',
@@ -421,13 +423,15 @@ export class openingScreen extends Component {
             />
           </View> */}
 
-        </KeyboardAvoidingView>
-        <Video
-          source={require('../assets/loader3.mp4')}
-          repeat={true}
-          style={{ width: screenHeight * 0.30, height: screenHeight * 0.30, alignSelf: 'center', marginBottom: screenHeight * 0.025 }}
-          resizeMode='contain'
-        />
+        {/* </KeyboardAvoidingView> */}
+        <View style={{flex: 1}}>
+              <Video
+              source={require('../assets/loader3.mp4')}
+              repeat={true}
+              style={{ width: "100%", height: '100%', alignSelf: 'center' , marginTop: 20}}
+              resizeMode='contain'
+              />
+        </View>
       </SafeAreaView>
     );
   }

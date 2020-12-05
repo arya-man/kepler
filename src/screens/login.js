@@ -296,13 +296,14 @@ class openingScreen extends Component {
                 repeat={true}
               />
             </View> */}
-            <Video
-            source={require('../assets/loader3.mp4')}
-            repeat={true}
-            style={{ width: screenHeight* 0.30, height: screenHeight* 0.30, alignSelf: 'center' , marginTop: screenHeight * 0.05}}
-            resizeMode='contain'
-          />
-
+            <View style={{flex: 1}}>
+              <Video
+              source={require('../assets/loader3.mp4')}
+              repeat={true}
+              style={{ width: "100%", height: '100%', alignSelf: 'center' , marginTop: 20}}
+              resizeMode='contain'
+              />
+            </View>
         </SafeAreaView>
       );
     }
