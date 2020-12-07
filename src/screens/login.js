@@ -172,7 +172,7 @@ class openingScreen extends Component {
                 >
                   <TextInput
                     placeholder="Email"
-                    placeholderColor="#B5BFD0"
+                    placeholderTextColor="#B5BFD0"
                     style={{
                       fontWeight: "bold",
                       paddingHorizontal: 20,
@@ -191,7 +191,7 @@ class openingScreen extends Component {
                   <View style={{ flexDirection: "row", alignItems: "center", justifyContent: 'center' }}>
                     <TextInput
                       placeholder="Password"
-                      placeholderColor="#B5BFD0"
+                      placeholderTextColor="#B5BFD0"
                       secureTextEntry={this.state.hidePassword}
                       style={{
                         fontWeight: "bold",
