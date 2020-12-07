@@ -68,14 +68,14 @@ class audioRoomHome extends Component {
     });
   };
   onReferFunction = () => {
-    if(this.state.numberOfReferalsLeft === 0) {
-      this.setState({zeroReferals: true})
-      this.setState({referalModalVisible: false})
+    if (this.state.numberOfReferalsLeft === 0) {
+      this.setState({ zeroReferals: true })
+      this.setState({ referalModalVisible: false })
     }
     else {
       console.log(this.state.numberOfReferalsLeft);
       // @Aditya: Add you logic for refer here. The case for zero is handled.
-      
+
     }
   }
   // getRooms = () => {
@@ -176,9 +176,27 @@ class audioRoomHome extends Component {
     //   console.log("SNAP",snap)
     // })
 
+    database().ref('rooms').once('value')
+      .then((query) => {
+        var arr = []
+        query.forEach(doc => {
+          var obj = { id: doc.key }
+          obj = { ...obj, ...doc.val() }
+          arr.push(obj)
+          // console.log("OBJ", obj)
+        })
+        this.props.dispatch({
+          type: GET_ROOMS,
+          payload: arr
+        })
+      })
+      .catch(() => {
+        this.setState({ getError: true })
+      })
+
     var bioDone = await AsyncStorage.getItem('bioDone')
 
-    if(bioDone === null) {
+    if (bioDone === null) {
 
       await AsyncStorage.setItem('bioDone', 'done')
 
@@ -195,26 +213,39 @@ class audioRoomHome extends Component {
       })
     })
 
-    this.getRooms()
+    // this.getRooms()
 
-    if(Platform.OS === 'android') {
+    if (Platform.OS === 'ios') {
+      var authorizationStatus = await messaging().requestPermission()
+
+      if (authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED || authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL) {
+
+        messaging().subscribeToTopic('all').catch()
+
+      }
+    }
+
+    if (Platform.OS === 'android') {
 
       messaging().subscribeToTopic('all').catch()
 
     }
 
+    this.setState({ loading: false })
+    this.setState({ refreshing: false })
+
   }
 
   componentDidUpdate(prevProps, prevState) {
 
-    if(this.props.connected !== prevProps.connected) {
+    if (this.props.connected !== prevProps.connected) {
 
-      if(this.props.connected) {
+      if (this.props.connected) {
 
         Toast.show('Re-connected!', Toast.SHORT)
 
       }
-      
+
     }
 
   }
@@ -241,8 +272,8 @@ class audioRoomHome extends Component {
           navigateToEditProfile={() =>
             this.props.navigation.navigate('profile')
           }
-          referalModal={()=>{
-            this.setState({ referalModalVisible: true})
+          referalModal={() => {
+            this.setState({ referalModalVisible: true })
           }}
         />
 
@@ -356,8 +387,8 @@ class audioRoomHome extends Component {
                 width={275}
                 borderRadius={20}
                 style={{ alignSelf: 'center', marginTop: 10 }}
-                styleChildren={{ justifyContent: 'center'}}
-                >
+                styleChildren={{ justifyContent: 'center' }}
+              >
                 <TextInput
                   placeholder="Title of the hall"
                   placeholderTextColor="#B5BFD0"
@@ -396,7 +427,7 @@ class audioRoomHome extends Component {
               <View style={{ alignSelf: 'center', marginTop: 10 }}>
                 <CreateRoomButton
                   height={40}
-                  width={0.65*screenWidth}
+                  width={0.65 * screenWidth}
                   loading={this.state.createLoading}
                   borderRadius={20}
                   text="START TOWNHALL"
@@ -420,9 +451,9 @@ class audioRoomHome extends Component {
                               }
                             }
                           })
-                          .then(() => {
-                            database().ref(`a/${roomId}`).set(1)
-                          })
+                            .then(() => {
+                              database().ref(`a/${roomId}`).set(1)
+                            })
                             .then(() => {
                               fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
                                 method: 'POST',
@@ -479,11 +510,11 @@ class audioRoomHome extends Component {
         </Modal>
         <ReferalModal
           referalModalVisible={this.state.referalModalVisible}
-          toggleModal={()=>{
-            this.setState({ referalModalVisible: false})
+          toggleModal={() => {
+            this.setState({ referalModalVisible: false })
           }}
-          onChangeText={(text)=>{
-            this.setState({referEmail: text})
+          onChangeText={(text) => {
+            this.setState({ referEmail: text })
           }}
           numberOfReferalsLeft={this.state.numberOfReferalsLeft}
           onReferFunction={this.onReferFunction}
@@ -707,8 +738,8 @@ class ReferalModal extends Component {
             justifyContent: 'center',
             alignItems: 'center',
             backgroundColor: 'rgba(0,0,0,0.2)',
-        }}>
-            <View
+          }}>
+          <View
             style={{
               paddingBottom: 20,
               width: '80%',
@@ -717,83 +748,83 @@ class ReferalModal extends Component {
               backgroundColor: 'rgb(233, 235, 244)',
               borderRadius: 10,
             }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  marginTop: 10,
-                  alignItems: 'center',
-                  paddingHorizontal: 15,
-                }}>
-                <Text
-                  style={{
-                    color: '#4e7bb4',
-                    fontWeight: 'bold',
-                    fontSize: 20,
-                  }}>
-                  Refer Now!
-                </Text>
-                <Icon
-                  name="x-circle"
-                  style={{ color: '#EA688A' }}
-                  size={25}
-                  onPress={this.props.toggleModal}
-                />
-              </View>
-              <View
-                style={{
-                  marginTop: 10,
-                  borderBottomColor: '#BFBFBF',
-                  borderBottomWidth: 2,
-                  borderRadius: 2,
-                  width: '100%',
-                  opacity: 0.2,
-                  marginBottom: 10,
-                }}
-              />
-              <Text style={{ fontSize: 18, color: '#7f7f7f', marginTop: 5, marginLeft: 20 }}>
-                Number of Referals left,
-              </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: 10,
+                alignItems: 'center',
+                paddingHorizontal: 15,
+              }}>
               <Text
-                ellipsizeMode="tail"
-                numberOfLines={1}
                 style={{
                   color: '#4e7bb4',
-                  fontSize: 35,
                   fontWeight: 'bold',
-                  // marginLeft: 27
-                  alignSelf: 'center'
+                  fontSize: 20,
                 }}>
-                {this.props.numberOfReferalsLeft}
-              </Text>
-              <Box
-                height={40}
-                width={0.68*screenWidth}
-                borderRadius={20}
-                style={{ alignSelf: 'center', marginTop: 10 }}
-                styleChildren={{ justifyContent: 'center'}}
-                >
-                <TextInput
-                  placeholder="Enter Email"
-                  placeholderTextColor="#B5BFD0"
-                  style={{
-                    fontWeight: 'bold',
-                    paddingHorizontal: 20,
-                    width: '100%',
-                  }}
-                  onChangeText={this.props.onChangeText}
-                />
-              </Box>
-              <View style={{ marginTop: 7, width: '100%', alignItems: 'center', marginLeft: 2 }}>
-                <CreateRoomButton
-                  height={40}
-                  width={0.68*screenWidth}
-                  borderRadius={20}
-                  text="REFER"
-                  createRoom={this.props.onReferFunction}
-                />
-              </View>
+                Refer Now!
+                </Text>
+              <Icon
+                name="x-circle"
+                style={{ color: '#EA688A' }}
+                size={25}
+                onPress={this.props.toggleModal}
+              />
             </View>
+            <View
+              style={{
+                marginTop: 10,
+                borderBottomColor: '#BFBFBF',
+                borderBottomWidth: 2,
+                borderRadius: 2,
+                width: '100%',
+                opacity: 0.2,
+                marginBottom: 10,
+              }}
+            />
+            <Text style={{ fontSize: 18, color: '#7f7f7f', marginTop: 5, marginLeft: 20 }}>
+              Number of Referals left,
+              </Text>
+            <Text
+              ellipsizeMode="tail"
+              numberOfLines={1}
+              style={{
+                color: '#4e7bb4',
+                fontSize: 35,
+                fontWeight: 'bold',
+                // marginLeft: 27
+                alignSelf: 'center'
+              }}>
+              {this.props.numberOfReferalsLeft}
+            </Text>
+            <Box
+              height={40}
+              width={0.68 * screenWidth}
+              borderRadius={20}
+              style={{ alignSelf: 'center', marginTop: 10 }}
+              styleChildren={{ justifyContent: 'center' }}
+            >
+              <TextInput
+                placeholder="Enter Email"
+                placeholderTextColor="#B5BFD0"
+                style={{
+                  fontWeight: 'bold',
+                  paddingHorizontal: 20,
+                  width: '100%',
+                }}
+                onChangeText={this.props.onChangeText}
+              />
+            </Box>
+            <View style={{ marginTop: 7, width: '100%', alignItems: 'center', marginLeft: 2 }}>
+              <CreateRoomButton
+                height={40}
+                width={0.68 * screenWidth}
+                borderRadius={20}
+                text="REFER"
+                createRoom={this.props.onReferFunction}
+              />
+            </View>
+          </View>
         </View>
       </Modal>
     )
@@ -876,10 +907,10 @@ class FeedbackModal extends Component {
                 }}
               />
             </Box>
-            <View style={{ marginTop: 10, alignItems:'center', width: '100%' }}>
+            <View style={{ marginTop: 10, alignItems: 'center', width: '100%' }}>
               <CreateRoomButton
                 height={40}
-                width={0.6*screenWidth}
+                width={0.6 * screenWidth}
                 borderRadius={20}
                 text="SUBMIT"
                 createRoom={this.props.submitFunction}
@@ -1026,13 +1057,13 @@ export class TopBar extends Component {
             backgroundColor: 'rgb(233, 235, 244)',
           }}>
           <View style={{ marginTop: 20, marginLeft: 5 }}>
-            <View style={{flexDirection: 'row', justifyContent:'center'}}>
+            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
               <TouchableOpacity onPress={this.props.feedbackModal}>
-              <Material
-                name="feedback"
-                color="#7f7f7f"
-                size={25}
-              />
+                <Material
+                  name="feedback"
+                  color="#7f7f7f"
+                  size={25}
+                />
               </TouchableOpacity>
               {/* 
               <TouchableOpacity onPress={this.props.referalModal}>
@@ -1041,7 +1072,7 @@ export class TopBar extends Component {
               */}
             </View>
             <Text style={{ fontSize: 20, color: '#7f7f7f', marginTop: 15 }}>
-              Hello,
+              Hey,
             </Text>
           </View>
           <View style={{ marginTop: 10 }}>

@@ -32,7 +32,7 @@ class openingScreen extends Component {
     super(props);
     this.state = {
       keyboardOn: false,
-      photoUrl: "https://source.unsplash.com/random",
+      photoUrl: undefined,
       photoUrlBase64: '',
       firstName: '',
       lastName: '',
@@ -77,8 +77,8 @@ class openingScreen extends Component {
     }
     this.setState({ isLoading: true })
     const ref = storage().ref(this.state.username.toLowerCase() + '/dp.png');
-    // await ref.putFile(this.state.photoUrl);
-    // var url = await ref.getDownloadURL();
+    await ref.putFile(this.state.photoUrl);
+    var url = await ref.getDownloadURL();
     firestore()
       .collection('Users')
       .doc(this.state.username.toLowerCase())
@@ -86,7 +86,7 @@ class openingScreen extends Component {
         firstName: this.state.firstName,
         lastName: this.state.lastName,
         bio: this.state.bio,
-        photoUrl: "https://source.unsplash.com/random",
+        photoUrl: url,
       })
       .then(() => {
         firestore()
@@ -107,7 +107,7 @@ class openingScreen extends Component {
             firstName: this.state.firstName,
             lastName: this.state.lastName,
             bio: this.state.bio,
-            photoUrl: "https://source.unsplash.com/random",
+            photoUrl: url,
             username: this.props.navigation.getParam('username'),
             uid: this.props.navigation.getParam('uid'),
             email: this.props.navigation.getParam('email'),
@@ -206,12 +206,12 @@ class openingScreen extends Component {
                       color: "#fff",
                       fontWeight: "bold",
                       backgroundColor: "#4e7bb4",
-                      paddingHorizontal: '40%',
+                      paddingHorizontal: '30%',
                       paddingVertical: 1,
                       width:'100%'
                     }}
                   >
-                    Edit
+                    
               </Text>
                 </Box>
               </TouchableOpacity>

@@ -196,222 +196,223 @@ export class openingScreen extends Component {
     return (
       <SafeAreaView style={{ height: screenHeight, backgroundColor: 'rgb(233, 235, 244)' }}>
         <View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
-          <ErrorPopup
-            title="Error"
-            subTitle={this.state.authMessage}
-            okButtonText="OK"
-            clickFunction={() => {
-              this.setState({ authMessage: '' })
-              this.setState({ authmodalVisible: !this.state.authmodalVisible }); //Always keep this thing here
-            }}
-            modalVisible={this.state.authmodalVisible}
-          />
-          <TouchableOpacity
-            style={{ marginLeft: -190, marginTop: 5 }}
-            onPress={() => this.props.navigation.goBack()}>
-            <Box height={50} width={50} borderRadius={10}>
-              <Icon
-                name="chevron-left"
-                color="#7f7f7f"
-                size={40}
-                style={{ alignSelf: 'center', marginTop: 5 }}
-              />
-            </Box>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={async () => {
-              try {
-                var image = await ImagePicker.openPicker({
-                  height: 500,
-                  width: 500,
-                  cropping: true
-                })
-                this.setState({
-                  photoUrl: Platform.OS === 'ios' ? image['path'].replace('file://', '') : image['path'],
-                  mime: image['mime'],
-                  imageUpdated: true
-                })
-              } catch (error) {
-                this.setState({ error: error })
-              }
-            }}
-
-          >
-            <Box
-              height={102}
-              width={102}
-              borderRadius={16}
-              style={{ alignSelf: 'center' }}>
-              <Image
-                source={{
-                  uri:
-                    this.state.photoUrl == undefined
-                      ? 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'
-                      : this.state.photoUrl,
-                }}
-                style={{
-                  height: 100,
-                  width: 100,
-                  borderRadius: 15,
-                  // resizeMode: "contain",
-                }}
-              />
-              <Text
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  fontSize: 10,
-                  alignSelf: 'center',
-                  color: '#fff',
-                  fontWeight: 'bold',
-                  backgroundColor: '#4e7bb4',
-                  width: '100%',
-                  paddingHorizontal: '40%',
-                  paddingVertical: 1.5,
-                }}>
-                Edit
-              </Text>
-            </Box>
-          </TouchableOpacity>
-        </View>
-        {/* <KeyboardAvoidingView behavior="padding"> */}
-        <KeyboardAwareScrollView>
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={{ marginTop: 20 }}>
-              <Box
-                height={50}
-                width={300}
-                borderRadius={25}
-                style={{ alignSelf: 'center' }}
-                styleChildren={{ justifyContent: 'center'}}
-                >
-                <TextInput
-                  placeholder="First Name"
-                  defaultValue={this.state.firstName}
-                  placeholderColor="#B5BFD0"
-                  style={{
-                    fontWeight: 'bold',
-                    paddingHorizontal: 20,
-                    width: '90%',
-                    color: '#7f7f7f',
-                  }}
-                  onChangeText={(val) => this.onChangeText("firstName", val)}
-                />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
+            <ErrorPopup
+              title="Error"
+              subTitle={this.state.authMessage}
+              okButtonText="OK"
+              clickFunction={() => {
+                this.setState({ authMessage: '' })
+                this.setState({ authmodalVisible: !this.state.authmodalVisible }); //Always keep this thing here
+              }}
+              modalVisible={this.state.authmodalVisible}
+            />
+            <TouchableOpacity
+              style={{ marginLeft: -190, marginTop: 5 }}
+              onPress={() => this.props.navigation.goBack()}>
+              <Box height={50} width={50} borderRadius={10}>
                 <Icon
-                  name="edit"
+                  name="chevron-left"
                   color="#7f7f7f"
-                  size={20}
-                  style={{ position: 'absolute', top: 13, right: 15 }}
+                  size={40}
+                  style={{ alignSelf: 'center', marginTop: 5 }}
                 />
               </Box>
-              <Box
-                height={50}
-                width={300}
-                borderRadius={25}
-                style={{ alignSelf: 'center' }}
-                styleChildren={{ justifyContent: 'center'}}
-                >
-                <TextInput
-                  placeholder="Last Name"
-                  defaultValue={this.state.lastName}
-                  placeholderColor="#B5BFD0"
-                  style={{
-                    fontWeight: 'bold',
-                    paddingHorizontal: 20,
-                    width: '90%',
-                    color: '#7f7f7f',
-                  }}
-                  onChangeText={(val) => this.onChangeText("lastName", val)}
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={async () => {
+                try {
+                  var image = await ImagePicker.openPicker({
+                    height: 500,
+                    width: 500,
+                    cropping: true
+                  })
+                  this.setState({
+                    photoUrl: Platform.OS === 'ios' ? image['path'].replace('file://', '') : image['path'],
+                    mime: image['mime'],
+                    imageUpdated: true
+                  })
+                } catch (error) {
+                  this.setState({ error: error })
+                }
+              }}
 
-                />
-                <Icon
-                  name="edit"
-                  color="#7f7f7f"
-                  size={20}
-                  style={{ position: 'absolute', top: 13, right: 15 }}
-                />
-              </Box>
+            >
               <Box
-                height={70}
-                width={300}
-                borderRadius={25}
-                style={{ alignSelf: 'center', marginLeft: 10 }}>
-                <TextInput
-                  placeholder="About Me. eg: Hi! I am Adam and I'm from California."
-                  multiline={true}
-                  defaultValue={this.state.bio}
-                  numberOfLines={3}
-                  textAlignVertical="top"
-                  style={{
-                    fontWeight: 'bold',
-                    paddingHorizontal: 20,
-                    width: '90%',
-                    color: '#7f7f7f',
-                    paddingTop: 15,
+                height={102}
+                width={102}
+                borderRadius={16}
+                style={{ alignSelf: 'center' }}>
+                <Image
+                  source={{
+                    uri:
+                      this.state.photoUrl == undefined
+                        ? 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'
+                        : this.state.photoUrl,
                   }}
-                  onChangeText={(val) => this.onChangeText("bio", val)}
-
-                />
-                <Icon
-                  name="edit"
-                  color="#7f7f7f"
-                  size={20}
-                  style={{ position: 'absolute', top: 13, right: 15 }}
-                />
-              </Box>
-              <LinearGradient
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                colors={['#EA688A', '#EA7A7F']}
-                style={{
-                  height: 50,
-                  borderRadius: 25,
-                  width: 300,
-                  alignSelf: 'center',
-                  marginTop: 10,
-                }}>
-                <TouchableOpacity
                   style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: 'transparent',
-                    height: 50,
-                    width: 300,
+                    height: 100,
+                    width: 100,
+                    borderRadius: 15,
+                    // resizeMode: "contain",
                   }}
-                  onPress={() => this.doneFunction()}>
-                  <Text
-                    style={{ color: '#fff', fontWeight: 'bold', fontSize: 12 }}>
-                    DONE
-                  </Text>
-                </TouchableOpacity>
-              </LinearGradient>
-              <Text
-                style={{
-                  color: 'rgba(0,0,0,0.3)',
-                  fontWeight: 'bold',
-                  fontSize: 12,
-                  alignSelf: 'center',
-                  marginTop: 10,
-                }}>
-                Looking for a place to
+                />
                 <Text
                   style={{
-                    color: '#EA688A',
+                    position: 'absolute',
+                    bottom: 0,
+                    fontSize: 10,
+                    alignSelf: 'center',
+                    color: '#fff',
+                    fontWeight: 'bold',
+                    backgroundColor: '#4e7bb4',
+                    width: '100%',
+                    paddingHorizontal: '30%',
+                    paddingVertical: 1.5,
+                    alignItems: 'center'
+                  }}>
+
+                </Text>
+              </Box>
+            </TouchableOpacity>
+          </View>
+          {/* <KeyboardAvoidingView behavior="padding"> */}
+          <KeyboardAwareScrollView>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+              <View style={{ marginTop: 20 }}>
+                <Box
+                  height={50}
+                  width={300}
+                  borderRadius={25}
+                  style={{ alignSelf: 'center' }}
+                  styleChildren={{ justifyContent: 'center' }}
+                >
+                  <TextInput
+                    placeholder="First Name"
+                    defaultValue={this.state.firstName}
+                    placeholderColor="#B5BFD0"
+                    style={{
+                      fontWeight: 'bold',
+                      paddingHorizontal: 20,
+                      width: '90%',
+                      color: '#7f7f7f',
+                    }}
+                    onChangeText={(val) => this.onChangeText("firstName", val)}
+                  />
+                  <Icon
+                    name="edit"
+                    color="#7f7f7f"
+                    size={20}
+                    style={{ position: 'absolute', top: 13, right: 15 }}
+                  />
+                </Box>
+                <Box
+                  height={50}
+                  width={300}
+                  borderRadius={25}
+                  style={{ alignSelf: 'center' }}
+                  styleChildren={{ justifyContent: 'center' }}
+                >
+                  <TextInput
+                    placeholder="Last Name"
+                    defaultValue={this.state.lastName}
+                    placeholderColor="#B5BFD0"
+                    style={{
+                      fontWeight: 'bold',
+                      paddingHorizontal: 20,
+                      width: '90%',
+                      color: '#7f7f7f',
+                    }}
+                    onChangeText={(val) => this.onChangeText("lastName", val)}
+
+                  />
+                  <Icon
+                    name="edit"
+                    color="#7f7f7f"
+                    size={20}
+                    style={{ position: 'absolute', top: 13, right: 15 }}
+                  />
+                </Box>
+                <Box
+                  height={70}
+                  width={300}
+                  borderRadius={25}
+                  style={{ alignSelf: 'center', marginLeft: 10 }}>
+                  <TextInput
+                    placeholder="About Me. eg: Hi! I am Adam and I'm from California."
+                    multiline={true}
+                    defaultValue={this.state.bio}
+                    numberOfLines={3}
+                    textAlignVertical="top"
+                    style={{
+                      fontWeight: 'bold',
+                      paddingHorizontal: 20,
+                      width: '90%',
+                      color: '#7f7f7f',
+                      paddingTop: 15,
+                    }}
+                    onChangeText={(val) => this.onChangeText("bio", val)}
+
+                  />
+                  <Icon
+                    name="edit"
+                    color="#7f7f7f"
+                    size={20}
+                    style={{ position: 'absolute', top: 13, right: 15 }}
+                  />
+                </Box>
+                <LinearGradient
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  colors={['#EA688A', '#EA7A7F']}
+                  style={{
+                    height: 50,
+                    borderRadius: 25,
+                    width: 300,
+                    alignSelf: 'center',
+                    marginTop: 10,
+                  }}>
+                  <TouchableOpacity
+                    style={{
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: 'transparent',
+                      height: 50,
+                      width: 300,
+                    }}
+                    onPress={() => this.doneFunction()}>
+                    <Text
+                      style={{ color: '#fff', fontWeight: 'bold', fontSize: 12 }}>
+                      DONE
+                  </Text>
+                  </TouchableOpacity>
+                </LinearGradient>
+                <Text
+                  style={{
+                    color: 'rgba(0,0,0,0.3)',
                     fontWeight: 'bold',
                     fontSize: 12,
-                  }}
-                  onPress={() => this.logOutFunction()}>
-                  {' '}
+                    alignSelf: 'center',
+                    marginTop: 10,
+                  }}>
+                  Looking for a place to
+                <Text
+                    style={{
+                      color: '#EA688A',
+                      fontWeight: 'bold',
+                      fontSize: 12,
+                    }}
+                    onPress={() => this.logOutFunction()}>
+                    {' '}
                   Log Out?
                 </Text>
-              </Text>
-            </View>
-          </TouchableWithoutFeedback>
-        </KeyboardAwareScrollView>
+                </Text>
+              </View>
+            </TouchableWithoutFeedback>
+          </KeyboardAwareScrollView>
         </View>
         {/* <KeyboardAvoidingView behavior="position"> */}
-          {/* <View
+        {/* <View
             style={{
               width: '100%',
               bottom: this.state.keyboardOn ? -500 : -20,
@@ -424,13 +425,13 @@ export class openingScreen extends Component {
           </View> */}
 
         {/* </KeyboardAvoidingView> */}
-        <View style={{flex: 1}}>
-              <Video
-              source={require('../assets/loader3.mp4')}
-              repeat={true}
-              style={{ width: "100%", height: '100%', alignSelf: 'center' , marginTop: 20}}
-              resizeMode='contain'
-              />
+        <View style={{ flex: 1 }}>
+          <Video
+            source={require('../assets/loader3.mp4')}
+            repeat={true}
+            style={{ width: "100%", height: '100%', alignSelf: 'center', marginTop: 20 }}
+            resizeMode='contain'
+          />
         </View>
       </SafeAreaView>
     );
