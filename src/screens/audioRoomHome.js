@@ -1034,9 +1034,11 @@ export class TopBar extends Component {
                 size={25}
               />
               </TouchableOpacity>
+              {/* 
               <TouchableOpacity onPress={this.props.referalModal}>
                 <Text style={{marginLeft: 10, fontWeight: 'bold', fontSize: 17, color: '#e8597e'}}>Refer Friends!</Text>
               </TouchableOpacity>
+              */}
             </View>
             <Text style={{ fontSize: 20, color: '#7f7f7f', marginTop: 15 }}>
               Hello,
