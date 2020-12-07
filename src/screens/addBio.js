@@ -175,6 +175,7 @@ class openingScreen extends Component {
                           mime: image['mime']
                         })
                       })
+                      .catch(() => {})
                     // console.log(this.state)
                   } catch (error) {
                     this.imageNot = error
@@ -305,7 +306,7 @@ class openingScreen extends Component {
                 >
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TextInput
-                      placeholder="Bio. eg: El Psy Congroo (ﾉ◕ヮ◕)."
+                      placeholder="Bio. eg: El Psy Congroo"
                       multiline={true}
                       numberOfLines={3}
                       textAlignVertical="top"
