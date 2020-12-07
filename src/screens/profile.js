@@ -228,7 +228,7 @@ export class openingScreen extends Component {
                   cropping: true
                 })
                 this.setState({
-                  photoUrl: Platform.OS === 'ios' ? image.replace('file://', '') : image['path'],
+                  photoUrl: Platform.OS === 'ios' ? image['path'].replace('file://', '') : image['path'],
                   mime: image['mime'],
                   imageUpdated: true
                 })
