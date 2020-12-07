@@ -264,7 +264,7 @@ class openingScreen extends Component {
                 >
                   <TextInput
                     placeholder="First Name"
-                    placeholderColor="#B5BFD0"
+                    placeholderTextColor="#B5BFD0"
                     style={{
                       fontWeight: "bold",
                       paddingHorizontal: 20,
@@ -283,7 +283,7 @@ class openingScreen extends Component {
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TextInput
                       placeholder="Last Name"
-                      placeholderColor="#B5BFD0"
+                      placeholderTextColor="#B5BFD0"
                       style={{
                         fontWeight: "bold",
                         paddingHorizontal: 20,

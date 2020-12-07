@@ -171,12 +171,12 @@ class openingScreen extends Component {
                 >
                   <TextInput
                     placeholder="Email"
-                    placeholderColor="#B5BFD0"
+                    placeholderTextColor="#B5BFD0"
                     style={{
                       fontWeight: "bold",
                       paddingHorizontal: 20,
                       width: "100%",
-                      paddingTop:15,
+                      paddingTop: 15,
                     }}
                     onChangeText={(val) => this.onChangeText("email", val)}
                   />
@@ -190,13 +190,13 @@ class openingScreen extends Component {
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TextInput
                       placeholder="Password"
-                      placeholderColor="#B5BFD0"
+                      placeholderTextColor="#B5BFD0"
                       secureTextEntry={this.state.hidePassword}
                       style={{
                         fontWeight: "bold",
                         paddingHorizontal: 20,
                         width: 260,
-                        paddingTop:15,
+                        paddingTop: 15,
                       }}
                       onChangeText={(val) => this.onChangeText("password", val)}
                     />
@@ -205,8 +205,8 @@ class openingScreen extends Component {
                       size={20}
                       color="#B5BFD0"
                       onPress={() => this._changeIcon()}
-                      style = {{
-                        paddingTop:15,
+                      style={{
+                        paddingTop: 15,
                       }}
                     />
                   </View>
@@ -296,12 +296,21 @@ class openingScreen extends Component {
                 repeat={true}
               />
             </View> */}
-            <Video
+          {/* <Video
             source={require('../assets/loader3.mp4')}
             repeat={true}
             style={{ width: screenHeight* 0.30, height: screenHeight* 0.30, alignSelf: 'center' , marginTop: screenHeight * 0.05}}
             resizeMode='contain'
-          />
+          /> */}
+
+          <View style={{ flex: 1 }}>
+            <Video
+              source={require('../assets/loader3.mp4')}
+              repeat={true}
+              style={{ width: "100%", height: '100%', alignSelf: 'center', marginTop: 20 }}
+              resizeMode='contain'
+            />
+          </View>
 
         </SafeAreaView>
       );

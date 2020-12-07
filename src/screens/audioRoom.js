@@ -129,6 +129,7 @@ class audioRoom extends Component {
               else {
                 await this.agora.setClientRole(2)
               }
+              await this.agora.setParameters('{"che.audio.opensl":true}')
               await this.agora.joinChannelWithUserAccount(this.props.navigation.getParam('agoraToken'), this.props.navigation.getParam('roomId'), this.props.user.user.username)
 
               await this.agora.enableAudioVolumeIndication(750, 3, true)

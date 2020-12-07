@@ -268,7 +268,7 @@ export default class openingScreen extends Component {
                   >
                     <TextInput
                       placeholder="Username"
-                      placeholderColor="#B5BFD0"
+                      placeholderTextColor="#B5BFD0"
                       style={{
                         fontWeight: "bold",
                         paddingHorizontal: 20,
@@ -299,7 +299,7 @@ export default class openingScreen extends Component {
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TextInput
                       placeholder="Email Address"
-                      placeholderColor="#B5BFD0"
+                      placeholderTextColor="#B5BFD0"
                       style={{
                         fontWeight: "bold",
                         paddingHorizontal: 20,
@@ -319,7 +319,7 @@ export default class openingScreen extends Component {
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TextInput
                       placeholder="Password"
-                      placeholderColor="#B5BFD0"
+                      placeholderTextColor="#B5BFD0"
                       secureTextEntry={true}
                       style={{
                         fontWeight: "bold",
@@ -342,7 +342,7 @@ export default class openingScreen extends Component {
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
                       <TextInput
                         placeholder="Confirm Password"
-                        placeholderColor="#B5BFD0"
+                        placeholderTextColor="#B5BFD0"
                         secureTextEntry={this.state.hidePassword2}
                         style={{
                           fontWeight: "bold",

@@ -151,7 +151,7 @@ export default class openingScreen extends Component {
                 style={{ alignSelf: 'center' }}>
                 <TextInput
                   placeholder="Enter Email Address"
-                  placeholderColor="#B5BFD0"
+                  placeholderTextColor="#B5BFD0"
                   style={{
                     fontWeight: 'bold',
                     paddingHorizontal: 20,
