@@ -57,8 +57,9 @@ class audioRoomHome extends Component {
       refreshing: false,
       location: '',
     };
-
-    PermissionsAndroid.request('android.permission.RECORD_AUDIO')
+    if(Platform.OS=='android'){
+      PermissionsAndroid.request('android.permission.RECORD_AUDIO')
+    }
 
   }
 

@@ -290,7 +290,7 @@ export class openingScreen extends Component {
                   <TextInput
                     placeholder="First Name"
                     defaultValue={this.state.firstName}
-                    placeholderColor="#B5BFD0"
+                    placeholderTextColor="#B5BFD0"
                     style={{
                       fontWeight: 'bold',
                       paddingHorizontal: 20,
@@ -316,7 +316,7 @@ export class openingScreen extends Component {
                   <TextInput
                     placeholder="Last Name"
                     defaultValue={this.state.lastName}
-                    placeholderColor="#B5BFD0"
+                    placeholderTextColor="#B5BFD0"
                     style={{
                       fontWeight: 'bold',
                       paddingHorizontal: 20,

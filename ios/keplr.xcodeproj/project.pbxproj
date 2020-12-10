@@ -18,7 +18,8 @@
 		2DCD954D1E0B4F2C00145EB5 /* keplrTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* keplrTests.m */; };
 		786477D2257057BD00943B4D /* libswiftWebKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 786477D1257057BD00943B4D /* libswiftWebKit.tbd */; };
 		78792D4D25702D4000B1E06B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 78792D4C25702D4000B1E06B /* GoogleService-Info.plist */; };
-		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		78FCCC28257E862A00F7B76E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78FCCC27257E862900F7B76E /* LaunchScreen.storyboard */; };
+		78FCCC29257E862A00F7B76E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78FCCC27257E862900F7B76E /* LaunchScreen.storyboard */; };
 		89899B52B1B58FB8D2837BF5 /* libPods-keplr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E115BFA42A01AC0E5D6DD491 /* libPods-keplr.a */; };
 		DB4D631EE4572278A29D4942 /* libPods-keplr-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 349E165E0A76A674DEC792E1 /* libPods-keplr-tvOS.a */; };
 		FC2C9B6CA1A9691E1FA18BE1 /* libPods-keplr-keplrTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FBCF49E664AA19A8D935E67 /* libPods-keplr-keplrTests.a */; };
@@ -63,7 +64,8 @@
 		786477D1257057BD00943B4D /* libswiftWebKit.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftWebKit.tbd; path = usr/lib/swift/libswiftWebKit.tbd; sourceTree = SDKROOT; };
 		786477EB25705A8C00943B4D /* keplr-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "keplr-Bridging-Header.h"; sourceTree = "<group>"; };
 		78792D4C25702D4000B1E06B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = keplr/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		78D66A40257E43330070B87F /* keplr.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = keplr.entitlements; path = keplr/keplr.entitlements; sourceTree = "<group>"; };
+		78FCCC27257E862900F7B76E /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8BD75F3AD2172D00DD707759 /* Pods-keplr.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-keplr.release.xcconfig"; path = "Target Support Files/Pods-keplr/Pods-keplr.release.xcconfig"; sourceTree = "<group>"; };
 		9FBCF49E664AA19A8D935E67 /* libPods-keplr-keplrTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-keplr-keplrTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1DA5F695BE208E6966BED52 /* Pods-keplr-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-keplr-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-keplr-tvOS/Pods-keplr-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -131,13 +133,14 @@
 		13B07FAE1A68108700A75B9A /* keplr */ = {
 			isa = PBXGroup;
 			children = (
+				78D66A40257E43330070B87F /* keplr.entitlements */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
-				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				78FCCC27257E862900F7B76E /* LaunchScreen.storyboard */,
 			);
 			name = keplr;
 			sourceTree = "<group>";
@@ -306,8 +309,9 @@
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = WNRKG7F622;
+						DevelopmentTeam = B55LK8FWTQ;
 						LastSwiftMigration = 1220;
+						ProvisioningStyle = Manual;
 					};
 					2D02E47A1E0B4A5D006451C7 = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -353,7 +357,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				78FCCC28257E862A00F7B76E /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				78792D4D25702D4000B1E06B /* GoogleService-Info.plist in Resources */,
 			);
@@ -364,6 +368,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */,
+				78FCCC29257E862A00F7B76E /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -797,8 +802,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = WNRKG7F622;
+				CODE_SIGN_ENTITLEMENTS = keplr/keplr.entitlements;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = B55LK8FWTQ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = keplr/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -806,13 +813,15 @@
 					"$(inherited)",
 					"$(SDKROOT)/usr/lib/swift",
 				);
+				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.keplrapp;
 				PRODUCT_NAME = keplr;
+				PROVISIONING_PROFILE_SPECIFIER = keplrapp;
 				SWIFT_OBJC_BRIDGING_HEADER = "keplr-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -824,23 +833,28 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8BD75F3AD2172D00DD707759 /* Pods-keplr.release.xcconfig */;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = WNRKG7F622;
+				CODE_SIGN_ENTITLEMENTS = keplr/keplr.entitlements;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = B55LK8FWTQ;
 				INFOPLIST_FILE = keplr/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SDKROOT)/usr/lib/swift",
 				);
+				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.keplrapp;
 				PRODUCT_NAME = keplr;
+				PROVISIONING_PROFILE_SPECIFIER = keplrapp;
 				SWIFT_OBJC_BRIDGING_HEADER = "keplr-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

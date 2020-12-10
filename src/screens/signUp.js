@@ -10,7 +10,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Dimensions,
-  SafeAreaView
+  SafeAreaView,
+  Linking,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import Box from './neumorphButton';
@@ -42,7 +43,8 @@ export default class openingScreen extends Component {
       fieldmodalVisible: false,
       authmodalVisible: false,
       fieldMessage: '',
-      authMessage: ''
+      authMessage: '',
+      acceptedTerms: false,
     };
     this.onChangeText = this.onChangeText.bind(this);
     this.checkUsername = this.checkUsername.bind(this);
@@ -61,11 +63,15 @@ export default class openingScreen extends Component {
     }
   }
 
+  
   _changeIcon2 = () => {
     this.state.icon2 !== "eye-off"
       ? this.setState({ icon2: "eye-off", hidePassword2: true })
       : this.setState({ icon2: "eye", hidePassword2: false });
-  };
+    };
+    handleCheckBox = () => {
+      this.setState({acceptedTerms : !this.state.acceptedTerms});
+    };
 
   onChangeText = (key, val) => {
     if (key == 'username') {
@@ -125,6 +131,11 @@ export default class openingScreen extends Component {
     }
     if (!this.matchPassword(this.state.confirmPassword)) {
       this.setState({ fieldMessage: 'Passwords Don\'t Match' })
+      // alert('password Doesn\'t Match')
+      return;
+    }
+    if(!this.state.acceptedTerms){
+      this.setState({ fieldMessage: 'Please read and accept our terms of service' })
       // alert('password Doesn\'t Match')
       return;
     }
@@ -269,7 +280,7 @@ export default class openingScreen extends Component {
                   >
                     <TextInput
                       placeholder="Username"
-                      placeholderColor="#B5BFD0"
+                      placeholderTextColor="#B5BFD0"
                       style={{
                         fontWeight: "bold",
                         paddingHorizontal: 20,
@@ -300,7 +311,7 @@ export default class openingScreen extends Component {
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TextInput
                       placeholder="Email Address"
-                      placeholderColor="#B5BFD0"
+                      placeholderTextColor="#B5BFD0"
                       style={{
                         fontWeight: "bold",
                         paddingHorizontal: 20,
@@ -320,7 +331,7 @@ export default class openingScreen extends Component {
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TextInput
                       placeholder="Password"
-                      placeholderColor="#B5BFD0"
+                      placeholderTextColor="#B5BFD0"
                       secureTextEntry={true}
                       style={{
                         fontWeight: "bold",
@@ -343,7 +354,7 @@ export default class openingScreen extends Component {
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
                       <TextInput
                         placeholder="Confirm Password"
-                        placeholderColor="#B5BFD0"
+                        placeholderTextColor="#B5BFD0"
                         secureTextEntry={this.state.hidePassword2}
                         style={{
                           fontWeight: "bold",
@@ -402,7 +413,7 @@ export default class openingScreen extends Component {
                     </Text>
                   </TouchableOpacity>
                 </LinearGradient>
-                <View style={{ alignSelf: "center", flexDirection: "row" }}>
+                <View style={{ alignSelf: "center", flexDirection: "row", maxWidth: "80%" }}>
                   <Text
                     style={{
                       color: "#a9b6c8",
@@ -410,10 +421,12 @@ export default class openingScreen extends Component {
                       fontWeight: "bold",
                     }}
                   >
-                    Already a User?
+                    By Signing Up, You Agree To Our Terms Given
                   </Text>
                   <TouchableOpacity
-                    onPress={() => this.props.navigation.goBack()}
+                    onPress={() => {
+                      Linking.openURL("https://keplr.org").catch(() => {})
+                    }}
                   >
                     <Text
                       style={{
@@ -424,9 +437,19 @@ export default class openingScreen extends Component {
                         fontWeight: "bold",
                       }}
                     >
-                      Log In.
+                      Here
                     </Text>
                   </TouchableOpacity>
+                </View>
+                <View style={{ alignSelf: "center", flexDirection: "row" }}>
+                <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} onPress={this.handleCheckBox} >
+                    <Icon
+                        size={30}
+                        color={"#211f30"}
+                        name={ this.state.acceptedTerms ? 'check-square' : 'square'}
+                    />
+                    <Text> I accept terms and conditions </Text>
+                </TouchableOpacity>
                 </View>
               </View>
             </TouchableWithoutFeedback>
