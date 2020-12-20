@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>357725378074-5crpj453cvbe7khkj0ma9ep1cbdahj6f.apps.googleusercontent.com</string>
+	<string>357725378074-92tjbjoqhcdh2idsj31n5ufqcqh7dovr.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.357725378074-5crpj453cvbe7khkj0ma9ep1cbdahj6f</string>
+	<string>com.googleusercontent.apps.357725378074-92tjbjoqhcdh2idsj31n5ufqcqh7dovr</string>
 	<key>API_KEY</key>
 	<string>AIzaSyDuhxXxPxg1dJFuS2g5_6HRo-8RCwR3nNc</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>org.reactjs.native.example.keplr</string>
+	<string>com.keplrapp</string>
 	<key>PROJECT_ID</key>
 	<string>keplr-4ff01</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,7 +29,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:357725378074:ios:c6707d86b8e4d4c2f0a3a3</string>
+	<string>1:357725378074:ios:5e29508a7af958b1f0a3a3</string>
 	<key>DATABASE_URL</key>
 	<string>https://keplr-4ff01.firebaseio.com</string>
 </dict>

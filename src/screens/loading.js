@@ -14,14 +14,20 @@ export default class Loading extends Component {
             else {
 
                 var bioDone = await AsyncStorage.getItem('bioDone')
-                // console.log("BIODONE", bioDone)
+                console.log("BIODONE", bioDone)
                 if(bioDone === 'done') {
-                    this.props.navigation.navigate('normal')
+                    this.props.navigation.navigate('openingScreen')
                 }
                 else {
                     var data = await AsyncStorage.getItem('data')
+                    console.log("DATA", data)
                     data = await JSON.parse(data)
-                    this.props.navigation.navigate('addBio', data)
+                    if(data === null){
+                        this.props.navigation.navigate('auth');
+                    }
+                    else{
+                        this.props.navigation.navigate('addBio', data)
+                    }
                 }
             }
         })
