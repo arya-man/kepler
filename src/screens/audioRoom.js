@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   BackHandler,
   Dimensions,
+  Platform
 } from 'react-native';
 import Box from './neumorphButton';
 import CBox from './customizableNeuButton';
@@ -87,9 +88,17 @@ class audioRoom extends Component {
     });
   };
 
+  backAction = () => {
+
+    return true
+
+  }
+
   async componentDidMount() {
 
-    BackHandler.addEventListener('hardwareBackPress', this.backAction)
+    if(Platform.OS === 'android') {
+      BackHandler.addEventListener('hardwareBackPress', this.backAction)
+    }
 
     if (!this.props.connected) {
       Toast.show('You are disconnected from the Internet', Toast.LONG)
@@ -102,6 +111,7 @@ class audioRoom extends Component {
 
         if (snap.val() !== null) {
           this.setState({ loading: false })
+          database().ref(`rooms/${this.props.navigation.getParam('roomId')}`).remove().catch()
           this.setState({ roomEnded: true })
         }
 
@@ -359,8 +369,12 @@ class audioRoom extends Component {
             } catch (error) {
 
               this.setState({ loading: false })
-              //console.log("INSIDE CATCH ERROR", error)
-              database().ref(`rooms/${this.props.navigation.getParam('roomId')}`).remove()
+              console.log("INSIDE CATCH ERROR", error)
+              
+              if(this.state.role === 3) {
+                database().ref(`rooms/${this.props.navigation.getParam('roomId')}`).remove()
+              }
+
               this.setState({ agoraInitError: true })
             }
 
@@ -375,18 +389,6 @@ class audioRoom extends Component {
   }
 
   async componentDidUpdate(prevProps, prevState) {
-
-    if (this.props.agoraHosts !== prevProps.agoraHosts) {
-
-      //console.log("AGORA HOSTS", this.props.agoraHosts)
-
-    }
-
-    if (this.state.talking !== prevState.talking) {
-
-      //console.log("TALKING..", this.state.talking)
-
-    }
 
     //// ROLE CHANGES ////
 
@@ -521,22 +523,16 @@ class audioRoom extends Component {
 
   }
 
-  backAction = () => {
-
-    return true
-
-  }
 
   async componentWillUnmount() {
 
-    database().ref(`e/${this.props.navigation.getParam('roomId')}`).off()
-
-    // this.BackHandler.remove()
-
-    BackHandler.removeEventListener('hardwareBackPress' , this.backAction)
+    if(Platform.OS === 'android') {
+      BackHandler.removeEventListener('hardwareBackPress' , this.backAction)
+    }
+    
     try {
 
-      await this.agora.leaveChannel()
+      // await this.agora.leaveChannel()
       this.agora.removeAllListeners()
 
       await this.agora.destroy()
@@ -548,6 +544,7 @@ class audioRoom extends Component {
       type: FLUSH_ROOM
     })
 
+    database().ref(`e/${this.props.navigation.getParam('roomId')}`).off()
     database().ref(`hosts/${this.props.navigation.getParam('roomId')}`).off()
     database().ref(`audience/${this.props.navigation.getParam('roomId')}`).off()
     database().ref(`q/${this.props.navigation.getParam('roomId')}`).off()
