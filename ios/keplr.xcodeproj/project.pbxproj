@@ -9,17 +9,15 @@
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* keplrTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* keplrTests.m */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
-		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		263DD2281D7348ED0F17DD8F /* libPods-keplr-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2FBB160E34C54AC9C14DADD2 /* libPods-keplr-tvOSTests.a */; };
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
-		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2DCD954D1E0B4F2C00145EB5 /* keplrTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* keplrTests.m */; };
+		78139FB6258B7A1100EAC140 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78139FB5258B7A1100EAC140 /* Images.xcassets */; };
 		786477D2257057BD00943B4D /* libswiftWebKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 786477D1257057BD00943B4D /* libswiftWebKit.tbd */; };
-		78792D4D25702D4000B1E06B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 78792D4C25702D4000B1E06B /* GoogleService-Info.plist */; };
-		78FCCC28257E862A00F7B76E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78FCCC27257E862900F7B76E /* LaunchScreen.storyboard */; };
-		78FCCC29257E862A00F7B76E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78FCCC27257E862900F7B76E /* LaunchScreen.storyboard */; };
+		789FF878258F7258006DF8E0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 789FF877258F7257006DF8E0 /* LaunchScreen.storyboard */; };
+		78C39FAC258FE9C100E3DD97 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 78C39FAB258FE9C100E3DD97 /* GoogleService-Info.plist */; };
 		89899B52B1B58FB8D2837BF5 /* libPods-keplr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E115BFA42A01AC0E5D6DD491 /* libPods-keplr.a */; };
 		DB4D631EE4572278A29D4942 /* libPods-keplr-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 349E165E0A76A674DEC792E1 /* libPods-keplr-tvOS.a */; };
 		FC2C9B6CA1A9691E1FA18BE1 /* libPods-keplr-keplrTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FBCF49E664AA19A8D935E67 /* libPods-keplr-keplrTests.a */; };
@@ -50,7 +48,6 @@
 		13B07F961A680F5B00A75B9A /* keplr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = keplr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = keplr/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = keplr/AppDelegate.m; sourceTree = "<group>"; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = keplr/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = keplr/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = keplr/main.m; sourceTree = "<group>"; };
 		182CFCF56D061D3C63BCD7DA /* Pods-keplr-keplrTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-keplr-keplrTests.debug.xcconfig"; path = "Target Support Files/Pods-keplr-keplrTests/Pods-keplr-keplrTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -61,11 +58,12 @@
 		349E165E0A76A674DEC792E1 /* libPods-keplr-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-keplr-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		543D9B8273420C998859002A /* Pods-keplr-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-keplr-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-keplr-tvOSTests/Pods-keplr-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		6CEAAD9DA38CCD43AD31144D /* Pods-keplr.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-keplr.debug.xcconfig"; path = "Target Support Files/Pods-keplr/Pods-keplr.debug.xcconfig"; sourceTree = "<group>"; };
+		78139FB5258B7A1100EAC140 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		786477D1257057BD00943B4D /* libswiftWebKit.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftWebKit.tbd; path = usr/lib/swift/libswiftWebKit.tbd; sourceTree = SDKROOT; };
-		786477EB25705A8C00943B4D /* keplr-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "keplr-Bridging-Header.h"; sourceTree = "<group>"; };
-		78792D4C25702D4000B1E06B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		789FF877258F7257006DF8E0 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		789FF87D258F7286006DF8E0 /* keplr-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "keplr-Bridging-Header.h"; sourceTree = "<group>"; };
+		78C39FAB258FE9C100E3DD97 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		78D66A40257E43330070B87F /* keplr.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = keplr.entitlements; path = keplr/keplr.entitlements; sourceTree = "<group>"; };
-		78FCCC27257E862900F7B76E /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8BD75F3AD2172D00DD707759 /* Pods-keplr.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-keplr.release.xcconfig"; path = "Target Support Files/Pods-keplr/Pods-keplr.release.xcconfig"; sourceTree = "<group>"; };
 		9FBCF49E664AA19A8D935E67 /* libPods-keplr-keplrTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-keplr-keplrTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1DA5F695BE208E6966BED52 /* Pods-keplr-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-keplr-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-keplr-tvOS/Pods-keplr-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -133,14 +131,15 @@
 		13B07FAE1A68108700A75B9A /* keplr */ = {
 			isa = PBXGroup;
 			children = (
+				78C39FAB258FE9C100E3DD97 /* GoogleService-Info.plist */,
+				789FF877258F7257006DF8E0 /* LaunchScreen.storyboard */,
+				78139FB5258B7A1100EAC140 /* Images.xcassets */,
 				78D66A40257E43330070B87F /* keplr.entitlements */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
-				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
-				78FCCC27257E862900F7B76E /* LaunchScreen.storyboard */,
 			);
 			name = keplr;
 			sourceTree = "<group>";
@@ -184,8 +183,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				786477EB25705A8C00943B4D /* keplr-Bridging-Header.h */,
-				78792D4C25702D4000B1E06B /* GoogleService-Info.plist */,
+				789FF87D258F7286006DF8E0 /* keplr-Bridging-Header.h */,
 				13B07FAE1A68108700A75B9A /* keplr */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* keplrTests */,
@@ -357,9 +355,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				78FCCC28257E862A00F7B76E /* LaunchScreen.storyboard in Resources */,
-				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				78792D4D25702D4000B1E06B /* GoogleService-Info.plist in Resources */,
+				78139FB6258B7A1100EAC140 /* Images.xcassets in Resources */,
+				789FF878258F7258006DF8E0 /* LaunchScreen.storyboard in Resources */,
+				78C39FAC258FE9C100E3DD97 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -367,8 +365,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */,
-				78FCCC29257E862A00F7B76E /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -805,7 +801,7 @@
 				CODE_SIGN_ENTITLEMENTS = keplr/keplr.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = keplr/Info.plist;
@@ -820,12 +816,13 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.okay.testkeplr;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keplrapp;
 				PRODUCT_NAME = keplr;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "keplr-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -840,7 +837,7 @@
 				CODE_SIGN_ENTITLEMENTS = keplr/keplr.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = keplr/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -854,11 +851,12 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.okay.testkeplr;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keplrapp;
 				PRODUCT_NAME = keplr;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "keplr-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
