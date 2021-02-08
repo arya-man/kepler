@@ -121,7 +121,7 @@ class audioRoom extends Component {
     });
     this.setState({shareLoading: false})
     // ------------------------------------------------------
-    console.log("share share");
+    // console.log("share share");
   }
   _toggleNotification(values) {
     var toValue = -300;

@@ -13,6 +13,7 @@ import {
   Platform,
   PermissionsAndroid,
   Dimensions,
+  Linking
 } from 'react-native';
 import 'react-native-get-random-values'
 import Icon from 'react-native-vector-icons/Feather';
@@ -22,7 +23,7 @@ import CBox from './customizableNeuButton';
 import LinearGradient from 'react-native-linear-gradient';
 import { connect } from 'react-redux';
 import { withNavigation } from 'react-navigation';
-import { GET_ROOMS, GET_CONNECTED, DEEP_LINK} from '../redux/roomsRedux';
+import { GET_ROOMS, GET_CONNECTED, DEEP_LINK } from '../redux/roomsRedux';
 import ErrorPopup from './errorPopup'
 import firestore from '@react-native-firebase/firestore'
 import database from '@react-native-firebase/database'
@@ -34,9 +35,11 @@ import {
 } from 'react-native-indicators';
 import messaging from '@react-native-firebase/messaging'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import VersionNumber from 'react-native-version-number';
+
 const screenWidth = Dimensions.get('window').width
 const tempJson = [
-  "https://source.unsplash.com/random","https://source.unsplash.com/user/erondu/1600x900","https://source.unsplash.com/collection/190727/1600x900",
+  "https://source.unsplash.com/random", "https://source.unsplash.com/user/erondu/1600x900", "https://source.unsplash.com/collection/190727/1600x900",
 ];
 class audioRoomHome extends Component {
   constructor(props) {
@@ -57,9 +60,10 @@ class audioRoomHome extends Component {
       createLoading: false,
       refreshing: false,
       location: '',
-      deepLinkData:[]
+      deepLinkData: {},
+      updateApp: false
     };
-    if(Platform.OS=='android'){
+    if (Platform.OS == 'android') {
       PermissionsAndroid.request('android.permission.RECORD_AUDIO')
     }
 
@@ -164,22 +168,21 @@ class audioRoomHome extends Component {
 
   }
 
-  async checkDeepLink (){
-    console.log("ID: ", this.props.deepLinkID)
+  async checkDeepLink() {
+    // console.log("ID: ", this.props.deepLinkID)
     let roomId = this.props.deepLinkID;
-    if(roomId !== 0){
-      
+    if (roomId !== 0) {
+
       this.props.dispatch({
         type: DEEP_LINK,
         payload: 0
       })
       //fetch data
-      console.log("fetching data for : ", roomId)
+      // console.log("fetching data for : ", roomId)
       /// @@todo aryaman fetch data, that will be stored in this.state/deepLinkData => then setthe modal based on the data
-      database().ref(`rooms/${roomId}`).once('value' , async (snap) => {
-        console.log("Value:", snap.val());
-        this.setState({deepLinkData:snap.val()})
-        this.setState({DeeplinkLandingModalVisible:true});
+      database().ref(`rooms/${roomId}`).once('value', async (snap) => {
+        this.setState({ deepLinkData: snap.val() })
+        this.setState({ DeeplinkLandingModalVisible: true });
       })
     }
   }
@@ -189,64 +192,157 @@ class audioRoomHome extends Component {
     // database().ref('xyz').limitToFirst(1).once('value' , snap => {
     //   console.log("SNAP",snap)
     // })
-    this.checkDeepLink()
-    database().ref('rooms').once('value')
-      .then((query) => {
-        var arr = []
-        query.forEach(doc => {
-          var obj = { id: doc.key }
-          obj = { ...obj, ...doc.val() }
-          arr.push(obj)
-          // console.log("OBJ", obj)
-        })
-        this.props.dispatch({
-          type: GET_ROOMS,
-          payload: arr
-        })
+
+    messaging().onNotificationOpenedApp(async link => {
+
+      console.log("LINK", link.notification)
+
+      var id = link.url.slice(link.url.lastIndexOf('/') + 1);
+
+      database().ref(`rooms/${id}`).once('value', async (snap) => {
+        this.setState({ deepLinkData: snap.val() })
+        this.setState({ DeeplinkLandingModalVisible: true });
       })
-      .catch(() => {
-        this.setState({ getError: true })
-      })
-
-    var bioDone = await AsyncStorage.getItem('bioDone')
-
-    if (bioDone === null) {
-
-      await AsyncStorage.setItem('bioDone', 'done')
-
-    }
-
-    database().ref('dummy').on('value', snap => {
+        .catch()
 
     })
 
-    database().ref('.info/connected').on('value', snap => {
-      this.props.dispatch({
-        type: GET_CONNECTED,
-        payload: snap.val()
-      })
-    })
+    database().ref('version').once('value', async snap => {
 
-    // this.getRooms()
+      var versionHere = VersionNumber.buildVersion
 
-    if (Platform.OS === 'ios') {
-      var authorizationStatus = await messaging().requestPermission()
+      if (versionHere >= snap.val()) {
 
-      if (authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED || authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL) {
+        this.checkDeepLink()
 
-        messaging().subscribeToTopic('all').catch()
+        database().ref('rooms').once('value')
+          .then((query) => {
+            var arr = []
+            query.forEach(doc => {
+              var obj = { id: doc.key }
+              obj = { ...obj, ...doc.val() }
+              arr.push(obj)
+              // console.log("OBJ", obj)
+            })
+            this.props.dispatch({
+              type: GET_ROOMS,
+              payload: arr
+            })
+          })
+          .catch(() => {
+            this.setState({ getError: true })
+          })
+
+        var bioDone = await AsyncStorage.getItem('bioDone')
+
+        if (bioDone === null) {
+
+          await AsyncStorage.setItem('bioDone', 'done')
+
+        }
+
+        database().ref('dummy').on('value', snap => {
+
+        })
+
+        database().ref('.info/connected').on('value', snap => {
+          this.props.dispatch({
+            type: GET_CONNECTED,
+            payload: snap.val()
+          })
+        })
+
+        // this.getRooms()
+
+        if (Platform.OS === 'ios') {
+          var authorizationStatus = await messaging().requestPermission()
+
+          if (authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED || authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL) {
+
+            messaging().subscribeToTopic('all').catch()
+
+          }
+        }
+
+        if (Platform.OS === 'android') {
+
+          messaging().subscribeToTopic('all').catch()
+
+        }
+
+        this.setState({ loading: false })
+        this.setState({ refreshing: false })
 
       }
-    }
+      else {
 
-    if (Platform.OS === 'android') {
+        this.setState({ updateApp: true, loading: false, refreshing: false })
 
-      messaging().subscribeToTopic('all').catch()
+      }
 
-    }
+    })
+      .catch(async () => {
 
-    this.setState({ loading: false })
-    this.setState({ refreshing: false })
+        this.checkDeepLink()
+        database().ref('rooms').once('value')
+          .then((query) => {
+            var arr = []
+            query.forEach(doc => {
+              var obj = { id: doc.key }
+              obj = { ...obj, ...doc.val() }
+              arr.push(obj)
+              // console.log("OBJ", obj)
+            })
+            this.props.dispatch({
+              type: GET_ROOMS,
+              payload: arr
+            })
+          })
+          .catch(() => {
+            this.setState({ getError: true })
+          })
+
+        var bioDone = await AsyncStorage.getItem('bioDone')
+
+        if (bioDone === null) {
+
+          await AsyncStorage.setItem('bioDone', 'done')
+
+        }
+
+        database().ref('dummy').on('value', snap => {
+
+        })
+
+        database().ref('.info/connected').on('value', snap => {
+          this.props.dispatch({
+            type: GET_CONNECTED,
+            payload: snap.val()
+          })
+        })
+
+        // this.getRooms()
+
+        if (Platform.OS === 'ios') {
+          var authorizationStatus = await messaging().requestPermission()
+
+          if (authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED || authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL) {
+
+            messaging().subscribeToTopic('all').catch()
+
+          }
+        }
+
+        if (Platform.OS === 'android') {
+
+          messaging().subscribeToTopic('all').catch()
+
+        }
+
+        this.setState({ loading: false })
+        this.setState({ refreshing: false })
+
+      })
 
   }
 
@@ -524,14 +620,17 @@ class audioRoomHome extends Component {
         {/* ------------------------------------------------- DEEPLINK LANDING MODAL for @aryaman Dated: Feb 7, 2021------------------------------------------------- */}
         <DeeplinkLandingModal
           DeeplinkLandingModalVisible={this.state.DeeplinkLandingModalVisible}
-          roomName="AI: Life 3.0"
-          roomDescription="Will AI take over humanity, or will we be able to control it? Get into a discussion with the leading AI researchers of our time, Ian Goodfellow, Andrew Ng and Max Tegmark."
-          participantsJSON={tempJson}
-          participantsCallToAction="Hasir, Aryaman, Aditya & 42 others are exchanging thoughts!"
+          roomName={this.state.deepLinkData.hashtag}
+          roomDescription={this.state.deepLinkData.caption}
+          participantsJSON={this.state.deepLinkData.admin}
+          participantsCallToAction="Hop on and exchange thoughts!"
           toggleModal={() => {
             this.setState({ DeeplinkLandingModalVisible: false })
           }}
-          onJoinFromDeeplinkFunction={this.onJoinFromDeeplink}
+          onJoinFromDeeplinkFunction={() => {
+            console.log('Will Join')
+            this.setState({ DeeplinkLandingModalVisible: false })
+          }}
         />
         {/* --------------------------------------------------------------------------------------------------------------------------------------------------------- */}
         {/* Add feedback submit function here. */}
@@ -555,6 +654,29 @@ class audioRoomHome extends Component {
               })
           }}
         />
+
+        <UpdateModal
+          feedbackModalVisible={this.state.updateApp}
+          // toggleCreateRoomModal={() =>
+          //   this.setState({ feedbackModalVisible: false })
+          // }
+          // onChangeText={(text) => {
+          //   this.setState({ feedback: text });
+          // }}
+          submitFunction={() => {
+            // firestore().collection('feedback').add({
+            //   text: this.state.feedback
+            // })
+            //   .then(() => {
+            //     this.setState({ feedbackModalVisible: false })
+            //   })
+            //   .catch(() => {
+            //     this.setState({ feedbackModalVisible: false })
+            //   })
+            Linking.openURL('https://play.google.com/store/apps/details?id=com.keplr')
+          }}
+        />
+
         {/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~` */}
         {/* While making a flatlist here add marginBottom of 60. */}
         <ErrorPopup
@@ -771,7 +893,7 @@ class DeeplinkLandingModal extends Component {
                   width: "80%",
                 }}>
                 {this.props.roomName}
-                </Text>
+              </Text>
               <Icon
                 name="x-circle"
                 style={{ color: '#EA688A' }}
@@ -805,7 +927,7 @@ class DeeplinkLandingModal extends Component {
                   return (
                     <Image
                       key={item}
-                      source={{ uri: this.props.participantsJSON[item] }}
+                      source={{ uri: this.props.participantsJSON[item]['photoUrl'] }}
                       style={{
                         marginLeft: -20,
                         height: 50,
@@ -845,6 +967,100 @@ class DeeplinkLandingModal extends Component {
     )
   }
 }
+
+class UpdateModal extends Component {
+  render() {
+    return (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={this.props.feedbackModalVisible}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.2)',
+          }}>
+          <View
+            style={{
+              height: 150,
+              width: '80%',
+              borderWidth: 3,
+              borderColor: '#e5e5e5',
+              backgroundColor: 'rgb(233, 235, 244)',
+              borderRadius: 10,
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: 10,
+                alignItems: 'center',
+                paddingHorizontal: 15,
+              }}>
+              <Text
+                style={{
+                  color: '#4e7bb4',
+                  fontWeight: 'bold',
+                  fontSize: 20,
+                }}>
+                Please update the app
+              </Text>
+              {/* <Icon
+                name="x-circle"
+                style={{ color: '#EA688A' }}
+                size={25}
+                onPress={this.props.toggleCreateRoomModal}
+              /> */}
+            </View>
+            <View
+              style={{
+                marginTop: 10,
+                borderBottomColor: '#BFBFBF',
+                borderBottomWidth: 2,
+                borderRadius: 2,
+                width: '100%',
+                opacity: 0.2,
+                marginBottom: 10,
+              }}
+            />
+            {/* <Box
+              height={70}
+              width={275}
+              borderRadius={25}
+              style={{ alignSelf: 'center', marginLeft: 10 }}>
+              <TextInput
+                placeholder="Your feedback will remain anonymous."
+                multiline={true}
+                numberOfLines={3}
+                textAlignVertical="top"
+                onChangeText={this.props.onChangeText}
+                style={{
+                  fontWeight: 'bold',
+                  paddingHorizontal: 20,
+                  width: '100%',
+                  color: '#7f7f7f',
+                  paddingTop: 15,
+                }}
+              />
+            </Box> */}
+            <View style={{ marginTop: 10, alignItems: 'center', width: '100%' }}>
+              <CreateRoomButton
+                height={40}
+                width={0.6 * screenWidth}
+                borderRadius={20}
+                text="UPDATE"
+                createRoom={this.props.submitFunction}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+}
+
 class FeedbackModal extends Component {
   render() {
     return (
@@ -1207,7 +1423,7 @@ export class CreateRoomButton extends Component {
                 </Text>
               }
               {this.state.loading &&
-                <DotIndicator color="#fff" size={10} betweenSpace={0} count={3}/>
+                <DotIndicator color="#fff" size={10} betweenSpace={0} count={3} />
               }
             </View>
           </LinearGradient>
@@ -1256,7 +1472,7 @@ export class JoinButton extends Component {
             </TouchableOpacity>
           )}
           {this.props.shouldLoad && (
-            <DotIndicator color="#fff" size={5} betweenSpace={0} count={3}/>
+            <DotIndicator color="#fff" size={5} betweenSpace={0} count={3} />
           )}
         </LinearGradient>
       </Box>
@@ -1301,7 +1517,7 @@ export class PhotoAndBio extends Component {
           photoUrl={this.props.photoUrl}
           navigateToProfile={this.props.navigateToProfile}
         />
-        <View style={{ marginRight: 70, marginLeft: this.props.isDeeplinkLanding ?  5 : 10 }}>
+        <View style={{ marginRight: 70, marginLeft: this.props.isDeeplinkLanding ? 5 : 10 }}>
           <Text
             onPress={this.props.navigateToProfile}
             style={{ fontWeight: 'bold', color: '#A1AFC3' }}>
@@ -1324,7 +1540,7 @@ const mapStateToProps = (state) => {
     rooms: state.rooms.rooms,
     user: state.user,
     connected: state.rooms.connected,
-    deepLinkID:state.rooms.deepLinkID
+    deepLinkID: state.rooms.deepLinkID
   };
 };
 
