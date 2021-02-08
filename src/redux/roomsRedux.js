@@ -28,13 +28,16 @@ export const FLUSH_ROOM = 'FLUSH_ROOM'
 export const ADD_AGORA_HOSTS = 'ADD_AGORA_HOSTS'
 export const REMOVE_AGORA_HOSTS = 'REMOVE_AGORA_HOSTS'
 export const AM_I_TALKING = 'AM_I_TALKING'
+export const DEEP_LINK = 'DEEP_LINK'
 
-
-const INITIAL_STATE = { roomAudience: [], roomHosts: [], roomQueue: [], rooms: [], connected: false , agoraHosts: {} , AmItalking: 0}
+const INITIAL_STATE = { roomAudience: [], roomHosts: [], roomQueue: [], rooms: [], connected: false , agoraHosts: {} , AmItalking: 0, deepLinkID:0}
 
 export default function roomsRedux(state = INITIAL_STATE, action) {
     switch (action.type) {
 
+        case DEEP_LINK:
+            return {...state , deepLinkID: action.payload}
+        
         case AM_I_TALKING:
             return {...state , AmItalking: action.payload}
 

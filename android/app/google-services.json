@@ -30,6 +30,13 @@
             {
               "client_id": "357725378074-tbcmbhoik89jd82gc5gfultvro6sk919.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "357725378074-5crpj453cvbe7khkj0ma9ep1cbdahj6f.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.keplr"
+              }
             }
           ]
         }

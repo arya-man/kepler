@@ -44,6 +44,7 @@ import firestore from '@react-native-firebase/firestore';
 import RNFetchBlob from 'rn-fetch-blob';
 
 const screenWidth = Math.round(Dimensions.get('window').width);
+import dynamicLinks from '@react-native-firebase/dynamic-links';
 
 var naviagtionBarHidden = true;
 class audioRoom extends Component {
@@ -74,8 +75,25 @@ class audioRoom extends Component {
     this.agora;
     this.numberOfHosts = 0;
   }
+  deeplink = async(id) => {
+    const link = await dynamicLinks().buildLink({
+    link: 'https://keplr.org/'+id,
+    // domainUriPrefix is created in your Firebase console
+    domainUriPrefix: 'https://keplr.page.link',
+    android: {
+      packageName: 'com.keplr',
+    },
+    ios:{
+      bundleId:'com.keplrapp'
+    }
+  });
+  console.log(link);
+  return link;
+
+}
   // ------------- SHARE ROOM FUNCTION @aryaman: Dated: Feb 8, 2020 -> Add Deep Link in message on line 97 -------------------------
   onShareFunction = async () => {
+    let shareLink = await this.deeplink(this.props.navigation.getParam('roomId'));
     this.setState({shareLoading: true})
     file_url = "https://firebasestorage.googleapis.com/v0/b/keplr-4ff01.appspot.com/o/keplr-share.png?alt=media&token=3c6ed63b-d7ea-418e-a911-4899113033c8";
     let imagePath = null;
@@ -94,7 +112,7 @@ class audioRoom extends Component {
         // here's base64 encoded image
         await Share.open({ 
           url: base64Data,
-          message: "Join us on Keplr!"
+          message: "Join us on Keplr! "+shareLink
         });
         // remove the file from storage
         return fs.unlink(imagePath);
@@ -767,7 +785,7 @@ class audioRoom extends Component {
                   showsVerticalScrollIndicator={false}
                   style={{
                     paddingTop: 10,
-                    marginLeft: -15,
+                    marginLeft: -25,
                   }}
                   numColumns={3}
                   data={this.props.roomHosts}
@@ -2077,6 +2095,7 @@ const mapStateToProps = (state) => {
     connected: state.rooms.connected,
     agoraHosts: state.rooms.agoraHosts,
     AmItalking: state.rooms.AmItalking,
+    deepLinkID:state.rooms.deepLinkID
   };
 };
 

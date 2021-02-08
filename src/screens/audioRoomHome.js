@@ -22,7 +22,7 @@ import CBox from './customizableNeuButton';
 import LinearGradient from 'react-native-linear-gradient';
 import { connect } from 'react-redux';
 import { withNavigation } from 'react-navigation';
-import { GET_ROOMS, GET_CONNECTED } from '../redux/roomsRedux';
+import { GET_ROOMS, GET_CONNECTED, DEEP_LINK} from '../redux/roomsRedux';
 import ErrorPopup from './errorPopup'
 import firestore from '@react-native-firebase/firestore'
 import database from '@react-native-firebase/database'
@@ -49,7 +49,7 @@ class audioRoomHome extends Component {
       caption: '',
       feedback: '',
       feedbackModalVisible: false,
-      DeeplinkLandingModalVisible: true,
+      DeeplinkLandingModalVisible: false,
       loading: true,
       getError: false,
       modalVisible: false,
@@ -57,6 +57,7 @@ class audioRoomHome extends Component {
       createLoading: false,
       refreshing: false,
       location: '',
+      deepLinkData:[]
     };
     if(Platform.OS=='android'){
       PermissionsAndroid.request('android.permission.RECORD_AUDIO')
@@ -163,13 +164,32 @@ class audioRoomHome extends Component {
 
   }
 
+  async checkDeepLink (){
+    console.log("ID: ", this.props.deepLinkID)
+    let roomId = this.props.deepLinkID;
+    if(roomId !== 0){
+      
+      this.props.dispatch({
+        type: DEEP_LINK,
+        payload: 0
+      })
+      //fetch data
+      console.log("fetching data for : ", roomId)
+      /// @@todo aryaman fetch data, that will be stored in this.state/deepLinkData => then setthe modal based on the data
+      database().ref(`rooms/${roomId}`).once('value' , async (snap) => {
+        console.log("Value:", snap.val());
+        this.setState({deepLinkData:snap.val()})
+        this.setState({DeeplinkLandingModalVisible:true});
+      })
+    }
+  }
 
   async componentDidMount() {
 
     // database().ref('xyz').limitToFirst(1).once('value' , snap => {
     //   console.log("SNAP",snap)
     // })
-
+    this.checkDeepLink()
     database().ref('rooms').once('value')
       .then((query) => {
         var arr = []
@@ -1304,6 +1324,7 @@ const mapStateToProps = (state) => {
     rooms: state.rooms.rooms,
     user: state.user,
     connected: state.rooms.connected,
+    deepLinkID:state.rooms.deepLinkID
   };
 };
 
