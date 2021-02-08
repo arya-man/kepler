@@ -14,7 +14,7 @@ export default class Loading extends Component {
             else {
 
                 var bioDone = await AsyncStorage.getItem('bioDone')
-                console.log("BIODONE", bioDone)
+                // console.log("BIODONE", bioDone)
                 if(bioDone === 'done') {
                     this.props.navigation.navigate('openingScreen')
                 }

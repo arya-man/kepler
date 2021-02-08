@@ -19,6 +19,7 @@
     "@react-native-firebase/firestore": "^7.10.3",
     "@react-native-firebase/messaging": "^8.0.1",
     "@react-native-firebase/storage": "^7.4.14",
+    "@supersami/rn-foreground-service": "^1.1.0",
     "css-tree": "1.0.0-alpha.39",
     "prop-types": "^15.7.2",
     "react": "16.13.1",

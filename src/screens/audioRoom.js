@@ -39,6 +39,7 @@ import Toast from 'react-native-simple-toast';
 import RtcEngine from 'react-native-agora';
 import {PacmanIndicator} from 'react-native-indicators';
 import firestore from '@react-native-firebase/firestore';
+import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 
 const screenWidth = Math.round(Dimensions.get('window').width);
 
@@ -128,6 +129,13 @@ class audioRoom extends Component {
             this.setState({loading: false});
             this.setState({roomEnded: true});
           } else {
+
+            ReactNativeForegroundService.start({
+              id: 144,
+              title: `Keplr: ${this.props.navigation.getParam('hashtag')}`,
+              message: `${this.props.navigation.getParam('caption')}`,
+            });
+
             database()
               .ref(
                 `hosts/${this.props.navigation.getParam('roomId')}/${
@@ -516,6 +524,9 @@ class audioRoom extends Component {
   }
 
   async componentWillUnmount() {
+
+    ReactNativeForegroundService.stop()
+
     database()
       .ref(`e/${this.props.navigation.getParam('roomId')}`)
       .off();

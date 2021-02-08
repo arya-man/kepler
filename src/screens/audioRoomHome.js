@@ -33,6 +33,8 @@ import {
 } from 'react-native-indicators';
 import messaging from '@react-native-firebase/messaging'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import ReactNativeForegroundService from '@supersami/rn-foreground-service';
+
 const screenWidth = Dimensions.get('window').width
 class audioRoomHome extends Component {
   constructor(props) {
@@ -56,6 +58,7 @@ class audioRoomHome extends Component {
       createLoading: false,
       refreshing: false,
       location: '',
+      foreground: false
     };
     if(Platform.OS=='android'){
       PermissionsAndroid.request('android.permission.RECORD_AUDIO')
@@ -310,9 +313,18 @@ class audioRoomHome extends Component {
                 }
               }
               else {
-                Toast.showWithGravity('Disconnected from internet. Can\'t create hall', Toast.SHORT, Toast.CENTER)
+                Toast.showWithGravity('Disconnected from the internet. Can\'t create townhall', Toast.SHORT, Toast.CENTER)
               }
             }}
+            // createRoom={() => {
+            //   ReactNativeForegroundService.stop()
+
+            //   ReactNativeForegroundService.start({
+            //     id: 144,
+            //     title: 'Foreground Service',
+            //     message: 'you are online!',
+            //   });
+            // }}
           />
         </View>
 
