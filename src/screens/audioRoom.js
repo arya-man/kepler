@@ -12,6 +12,7 @@ import {
   Dimensions,
   Platform,
   TextInput,
+  ActivityIndicator
 } from 'react-native';
 import Box from './neumorphButton';
 import CBox from './customizableNeuButton';
@@ -20,6 +21,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
 import Swiper from 'react-native-swiper';
 import {connect} from 'react-redux';
+import Share from 'react-native-share';
 import {
   REMOVE_ROOM_QUEUE,
   ADD_ROOM_AUDIENCE,
@@ -37,8 +39,9 @@ import ErrorPopup from './errorPopup';
 import database from '@react-native-firebase/database';
 import Toast from 'react-native-simple-toast';
 import RtcEngine from 'react-native-agora';
-import {PacmanIndicator} from 'react-native-indicators';
+import {PacmanIndicator, DotIndicator} from 'react-native-indicators';
 import firestore from '@react-native-firebase/firestore';
+import RNFetchBlob from 'rn-fetch-blob';
 
 const screenWidth = Math.round(Dimensions.get('window').width);
 
@@ -65,10 +68,42 @@ class audioRoom extends Component {
       leave: false,
       feedbackModalVisible: false,
       feedback : '',
+      shareLoading: false,
     };
     this.BackHandler;
     this.agora;
     this.numberOfHosts = 0;
+  }
+  // ------------- SHARE ROOM FUNCTION @aryaman: Dated: Feb 8, 2020 -> Add Deep Link in message on line 97 -------------------------
+  onShareFunction = async () => {
+    this.setState({shareLoading: true})
+    file_url = "https://firebasestorage.googleapis.com/v0/b/keplr-4ff01.appspot.com/o/keplr-share.png?alt=media&token=3c6ed63b-d7ea-418e-a911-4899113033c8";
+    let imagePath = null;
+    RNFetchBlob.config({
+        fileCache: true
+    })
+    .fetch("GET", file_url)
+    // the image is now dowloaded to device's storage
+    .then(resp => {
+        // the image path you can use it directly with Image component
+        imagePath = resp.path();
+        return resp.readFile("base64");
+    })
+    .then(async base64Data => {
+        var base64Data = `data:image/png;base64,` + base64Data;
+        // here's base64 encoded image
+        await Share.open({ 
+          url: base64Data,
+          message: "Join us on Keplr!"
+        });
+        // remove the file from storage
+        return fs.unlink(imagePath);
+    }).catch(error => {
+      this.setState({shareLoading: false})
+    });
+    this.setState({shareLoading: false})
+    // ------------------------------------------------------
+    console.log("share share");
   }
   _toggleNotification(values) {
     var toValue = -300;
@@ -550,9 +585,9 @@ class audioRoom extends Component {
   render() {
     if (this.state.loading) {
       return (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          {/* <ActivityIndicator size="large" color="#4e7bb4" /> */}
-          <PacmanIndicator color="#4e7bb4" size={50} />
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgb(233, 235, 244)'}}>
+          <ActivityIndicator size="large" color="#4e7bb4" />
+          {/* <PacmanIndicator color="#4e7bb4" size={50} /> */}
         </View>
       );
     } else {
@@ -566,8 +601,8 @@ class audioRoom extends Component {
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
-              paddingTop: 5,
-              alignItems: 'center',
+              paddingTop: 15,
+              // alignItems: 'center',
               marginHorizontal: 15,
               backgroundColor: 'rgb(233, 235, 244)',
               zIndex: 5,
@@ -575,74 +610,84 @@ class audioRoom extends Component {
             {/* Give this the name of the audioroomm */}
             <View
               style={{
-                flexDirection: 'row',
-                width: '65%',
-                alignItems: 'center',
+                width: '70%',
               }}>
               <Text
                 style={{
                   width: '90%',
-                  height: 30,
+                  // height: 30,
                   overflow: 'hidden',
+                  // marginTop: 10,
                   fontSize: 25,
+                  fontWeight: 'bold',
                   color: '#4e7bb4',
                 }}
                 ellipsizeMode="tail"
-                numberOfLines={1}>
-                {`#${this.props.navigation.getParam('hashtag')}`}
+                numberOfLines={2}>
+                {this.props.navigation.getParam('hashtag')}
               </Text>
+              <Text style={{fontWeight:'bold', marginTop: 5, color: '#A1AFC3'}}>
+                Swipe right to view the participants.
+              </Text>
+              <Text style={{fontWeight:'bold', color: '#A1AFC3'}}>
+                Users with a star are moderators.
+              </Text>
+              {this.state.role === 3 && (
+                <Text style={{fontWeight:'bold', color: '#A1AFC3'}}>
+                  Long Press for options.
+                </Text>
+              )}
             </View>
-            <Leave
-              pressFunction={async () => {
-                this.setState({leave: true});
+            <View>
+              <Leave
+                pressFunction={async () => {
+                  this.setState({leave: true});
 
-                if (this.state.role === 2 || this.state.role === 3) {
-                  database()
-                    .ref(
-                      `hosts/${this.props.navigation.getParam('roomId')}/${
-                        this.props.user.user.username
-                      }`,
-                    )
-                    .remove()
-                    .catch();
-                  this.props.navigation.goBack();
-                } else if (this.state.role === 1) {
-                  // database().ref(`queue/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).remove().catch()
-                  database()
-                    .ref(
-                      `audience/${this.props.navigation.getParam('roomId')}/${
-                        this.props.user.user.username
-                      }`,
-                    )
-                    .remove()
-                    .catch();
-                  this.props.navigation.goBack();
-                } else {
-                  database()
-                    .ref(
-                      `audience/${this.props.navigation.getParam('roomId')}/${
-                        this.props.user.user.username
-                      }`,
-                    )
-                    .remove()
-                    .catch();
-                  this.props.navigation.goBack();
-                }
-              }}
-              name="Leave"
-            />
+                  if (this.state.role === 2 || this.state.role === 3) {
+                    database()
+                      .ref(
+                        `hosts/${this.props.navigation.getParam('roomId')}/${
+                          this.props.user.user.username
+                        }`,
+                      )
+                      .remove()
+                      .catch();
+                    this.props.navigation.goBack();
+                  } else if (this.state.role === 1) {
+                    // database().ref(`queue/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).remove().catch()
+                    database()
+                      .ref(
+                        `audience/${this.props.navigation.getParam('roomId')}/${
+                          this.props.user.user.username
+                        }`,
+                      )
+                      .remove()
+                      .catch();
+                    this.props.navigation.goBack();
+                  } else {
+                    database()
+                      .ref(
+                        `audience/${this.props.navigation.getParam('roomId')}/${
+                          this.props.user.user.username
+                        }`,
+                      )
+                      .remove()
+                      .catch();
+                    this.props.navigation.goBack();
+                  }
+                }}
+                name="Leave"
+              />
+              <TouchableOpacity onPress={this.onShareFunction} style={{flexDirection: "row", justifyContent:'center', alignItems: 'center', marginTop: 15}}>
+                <FontAwesome name="share-square-o" size={25} color="#A1AFC3" style={{marginRight:5}}/>
+                {this.state.shareLoading ? (
+                  <ActivityIndicator size="small" color="#A1AFC3" />
+                ) : (
+                  <Text style={{fontWeight:'bold', color: "#A1AFC3", fontSize: 15}}>Share</Text>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
-          <Text style={{marginLeft: 15, marginTop: 5, color: '#7F7F7F'}}>
-            Swipe right to view the participants.
-          </Text>
-          <Text style={{marginLeft: 15, color: '#7F7F7F'}}>
-            Users with a star are moderators.
-          </Text>
-          {this.state.role === 3 && (
-            <Text style={{marginLeft: 15, color: '#7F7F7F'}}>
-              Long Press for options.
-            </Text>
-          )}
           <View
             style={{
               borderBottomColor: '#BFBFBF',
@@ -816,7 +861,7 @@ class audioRoom extends Component {
 
                 <FlatList
                   horizontal={false}
-                  style={{paddingLeft: 15, marginBottom: 100}}
+                  style={{paddingLeft: -15, marginBottom: 100}}
                   numColumns={3}
                   data={this.props.roomAudience}
                   keyExtractor={(item) => item.username}
@@ -1424,7 +1469,7 @@ export class Admin extends Component {
         <Text
           style={{
             marginTop: -10,
-            color: '#EA688A',
+            color: '#4e7bb4',
             overflow: 'hidden',
             width: 80,
             height: 20,
@@ -1445,6 +1490,28 @@ export class Admin extends Component {
           }}>
           <Icon
             name="star"
+            size={15}
+            style={{
+              // position: 'absolute',
+              // top: 5,
+              // right: -15,
+              color: '#fff',
+              backgroundColor: '#4e7bb4',
+              padding: 3,
+              // borderRadius: 10,
+            }}
+          />
+        </View>
+        <View
+          style={{
+            borderRadius: 10,
+            position: 'absolute',
+            top: 30,
+            right: -15,
+            overflow: 'hidden',
+          }}>
+          <Icon
+            name={this.props.micOn ?  "mic" : "mic-off"}
             size={15}
             style={{
               // position: 'absolute',
@@ -1494,7 +1561,7 @@ export class Host extends Component {
         <Text
           style={{
             marginTop: -10,
-            color: '#A1AFC3',
+            color: '#4e7bb4',
             overflow: 'hidden',
             width: 80,
             height: 20,
@@ -1505,6 +1572,28 @@ export class Host extends Component {
           }}>
           {this.props.username}
         </Text>
+        <View
+          style={{
+            borderRadius: 10,
+            position: 'absolute',
+            top: 5,
+            right: -15,
+            overflow: 'hidden',
+          }}>
+          <Icon
+            name={this.props.micOn ?  "mic" : "mic-off"}
+            size={15}
+            style={{
+              // position: 'absolute',
+              // top: 5,
+              // right: -15,
+              color: '#fff',
+              backgroundColor: '#4e7bb4',
+              padding: 3,
+              // borderRadius: 10,
+            }}
+          />
+        </View>
       </TouchableOpacity>
     );
   }
@@ -1625,7 +1714,7 @@ export class Leave extends Component {
                 fontSize: 15,
                 alignSelf: 'center',
                 fontWeight: 'bold',
-                color: '#EA688A',
+                color: '#A1AFC3',
               }}>
               {this.props.name}
             </Text>
@@ -1765,7 +1854,7 @@ export class MicButton extends Component {
             <Box height={40} width={40} borderRadius={10}>
               <Icon
                 name="mic"
-                color="#7f7f7f"
+                color="#A1AFC3"
                 size={25}
                 style={{alignSelf: 'center', marginTop: 7}}
               />
@@ -1774,7 +1863,7 @@ export class MicButton extends Component {
             <Box height={40} width={40} borderRadius={10}>
               <Icon
                 name="mic-off"
-                color="#7f7f7f"
+                color="#A1AFC3"
                 size={25}
                 style={{alignSelf: 'center', marginTop: 7}}
               />
@@ -1792,7 +1881,8 @@ export class Participant extends Component {
       <TouchableOpacity
         style={{
           width: screenWidth / 3 - 50,
-          marginRight: (screenWidth - 3 * (screenWidth / 3 - 50)) / 3,
+          paddingLeft: (screenWidth - 3 * (screenWidth / 3 - 25)) / 3,
+          // marginRight: (screenWidth - 3 * (screenWidth / 3 - 50)) / 3,
         }}
         onPress={this.props.longPressOnParticipant}>
         <Box

@@ -34,6 +34,9 @@ import {
 import messaging from '@react-native-firebase/messaging'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 const screenWidth = Dimensions.get('window').width
+const tempJson = [
+  "https://source.unsplash.com/random","https://source.unsplash.com/user/erondu/1600x900","https://source.unsplash.com/collection/190727/1600x900",
+];
 class audioRoomHome extends Component {
   constructor(props) {
     super(props);
@@ -45,10 +48,7 @@ class audioRoomHome extends Component {
       caption: '',
       feedback: '',
       feedbackModalVisible: false,
-      referalModalVisible: false,
-      numberOfReferalsLeft: 1, //@aditya: Add here for number of Referals Left.
-      referEmail: '', //@aditya: Here is the email.
-      zeroReferals: false,
+      DeeplinkLandingModalVisible: true,
       loading: true,
       getError: false,
       modalVisible: false,
@@ -68,16 +68,8 @@ class audioRoomHome extends Component {
       createRoomModalVisible: !this.state.createRoomModalVisible,
     });
   };
-  onReferFunction = () => {
-    if (this.state.numberOfReferalsLeft === 0) {
-      this.setState({ zeroReferals: true })
-      this.setState({ referalModalVisible: false })
-    }
-    else {
-      console.log(this.state.numberOfReferalsLeft);
-      // @Aditya: Add you logic for refer here. The case for zero is handled.
-
-    }
+  onJoinFromDeeplink = () => {
+    console.log("Joined");
   }
   // getRooms = () => {
 
@@ -277,7 +269,6 @@ class audioRoomHome extends Component {
             this.setState({ referalModalVisible: true })
           }}
         />
-
         {/* ~~~~~~ This is create room button located at the bottom. ~~~~~~ */}
         <View
           style={{
@@ -509,26 +500,19 @@ class audioRoomHome extends Component {
             </View>
           </View>
         </Modal>
-        <ReferalModal
-          referalModalVisible={this.state.referalModalVisible}
+        {/* ------------------------------------------------- DEEPLINK LANDING MODAL for @aryaman Dated: Feb 7, 2021------------------------------------------------- */}
+        <DeeplinkLandingModal
+          DeeplinkLandingModalVisible={this.state.DeeplinkLandingModalVisible}
+          roomName="AI: Life 3.0"
+          roomDescription="Will AI take over humanity, or will we be able to control it? Get into a discussion with the leading AI researchers of our time, Ian Goodfellow, Andrew Ng and Max Tegmark."
+          participantsJSON={tempJson}
+          participantsCallToAction="Hasir, Aryaman, Aditya & 42 others are exchanging thoughts!"
           toggleModal={() => {
-            this.setState({ referalModalVisible: false })
+            this.setState({ DeeplinkLandingModalVisible: false })
           }}
-          onChangeText={(text) => {
-            this.setState({ referEmail: text })
-          }}
-          numberOfReferalsLeft={this.state.numberOfReferalsLeft}
-          onReferFunction={this.onReferFunction}
+          onJoinFromDeeplinkFunction={this.onJoinFromDeeplink}
         />
-        <ErrorPopup
-          title="Oops!"
-          subTitle='You have expired all your referals. Contact Us for more!'
-          okButtonText="OK"
-          clickFunction={() => {
-            this.setState({ zeroReferals: false })
-          }}
-          modalVisible={this.state.zeroReferals}
-        />
+        {/* --------------------------------------------------------------------------------------------------------------------------------------------------------- */}
         {/* Add feedback submit function here. */}
         <FeedbackModal
           feedbackModalVisible={this.state.feedbackModalVisible}
@@ -562,7 +546,6 @@ class audioRoomHome extends Component {
           }}
           modalVisible={this.state.getError}
         />
-
         {this.state.loading ? (
           <View style={{ flex: 1, justifyContent: 'center', marginBottom: 60 }}>
             <ActivityIndicator size="large" color="#4e7bb4" />
@@ -725,13 +708,13 @@ class audioRoomHome extends Component {
     // }
   }
 }
-class ReferalModal extends Component {
+class DeeplinkLandingModal extends Component {
   render() {
     return (
       <Modal
         animationType="fade"
         transparent={true}
-        visible={this.props.referalModalVisible}
+        visible={this.props.DeeplinkLandingModalVisible}
       >
         <View
           style={{
@@ -743,7 +726,7 @@ class ReferalModal extends Component {
           <View
             style={{
               paddingBottom: 20,
-              width: '80%',
+              width: '90%',
               borderWidth: 3,
               borderColor: '#e5e5e5',
               backgroundColor: 'rgb(233, 235, 244)',
@@ -755,15 +738,18 @@ class ReferalModal extends Component {
                 justifyContent: 'space-between',
                 marginTop: 10,
                 alignItems: 'center',
-                paddingHorizontal: 15,
+                paddingHorizontal: 20,
               }}>
               <Text
+                ellipsizeMode="tail"
+                numberOfLines={2}
                 style={{
                   color: '#4e7bb4',
                   fontWeight: 'bold',
                   fontSize: 20,
+                  width: "80%",
                 }}>
-                Refer Now!
+                {this.props.roomName}
                 </Text>
               <Icon
                 name="x-circle"
@@ -780,49 +766,56 @@ class ReferalModal extends Component {
                 borderRadius: 2,
                 width: '100%',
                 opacity: 0.2,
-                marginBottom: 10,
+                // marginBottom: 10,
               }}
             />
-            <Text style={{ fontSize: 18, color: '#7f7f7f', marginTop: 5, marginLeft: 20 }}>
-              Number of Referals left,
-              </Text>
-            <Text
-              ellipsizeMode="tail"
-              numberOfLines={1}
-              style={{
-                color: '#4e7bb4',
-                fontSize: 35,
-                fontWeight: 'bold',
-                // marginLeft: 27
-                alignSelf: 'center'
-              }}>
-              {this.props.numberOfReferalsLeft}
+            <Text ellipsizeMode="tail" numberOfLines={5} style={{ fontSize: 15, color: '#7f7f7f', marginTop: 5, paddingHorizontal: 20 }}>
+              {this.props.roomDescription}
             </Text>
-            <Box
-              height={40}
-              width={0.68 * screenWidth}
-              borderRadius={20}
-              style={{ alignSelf: 'center', marginTop: 10 }}
-              styleChildren={{ justifyContent: 'center' }}
-            >
-              <TextInput
-                placeholder="Enter Email"
-                placeholderTextColor="#B5BFD0"
+            {/* Overview of participants */}
+            <View style={{ alignSelf: 'center', marginTop: 35, marginBottom: 5 }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignSelf: 'center',
+                  marginLeft: 20,
+                }}>
+                {this.props.participantsJSON !== undefined && Object.keys(this.props.participantsJSON).map((item) => {
+                  return (
+                    <Image
+                      key={item}
+                      source={{ uri: this.props.participantsJSON[item] }}
+                      style={{
+                        marginLeft: -20,
+                        height: 50,
+                        width: 50,
+                        borderRadius: 25,
+                        borderWidth: 2,
+                        borderColor: '#4e7bb4',
+                      }}
+                    />
+                  );
+                })}
+              </View>
+              <Text
                 style={{
                   fontWeight: 'bold',
-                  paddingHorizontal: 20,
-                  width: '100%',
-                }}
-                onChangeText={this.props.onChangeText}
-              />
-            </Box>
+                  color: '#bebebe',
+                  width: 180,
+                  marginTop: 7,
+                  textAlign: 'center',
+                  fontSize: 12,
+                }}>
+                {this.props.participantsCallToAction}
+              </Text>
+            </View>
             <View style={{ marginTop: 7, width: '100%', alignItems: 'center', marginLeft: 2 }}>
               <CreateRoomButton
                 height={40}
                 width={0.68 * screenWidth}
                 borderRadius={20}
-                text="REFER"
-                createRoom={this.props.onReferFunction}
+                text="JOIN"
+                createRoom={this.props.onJoinFromDeeplinkFunction}
               />
             </View>
           </View>
@@ -1280,14 +1273,14 @@ export class PhotoAndBio extends Component {
       <View
         style={{
           flexDirection: 'row',
-          paddingHorizontal: 15,
+          paddingHorizontal: this.props.isDeeplinkLanding ? 40 : 15,
           alignItems: 'center',
         }}>
         <Photo
           photoUrl={this.props.photoUrl}
           navigateToProfile={this.props.navigateToProfile}
         />
-        <View style={{ marginRight: 70, marginLeft: 10 }}>
+        <View style={{ marginRight: 70, marginLeft: this.props.isDeeplinkLanding ?  5 : 10 }}>
           <Text
             onPress={this.props.navigateToProfile}
             style={{ fontWeight: 'bold', color: '#A1AFC3' }}>
