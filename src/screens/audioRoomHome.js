@@ -30,6 +30,7 @@ import Toast from 'react-native-simple-toast'
 import { v4 as uuidv4 } from 'uuid'
 import {
   PulseIndicator,
+  DotIndicator
 } from 'react-native-indicators';
 import messaging from '@react-native-firebase/messaging'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -1186,7 +1187,7 @@ export class CreateRoomButton extends Component {
                 </Text>
               }
               {this.state.loading &&
-                <PulseIndicator color="#4e7bb4" size={40} />
+                <DotIndicator color="#fff" size={10} betweenSpace={0} count={3}/>
               }
             </View>
           </LinearGradient>
@@ -1235,7 +1236,7 @@ export class JoinButton extends Component {
             </TouchableOpacity>
           )}
           {this.props.shouldLoad && (
-            <PulseIndicator color="#4e7bb4" size={40} />
+            <DotIndicator color="#fff" size={5} betweenSpace={0} count={3}/>
           )}
         </LinearGradient>
       </Box>
