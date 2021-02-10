@@ -40,6 +40,7 @@ class Loading extends Component {
         .getInitialLink()
         .then(link => {
         if (link) {
+            console.log(link.url)
           this.handleDeepLink(link)
         }
       })
@@ -48,8 +49,9 @@ class Loading extends Component {
       })
     }
     handleDeepLink(link) {
-        if (link.url.includes("https://keplr.page.link")) {
+        if (link.url.includes("https://keplr.org")) {
             var id = link.url.slice(link.url.lastIndexOf('/') + 1);
+            console.log(id);
             this.props.dispatch({
                 type: DEEP_LINK,
                 payload: id

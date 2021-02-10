@@ -36,6 +36,7 @@ import {
 import messaging from '@react-native-firebase/messaging'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import VersionNumber from 'react-native-version-number';
+import dynamicLinks from '@react-native-firebase/dynamic-links';
 
 const screenWidth = Dimensions.get('window').width
 const tempJson = [
@@ -187,12 +188,31 @@ class audioRoomHome extends Component {
     }
   }
 
+
+  _handleOpenURL = event => {
+    console.log("Liniking ", event)
+    dynamicLinks().onLink(link => {
+      console.log("Inside: ", link)
+      if (link.url.includes("https://keplr.org")) {
+        var roomId = link.url.slice(link.url.lastIndexOf('/') + 1);
+        //navigate to that part of the page
+        database().ref(`rooms/${roomId}`).once('value', async (snap) => {
+          this.setState({ deepLinkData: snap.val() })
+          this.setState({ DeeplinkLandingModalVisible: true });
+        })
+
+      }
+    });
+  };
+
   async componentDidMount() {
 
     // database().ref('xyz').limitToFirst(1).once('value' , snap => {
     //   console.log("SNAP",snap)
     // })
-
+    console.log("DID MOUNT")
+    this._handleOpenURL()
+    Linking.addEventListener('url', this._handleOpenURL);
     messaging().onNotificationOpenedApp(async link => {
 
       console.log("LINK", link.notification)
@@ -364,6 +384,7 @@ class audioRoomHome extends Component {
 
     database().ref('dummy').off()
     database().ref('.info/connected').off()
+    Linking.removeEventListener('url', this._handleOpenURL);
 
   }
 
