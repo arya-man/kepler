@@ -179,6 +179,7 @@ class audioRoom extends Component {
         .once('value', async (snap) => {
           if (snap.val() !== null) {
             this.setState({loading: false});
+            database().ref(`rooms/${this.props.navigation.getParam('roomId')}`).remove().catch()
             this.setState({roomEnded: true});
           } else {
             database()
