@@ -9,6 +9,7 @@ var unsubscribe
 class Loading extends Component {
 
     componentDidMount() {
+        //console.log("Loading is called")
         this.handleDynamicsLink();
         unsubscribe = auth().onAuthStateChanged(async user => {
             if (user === null) {

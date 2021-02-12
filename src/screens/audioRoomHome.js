@@ -265,7 +265,7 @@ class audioRoomHome extends Component {
     //   console.log("SNAP",snap)
     // })
     // console.log("DID MOUNT")
-    this._handleOpenURL()
+    //this._handleOpenURL()
     Linking.addEventListener('url', this._handleOpenURL);
     // messaging().onNotificationOpenedApp(async link => {
 
