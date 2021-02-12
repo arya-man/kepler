@@ -39,9 +39,7 @@ import VersionNumber from 'react-native-version-number';
 import dynamicLinks from '@react-native-firebase/dynamic-links';
 
 const screenWidth = Dimensions.get('window').width
-const tempJson = [
-  "https://source.unsplash.com/random", "https://source.unsplash.com/user/erondu/1600x900", "https://source.unsplash.com/collection/190727/1600x900",
-];
+
 class audioRoomHome extends Component {
   constructor(props) {
     super(props);
@@ -62,7 +60,9 @@ class audioRoomHome extends Component {
       refreshing: false,
       location: '',
       deepLinkData: {},
-      updateApp: false
+      updateApp: false,
+      deeplinkLoading: false,
+      deepLinkDone: false
     };
     if (Platform.OS == 'android') {
       PermissionsAndroid.request('android.permission.RECORD_AUDIO')
@@ -182,23 +182,77 @@ class audioRoomHome extends Component {
       // console.log("fetching data for : ", roomId)
       /// @@todo aryaman fetch data, that will be stored in this.state/deepLinkData => then setthe modal based on the data
       database().ref(`rooms/${roomId}`).once('value', async (snap) => {
-        this.setState({ deepLinkData: snap.val() })
-        this.setState({ DeeplinkLandingModalVisible: true });
+
+        var obj = {}
+
+        if (snap.val() !== null) {
+
+          var length = Object.keys(snap.val()['admin'])
+          // console.log("LENGTH", length)
+          var text = ''
+
+          if (length.length === 1) {
+            text = `${[length[0]]} is already here`
+          }
+          else if (length.length === 2) {
+            text = `${[length[0]]} and ${[length[1]]} are already here`
+          }
+          else {
+            text = `${[length[0]]},${[length[1]]} and ${[length[2]]} are already here`
+          }
+
+          obj = { ...snap.val(), callToAction: text, id: snap.key }
+          this.setState({ deepLinkData: obj })
+          this.setState({ DeeplinkLandingModalVisible: true });
+
+        }
+        else {
+
+          this.setState({ deepLinkDone: true })
+
+        }
       })
     }
   }
 
 
   _handleOpenURL = event => {
-    console.log("Liniking ", event)
+    // console.log("Liniking ", event)
     dynamicLinks().onLink(link => {
       console.log("Inside: ", link)
       if (link.url.includes("https://keplr.org")) {
         var roomId = link.url.slice(link.url.lastIndexOf('/') + 1);
         //navigate to that part of the page
         database().ref(`rooms/${roomId}`).once('value', async (snap) => {
-          this.setState({ deepLinkData: snap.val() })
-          this.setState({ DeeplinkLandingModalVisible: true });
+
+          var obj = {}
+
+          if (snap.val() !== null) {
+
+            var length = Object.keys(snap.val()['admin'])
+            // console.log("LENGTH", length)
+            var text = ''
+
+            if (length.length === 1) {
+              text = `${[length[0]]} is already here`
+            }
+            else if (length.length === 2) {
+              text = `${[length[0]]} and ${[length[1]]} are already here`
+            }
+            else {
+              text = `${[length[0]]},${[length[1]]} and ${[length[2]]} are already here`
+            }
+
+            obj = { ...snap.val(), callToAction: text, id: snap.key }
+            this.setState({ deepLinkData: obj })
+            this.setState({ DeeplinkLandingModalVisible: true });
+
+          }
+          else {
+
+            this.setState({ deepLinkDone: true })
+
+          }
         })
 
       }
@@ -210,22 +264,22 @@ class audioRoomHome extends Component {
     // database().ref('xyz').limitToFirst(1).once('value' , snap => {
     //   console.log("SNAP",snap)
     // })
-    console.log("DID MOUNT")
+    // console.log("DID MOUNT")
     this._handleOpenURL()
     Linking.addEventListener('url', this._handleOpenURL);
-    messaging().onNotificationOpenedApp(async link => {
+    // messaging().onNotificationOpenedApp(async link => {
 
-      console.log("LINK", link.notification)
+    //   console.log("LINK", link.notification)
 
-      var id = link.url.slice(link.url.lastIndexOf('/') + 1);
+    //   var id = link.url.slice(link.url.lastIndexOf('/') + 1);
 
-      database().ref(`rooms/${id}`).once('value', async (snap) => {
-        this.setState({ deepLinkData: snap.val() })
-        this.setState({ DeeplinkLandingModalVisible: true });
-      })
-        .catch()
+    //   database().ref(`rooms/${id}`).once('value', async (snap) => {
+    //     this.setState({ deepLinkData: snap.val() })
+    //     this.setState({ DeeplinkLandingModalVisible: true });
+    //   })
+    //     .catch()
 
-    })
+    // })
 
     database().ref('version').once('value', async snap => {
 
@@ -644,13 +698,57 @@ class audioRoomHome extends Component {
           roomName={this.state.deepLinkData.hashtag}
           roomDescription={this.state.deepLinkData.caption}
           participantsJSON={this.state.deepLinkData.admin}
-          participantsCallToAction="Hop on and exchange thoughts!"
+          participantsCallToAction={this.state.deepLinkData.callToAction}
           toggleModal={() => {
             this.setState({ DeeplinkLandingModalVisible: false })
           }}
-          onJoinFromDeeplinkFunction={() => {
-            console.log('Will Join')
-            this.setState({ DeeplinkLandingModalVisible: false })
+          loading={this.state.deeplinkLoading}
+          onJoinFromDeeplinkFunction={async () => {
+            if (this.props.connected) {
+              var audio = true
+              if (Platform.OS === 'android') {
+                audio = PermissionsAndroid.check('android.permission.RECORD_AUDIO')
+              }
+              if (audio) {
+
+                this.setState({ deeplinkLoading: true })
+
+                fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
+                  method: 'POST',
+                  headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    roomId: this.state.deepLinkData.id
+                  })
+                })
+                  .then((res) => {
+                    return res.json()
+                  })
+                  .then((res) => {
+                    //console.log("TYPE OF TOKEN", typeof (res.token))
+                    this.setState({ deeplinkLoading: false })
+                    this.setState({ DeeplinkLandingModalVisible: false })
+                    this.props.navigation.navigate('audioRoom', { caption: this.state.deepLinkData.caption, hashtag: this.state.deepLinkData.hashtag, roomId: this.state.deepLinkData.id, role: 0, agoraToken: res.token })
+                  })
+                  .catch(() => {
+                    this.setState({ deeplinkLoading: false })
+                    this.setState({ DeeplinkLandingModalVisible: false })
+                    Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
+                  })
+              }
+              else {
+                
+                Toast.showWithGravity('Please give audio permission to join a townhall', Toast.SHORT, Toast.CENTER)
+                this.setState({ DeeplinkLandingModalVisible: false })
+              }
+
+            }
+            else {
+              Toast.showWithGravity('You have to be connected to the Internet to join a townhall', Toast.SHORT, Toast.CENTER)
+              this.setState({ DeeplinkLandingModalVisible: false })
+            }
           }}
         />
         {/* --------------------------------------------------------------------------------------------------------------------------------------------------------- */}
@@ -710,6 +808,18 @@ class audioRoomHome extends Component {
           }}
           modalVisible={this.state.getError}
         />
+
+        <ErrorPopup
+          title="Townhall was ended"
+          subTitle='Please try joining some other townhall'
+          okButtonText="OK"
+          clickFunction={() => {
+
+            this.setState({ deepLinkDone: false })
+          }}
+          modalVisible={this.state.deepLinkDone}
+        />
+
         {this.state.loading ? (
           <View style={{ flex: 1, justifyContent: 'center', marginBottom: 60 }}>
             <ActivityIndicator size="large" color="#4e7bb4" />
@@ -980,6 +1090,7 @@ class DeeplinkLandingModal extends Component {
                 borderRadius={20}
                 text="JOIN"
                 createRoom={this.props.onJoinFromDeeplinkFunction}
+                loading={this.props.loading}
               />
             </View>
           </View>
