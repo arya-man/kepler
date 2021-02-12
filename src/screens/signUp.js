@@ -291,7 +291,7 @@ export default class openingScreen extends Component {
                   </Box>
                   {this.state.username != '' && (
                     <Text style={{
-                      color: this.state.usernameAvailable ? "#4e7bb4" : "#ea688a",
+                      color: this.state.usernameAvailable ? "#4e7bb4" : "#3a7bd5",
                       marginLeft: "15%",
                       fontWeight: "bold"
 
@@ -375,7 +375,7 @@ export default class openingScreen extends Component {
                   </Box>
                   {this.state.confirmPassword != '' && this.state.passwordsDontMatch && (
                     <Text style={{
-                      color: this.state.passwordsDontMatch ? "#ea688a" : "#4e7bb4",
+                      color: this.state.passwordsDontMatch ? "#3a7bd5" : "#4e7bb4",
                       marginLeft: "15%",
                       fontWeight: "bold"
 
@@ -387,7 +387,7 @@ export default class openingScreen extends Component {
                 <LinearGradient
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
-                  colors={["#EA688A", "#EA7A7F"]}
+                  colors={["#3a7bd5", "#00d2ff"]}
                   style={{
                     height: 50,
                     borderRadius: 25,

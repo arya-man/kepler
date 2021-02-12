@@ -551,7 +551,7 @@ class audioRoomHome extends Component {
                 </Text>
                 <Icon
                   name="x-circle"
-                  style={{ color: '#EA688A' }}
+                  style={{ color: '#3a7bd5' }}
                   size={25}
                   onPress={this.toggleCreateRoomModal}
                 />
@@ -1027,7 +1027,7 @@ class DeeplinkLandingModal extends Component {
               </Text>
               <Icon
                 name="x-circle"
-                style={{ color: '#EA688A' }}
+                style={{ color: '#3a7bd5' }}
                 size={25}
                 onPress={this.props.toggleModal}
               />
@@ -1141,7 +1141,7 @@ class UpdateModal extends Component {
               </Text>
               {/* <Icon
                 name="x-circle"
-                style={{ color: '#EA688A' }}
+                style={{ color: '#3a7bd5' }}
                 size={25}
                 onPress={this.props.toggleCreateRoomModal}
               /> */}
@@ -1234,7 +1234,7 @@ class FeedbackModal extends Component {
               </Text>
               <Icon
                 name="x-circle"
-                style={{ color: '#EA688A' }}
+                style={{ color: '#3a7bd5' }}
                 size={25}
                 onPress={this.props.toggleCreateRoomModal}
               />
@@ -1531,7 +1531,7 @@ export class CreateRoomButton extends Component {
           <LinearGradient
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
-            colors={['#EA688A', '#EA7A7F']}
+            colors={['#3a7bd5', '#00d2ff']}
             style={{
               height: 40,
               borderRadius: 20,
@@ -1571,7 +1571,7 @@ export class JoinButton extends Component {
         <LinearGradient
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          colors={['#EA688A', '#EA7A7F']}
+          colors={['#3a7bd5', '#00d2ff']}
           style={{
             height: 40,
             borderRadius: 20,

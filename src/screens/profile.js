@@ -257,22 +257,38 @@ export class openingScreen extends Component {
                     // resizeMode: "contain",
                   }}
                 />
-                <Text
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    fontSize: 10,
-                    alignSelf: 'center',
-                    color: '#fff',
-                    fontWeight: 'bold',
-                    backgroundColor: '#4e7bb4',
-                    width: '100%',
-                    paddingHorizontal: '30%',
-                    paddingVertical: 1.5,
-                    alignItems: 'center'
-                  }}>
-
+                <View style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  // fontSize: 10,
+                  alignSelf: 'center',
+                  // color: '#fff',
+                  // fontWeight: 'bold',
+                  backgroundColor: '#4e7bb4',
+                  justifyContent: 'center',
+                  width: '100%',
+                  // paddingHorizontal: '30%',
+                  paddingVertical: 1.5,
+                  alignItems: 'center'
+                }}>
+                  <Text
+                    style={{
+                      // position: 'absolute',
+                      // bottom: 0,
+                      fontSize: 10,
+                      alignSelf: 'center',
+                      color: '#fff',
+                      fontWeight: 'bold',
+                      // backgroundColor: '#4e7bb4',
+                      justifyContent: 'center',
+                      // width: '100%',
+                      // paddingHorizontal: '30%',
+                      // paddingVertical: 1.5,
+                      // alignItems: 'center'
+                    }}>
+                    EDIT
                 </Text>
+                </View>
               </Box>
             </TouchableOpacity>
           </View>
@@ -364,7 +380,7 @@ export class openingScreen extends Component {
                 <LinearGradient
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
-                  colors={['#EA688A', '#EA7A7F']}
+                  colors={['#3a7bd5', '#00d2ff']}
                   style={{
                     height: 50,
                     borderRadius: 25,
@@ -398,7 +414,7 @@ export class openingScreen extends Component {
                   Looking for a place to
                 <Text
                     style={{
-                      color: '#EA688A',
+                      color: '#3a7bd5',
                       fontWeight: 'bold',
                       fontSize: 12,
                     }}

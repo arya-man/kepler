@@ -91,7 +91,7 @@ export default class defaultErrorPopup extends Component {
                   <LinearGradient
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
-                    colors={["#EA688A", "#EA7A7F"]}
+                    colors={["#3a7bd5", "#00d2ff"]}
                     style={{
                       height: 40,
                       borderRadius: 20,

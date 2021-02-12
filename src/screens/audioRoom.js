@@ -1695,7 +1695,7 @@ export class Talk extends Component {
           <LinearGradient
             start={{x: 0, y: 0}}
             end={{x: 1, y: 0}}
-            colors={['#EA688A', '#EA7A7F']}
+            colors={['#3a7bd5', '#00d2ff']}
             style={{
               height: 40,
               borderRadius: 20,
@@ -1770,7 +1770,7 @@ export class Subscribe extends Component {
             <Box height={40} width={40} borderRadius={10}>
               <FontAwesome
                 name="heart"
-                color="#EA688A"
+                color="#3a7bd5"
                 size={25}
                 style={{alignSelf: 'center', marginTop: 7}}
               />
@@ -1960,7 +1960,7 @@ export class CreateRoomButton extends Component {
           <LinearGradient
             start={{x: 0, y: 0}}
             end={{x: 1, y: 0}}
-            colors={['#EA688A', '#EA7A7F']}
+            colors={['#3a7bd5', '#00d2ff']}
             style={{
               height: 40,
               borderRadius: 20,
@@ -2034,7 +2034,7 @@ class FeedbackModal extends Component {
               </Text>
               <Icon
                 name="x-circle"
-                style={{ color: '#EA688A' }}
+                style={{ color: '#3a7bd5' }}
                 size={25}
                 onPress={this.props.toggleCreateRoomModal}
               />
