@@ -149,7 +149,7 @@ class openingScreen extends Component {
     if (this.state.isLoading === true) {
       return (
         <View style={{ flex: 1, justifyContent: "center" }}>
-          <ActivityIndicator size="large" color="#4e7bb4" />
+          <ActivityIndicator size="large" color="#3a7bd5" />
         </View>
       )
     } else {
@@ -226,7 +226,7 @@ class openingScreen extends Component {
                       alignSelf: 'center',
                       // color: '#fff',
                       // fontWeight: 'bold',
-                      backgroundColor: '#4e7bb4',
+                      backgroundColor: '#3a7bd5',
                       justifyContent: 'center',
                       width: '100%',
                       // paddingHorizontal: '30%',
@@ -241,7 +241,7 @@ class openingScreen extends Component {
                           alignSelf: 'center',
                           color: '#fff',
                           fontWeight: 'bold',
-                          // backgroundColor: '#4e7bb4',
+                          // backgroundColor: '#3a7bd5',
                           justifyContent: 'center',
                           // width: '100%',
                           // paddingHorizontal: '30%',

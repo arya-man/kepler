@@ -30,7 +30,6 @@ import database from '@react-native-firebase/database'
 import Toast from 'react-native-simple-toast'
 import { v4 as uuidv4 } from 'uuid'
 import {
-  PulseIndicator,
   DotIndicator
 } from 'react-native-indicators';
 import messaging from '@react-native-firebase/messaging'
@@ -40,6 +39,57 @@ import dynamicLinks from '@react-native-firebase/dynamic-links';
 
 const screenWidth = Dimensions.get('window').width
 
+const DATA = [
+  {
+    username: 'cristiano',
+    profilePic: 'https://source.unsplash.com/random',
+    following: 187,
+    followers: 4666,
+    description: "CR7 | Juventus | Madrid | Portugal | Manchester United | Nike | Athlete | Footballer"
+  },
+  {
+    username: 'taylorswift',
+    profilePic: 'https://source.unsplash.com/user/erondu',
+    following: 132,
+    followers: 421,
+    description: "Hello hola si senor"
+  },
+  {
+    username: 'zayn',
+    profilePic: 'https://source.unsplash.com/collection/162326/',
+    following: 132,
+    followers: 421,
+    description: "Hello hola si senor"
+  },
+  {
+    username: 'nike',
+    profilePic: 'https://source.unsplash.com/collection/162126/',
+    following: 132,
+    followers: 421,
+    description: "Hello hola si senor"
+  },
+  {
+    username: 'adidas',
+    profilePic: 'https://source.unsplash.com/collection/132326/',
+    following: 132,
+    followers: 421,
+    description: "Hello hola si senor"
+  },
+  {
+    username: 'elonmusk',
+    profilePic: 'https://source.unsplash.com/collection/162331/',
+    following: 132,
+    followers: 421,
+    description: "Hello hola si senor"
+  },
+  {
+    username: 'bill_gates',
+    profilePic: 'https://source.unsplash.com/collection/162344/',
+    following: 132,
+    followers: 421,
+    description: "Hello hola si senor"
+  },
+];
 class audioRoomHome extends Component {
   constructor(props) {
     super(props);
@@ -62,7 +112,14 @@ class audioRoomHome extends Component {
       deepLinkData: {},
       updateApp: false,
       deeplinkLoading: false,
-      deepLinkDone: false
+      deepLinkDone: false,
+      nameOfPersonToBeFollowed: "Hasir",
+      descriptionOfPersonToBeFollowed: "Hi im hasir watup",
+      noOfFollowersOfPersonToBeFollowed: 2321,
+      noOfPeopleFollowingOfPersonToBeFollowed: 88,
+      profilePicOfPersonToBeFollowed: "https://source.unsplash.com/user/erondu",
+      isFollowing: false,
+      followPopUpVisible: false,
     };
     if (Platform.OS == 'android') {
       PermissionsAndroid.request('android.permission.RECORD_AUDIO')
@@ -461,6 +518,62 @@ class audioRoomHome extends Component {
             this.setState({ referalModalVisible: true })
           }}
         />
+        {/* ********************** Following/Followers stuff************************ */}
+        {/* Try to render this somewhere in between the rooms flatlist, not on the top. Make it like in facebook, i.e, somewhere in between the feed. */}
+        <View 
+          style={{
+            marginLeft: 25,
+            marginRight: 20,
+            marginTop: 15,
+            paddingTop: 5, 
+            paddingBottom: 10,
+            borderTopWidth: 2,
+            borderBottomWidth: 2,
+            borderBottomColor: 'rgba(191,191,191,0.3)',
+            borderTopColor: 'rgba(191,191,191,0.3)',
+            backgroundColor: 'rgb(233, 235, 244)',
+            }}>
+          <Text style={{fontSize: 20, color:"#3a7bd5", fontWeight: "bold"}}>Follow Someone</Text>
+          <FlatList
+            data={DATA}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({item})=>(
+              <FriendButton
+                username={item.username}
+                profilePic={item.profilePic}
+                onPress={()=>{
+                  this.setState({
+                    nameOfPersonToBeFollowed: item.username,
+                    descriptionOfPersonToBeFollowed: item.description,
+                    noOfFollowersOfPersonToBeFollowed: item.followers,
+                    noOfPeopleFollowingOfPersonToBeFollowed: item.following,
+                    profilePicOfPersonToBeFollowed: item.profilePic,
+                    followPopUpVisible: true,
+                  })
+                }}
+              />
+            )}
+          />
+        </View>
+        <FollowPopUp
+          followPopUpVisible={this.state.followPopUpVisible}
+          username={this.state.nameOfPersonToBeFollowed}
+          description={this.state.descriptionOfPersonToBeFollowed}
+          followers={this.state.noOfFollowersOfPersonToBeFollowed}
+          following={this.state.noOfPeopleFollowingOfPersonToBeFollowed}
+          profilePic={this.state.profilePicOfPersonToBeFollowed}
+          isFollowing={this.state.isFollowing}
+          onFollow={()=>{
+            this.setState({isFollowing: !this.state.isFollowing})
+            // Add Follow function logic here and based on that change isFollowing state.
+          
+          }}
+          followPopUpVisibleFunction={()=>{
+            this.setState({followPopUpVisible: false})
+          }}
+        />
+        {/* *************************************************************** */}
         {/* ~~~~~~ This is create room button located at the bottom. ~~~~~~ */}
         <View
           style={{
@@ -533,7 +646,7 @@ class audioRoomHome extends Component {
                 }}>
                 <Text
                   style={{
-                    color: '#4e7bb4',
+                    color: '#3a7bd5',
                     fontWeight: 'bold',
                     fontSize: 20,
                     alignSelf: 'center'
@@ -542,7 +655,7 @@ class audioRoomHome extends Component {
                 </Text>
                 <Text
                   style={{
-                    color: '#4e7bb4',
+                    color: '#3a7bd5',
                     fontWeight: 'bold',
                     fontSize: 20,
                     alignSelf: 'center'
@@ -822,7 +935,7 @@ class audioRoomHome extends Component {
 
         {this.state.loading ? (
           <View style={{ flex: 1, justifyContent: 'center', marginBottom: 60 }}>
-            <ActivityIndicator size="large" color="#4e7bb4" />
+            <ActivityIndicator size="large" color="#3a7bd5" />
           </View>
         ) : this.props.rooms.length === 0 ? (
           <View
@@ -867,7 +980,7 @@ class audioRoomHome extends Component {
               <Text
                 style={{
                   alignSelf: 'center',
-                  color: "#4e7bb4",
+                  color: "#3a7bd5",
                   fontWeight: 'bold',
                   fontSize: 23,
                   marginTop: 5,
@@ -982,6 +1095,166 @@ class audioRoomHome extends Component {
     // }
   }
 }
+class FriendButton extends Component {
+  render() {
+    return(
+      <View style={{marginLeft: 5}}>
+        <TouchableOpacity onPress={this.props.onPress}>
+          {/* <Box height={70} width={70} borderRadius={10}> */}
+          <CBox
+            height={50}
+            width={50}
+            borderRadius={10}
+            borderBlack={8}
+            radiusBlack={10}
+            xBlack={10}
+            yBlack={15}
+            borderWhite={10}
+            radiusWhite={10}
+            xWhite={-1}
+            yWhite={-1}
+            style={{marginLeft: 4}}>
+            <Image
+              style={{
+                height: 50,
+                width: 50,
+              }}
+              source={{uri: this.props.profilePic}}
+            />
+          </CBox>
+          {/* </Box> */}
+        </TouchableOpacity>
+        <Text
+          ellipsizeMode="tail"
+          numberOfLines={1}
+          style={{
+            color: '#8f8f8f',
+            overflow: 'hidden',
+            width: 60,
+            height: 15,
+            fontSize: 10,
+            textAlign: 'center',
+            paddingHorizontal: 5,
+            fontWeight: 'bold',
+          }}>
+          {this.props.username}
+        </Text>
+      </View>
+    );
+  }
+}
+class FollowPopUp extends Component {
+  render() {
+    return (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={this.props.followPopUpVisible}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.2)',
+          }}>
+          <View
+            style={{
+              width: '80%',
+              borderWidth: 3,
+              borderColor: '#e5e5e5',
+              backgroundColor: 'rgb(233, 235, 244)',
+              borderRadius: 10,
+              // paddingRight: 15
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: 10,
+                alignItems: 'center',
+                paddingHorizontal: 15,
+              }}>
+              <Text
+                style={{
+                  color: '#3a7bd5',
+                  fontWeight: 'bold',
+                  fontSize: 20,
+                }}>
+                  Follow
+              </Text>
+              <Icon
+                name="x-circle"
+                style={{ color: '#3a7bd5' }}
+                size={25}
+                onPress={this.props.followPopUpVisibleFunction}
+              />
+            </View>
+            <View
+              style={{
+                marginTop: 10,
+                borderBottomColor: '#BFBFBF',
+                borderBottomWidth: 2,
+                borderRadius: 2,
+                width: '100%',
+                opacity: 0.2,
+                marginBottom: 10,
+              }}
+            />
+            <View style={{flexDirection:'row', alignItems: 'center', paddingLeft: 15}}>
+              <Photo
+                height={65}
+                width={65}
+                borderRadius={10}
+                photoUrl={this.props.profilePic}
+              />
+              <View style={{marginRight: 90}}>
+                <Text 
+                  style={{
+                    color: '#3a7bd5',
+                    fontWeight: 'bold',
+                    fontSize: 20,}}>
+                  {this.props.username}
+                </Text>
+                  <Text style={{color:'#7F8692'}}>{this.props.description}</Text>
+              </View>
+            </View>
+            <View style={{flexDirection:'row', alignSelf:'center', marginVertical: 15}}>
+                <View style={{marginRight: 20, alignItems: 'center'}}>
+                  <Text style={{fontSize: 17, fontWeight:'bold', color:'#7F8692'}}>{this.props.followers}</Text>
+                  <Text style={{color:'#7F8692'}}>Followers</Text>
+                </View>
+                <View style={{alignItems: 'center'}}>
+                  <Text style={{fontSize: 17, fontWeight:'bold', color:'#7F8692'}}>{this.props.following}</Text>
+                  <Text style={{color:'#7F8692'}}>Following</Text>
+                </View>
+            </View>
+            <View
+              style={{
+                marginTop: 10,
+                borderBottomColor: '#BFBFBF',
+                borderBottomWidth: 2,
+                borderRadius: 2,
+                width: '100%',
+                opacity: 0.2,
+                marginBottom: 5,
+              }}
+            />
+            <View style={{ marginBottom: 10, width: '100%', alignItems: 'center', marginLeft: 2 }}>
+              <CreateRoomButton
+                height={40}
+                width={0.68 * screenWidth}
+                borderRadius={20}
+                text={this.props.isFollowing ? "FOLLOWING" : "FOLLOW"}
+                createRoom={this.props.onFollow}
+                // loading={this.props.loading}
+              />
+            </View>  
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+}
 class DeeplinkLandingModal extends Component {
   render() {
     return (
@@ -1018,7 +1291,7 @@ class DeeplinkLandingModal extends Component {
                 ellipsizeMode="tail"
                 numberOfLines={2}
                 style={{
-                  color: '#4e7bb4',
+                  color: '#3a7bd5',
                   fontWeight: 'bold',
                   fontSize: 20,
                   width: "80%",
@@ -1065,7 +1338,7 @@ class DeeplinkLandingModal extends Component {
                         width: 50,
                         borderRadius: 25,
                         borderWidth: 2,
-                        borderColor: '#4e7bb4',
+                        borderColor: '#3a7bd5',
                       }}
                     />
                   );
@@ -1133,7 +1406,7 @@ class UpdateModal extends Component {
               }}>
               <Text
                 style={{
-                  color: '#4e7bb4',
+                  color: '#3a7bd5',
                   fontWeight: 'bold',
                   fontSize: 20,
                 }}>
@@ -1226,7 +1499,7 @@ class FeedbackModal extends Component {
               }}>
               <Text
                 style={{
-                  color: '#4e7bb4',
+                  color: '#3a7bd5',
                   fontWeight: 'bold',
                   fontSize: 20,
                 }}>
@@ -1372,7 +1645,7 @@ export class Room extends Component {
                     width: 50,
                     borderRadius: 25,
                     borderWidth: 2,
-                    borderColor: '#4e7bb4',
+                    borderColor: '#3a7bd5',
                   }}
                 />
               );
@@ -1420,21 +1693,14 @@ export class TopBar extends Component {
             backgroundColor: 'rgb(233, 235, 244)',
           }}>
           <View style={{ marginTop: 20, marginLeft: 5 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-              <TouchableOpacity onPress={this.props.feedbackModal}>
-                <Material
-                  name="feedback"
-                  color="#7f7f7f"
-                  size={25}
-                />
-              </TouchableOpacity>
-              {/* 
-              <TouchableOpacity onPress={this.props.referalModal}>
-                <Text style={{marginLeft: 10, fontWeight: 'bold', fontSize: 17, color: '#e8597e'}}>Refer Friends!</Text>
-              </TouchableOpacity>
-              */}
-            </View>
-            <Text style={{ fontSize: 20, color: '#7f7f7f', marginTop: 15 }}>
+            <TouchableOpacity style={{marginLeft:-3}} onPress={this.props.feedbackModal}>
+              <Material
+                name="error-outline"
+                color="#7F8692"
+                size={25}
+              />
+            </TouchableOpacity>
+            <Text style={{ fontSize: 20, color: '#7F8692', marginTop: 15 }}>
               Hey,
             </Text>
           </View>
@@ -1474,7 +1740,7 @@ export class TopBar extends Component {
                 elevation: 10,
               }}
               onPress={this.props.navigateToEditProfile}>
-              <Icon name="edit" color="#4e7bb4" size={20} />
+              <Icon name="edit" color="#3a7bd5" size={20} />
             </TouchableOpacity>
           </View>
         </View>
@@ -1482,7 +1748,7 @@ export class TopBar extends Component {
           ellipsizeMode="tail"
           numberOfLines={1}
           style={{
-            color: '#4e7bb4',
+            color: '#3a7bd5',
             fontSize: 45,
             fontWeight: 'bold',
             marginTop: -55,
@@ -1614,11 +1880,11 @@ export class JoinButton extends Component {
 export class Photo extends Component {
   render() {
     return (
-      <Box height={55} width={55} borderRadius={10}>
+      <Box height={this.props.height} width={this.props.width} borderRadius={this.props.borderRadius}>
         <TouchableWithoutFeedback
           style={{
-            height: 55,
-            width: 55,
+            height: this.props.height,
+            width: this.props.width,
             borderRadius: 10,
             backgroundColor: 'rgb(233, 235, 244)',
             borderWidth: 1,
@@ -1629,7 +1895,7 @@ export class Photo extends Component {
           onPress={this.props.navigateToProfile}>
           <Image
             source={{ uri: this.props.photoUrl }}
-            style={{ height: 55, width: 55 }}
+            style={{ height: this.props.height, width: this.props.width}}
           />
         </TouchableWithoutFeedback>
       </Box>
@@ -1646,6 +1912,9 @@ export class PhotoAndBio extends Component {
           alignItems: 'center',
         }}>
         <Photo
+          height={55}
+          width={55}
+          borderRadius={10}
           photoUrl={this.props.photoUrl}
           navigateToProfile={this.props.navigateToProfile}
         />

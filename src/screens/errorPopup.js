@@ -49,7 +49,7 @@ export default class defaultErrorPopup extends Component {
             >
               <Text
                 style={{
-                  color: "#4e7bb4",
+                  color: "#3a7bd5",
                   fontSize: 25,
                   fontWeight: "bold",
                   marginTop: 15,

@@ -194,7 +194,7 @@ export default class openingScreen extends Component {
     if (this.state.isLoading === true) {
       return (
         <View style={{ flex: 1, justifyContent: "center" }}>
-          <ActivityIndicator size="large" color="#4e7bb4" />
+          <ActivityIndicator size="large" color="#3a7bd5" />
         </View>
       )
     }
@@ -260,7 +260,7 @@ export default class openingScreen extends Component {
               style={{
                 fontWeight: "bold",
                 fontSize: 30,
-                color: "#4e7bb4",
+                color: "#3a7bd5",
               }}
             >
               Sign Up!
@@ -291,7 +291,7 @@ export default class openingScreen extends Component {
                   </Box>
                   {this.state.username != '' && (
                     <Text style={{
-                      color: this.state.usernameAvailable ? "#4e7bb4" : "#3a7bd5",
+                      color: this.state.usernameAvailable ? "#3a7bd5" : "#3a7bd5",
                       marginLeft: "15%",
                       fontWeight: "bold"
 
@@ -375,7 +375,7 @@ export default class openingScreen extends Component {
                   </Box>
                   {this.state.confirmPassword != '' && this.state.passwordsDontMatch && (
                     <Text style={{
-                      color: this.state.passwordsDontMatch ? "#3a7bd5" : "#4e7bb4",
+                      color: this.state.passwordsDontMatch ? "#3a7bd5" : "#3a7bd5",
                       marginLeft: "15%",
                       fontWeight: "bold"
 
@@ -433,22 +433,22 @@ export default class openingScreen extends Component {
                         color: "#6C90C4",
                         marginTop: 10,
                         textAlign: "center",
-                        marginLeft: 5,
+                        marginLeft: 3,
                         fontWeight: "bold",
                       }}
                     >
-                      Here
+                    here.
                     </Text>
                   </TouchableOpacity>
                 </View>
-                <View style={{ alignSelf: "center", flexDirection: "row" }}>
+                <View style={{ alignSelf: "center", flexDirection: "row", marginTop: 5 }}>
                 <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} onPress={this.handleCheckBox} >
                     <Icon
                         size={30}
-                        color={"#211f30"}
+                        color={"#a9b6c8"}
                         name={ this.state.acceptedTerms ? 'check-square' : 'square'}
                     />
-                    <Text> I accept terms and conditions </Text>
+                    <Text style={{color: "#a9b6c8"}}> I accept terms and conditions </Text>
                 </TouchableOpacity>
                 </View>
               </View>
