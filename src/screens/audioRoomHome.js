@@ -113,6 +113,7 @@ class audioRoomHome extends Component {
       updateApp: false,
       deeplinkLoading: false,
       deepLinkDone: false,
+      // --- Follow stuff ---
       nameOfPersonToBeFollowed: "Hasir",
       descriptionOfPersonToBeFollowed: "Hi im hasir watup",
       noOfFollowersOfPersonToBeFollowed: 2321,
@@ -120,6 +121,9 @@ class audioRoomHome extends Component {
       profilePicOfPersonToBeFollowed: "https://source.unsplash.com/user/erondu",
       isFollowing: false,
       followPopUpVisible: false,
+      // --------------------
+      scheduleRoomPopupVisible: false,
+      deeplinkLandingForUpcomingRoomsModalVisible: false
     };
     if (Platform.OS == 'android') {
       PermissionsAndroid.request('android.permission.RECORD_AUDIO')
@@ -574,6 +578,7 @@ class audioRoomHome extends Component {
           }}
         />
         {/* *************************************************************** */}
+
         {/* ~~~~~~ This is create room button located at the bottom. ~~~~~~ */}
         <View
           style={{
@@ -586,11 +591,13 @@ class audioRoomHome extends Component {
             position: 'absolute',
             bottom: 0,
             zIndex: 5,
+            flexDirection:'row',
+            justifyContent: 'center'
           }}>
           <CreateRoomButton
             height={40}
-            width={300}
-            text="CREATE TOWNHALL"
+            width={screenWidth/2 - 20}
+            text="START ROOM"
             borderRadius={20}
             createRoom={async () => {
               var audio = true
@@ -610,8 +617,17 @@ class audioRoomHome extends Component {
               }
             }}
           />
+          <CreateRoomButton
+            height={40}
+            width={screenWidth/2 - 20}
+            text="SCHEDULE ROOM"
+            borderRadius={20}
+            createRoom={()=>{
+              this.setState({scheduleRoomPopupVisible: true})
+              console.log("schedule");
+            }}
+          />
         </View>
-
         {/* Create Room Popup */}
         <Modal
           animationType='fade'
@@ -805,6 +821,18 @@ class audioRoomHome extends Component {
             </View>
           </View>
         </Modal>
+        <DeeplinkLandingForUpcomingRoomsModal
+          deeplinkLandingForUpcomingRoomsModalVisible={this.state.deeplinkLandingForUpcomingRoomsModalVisible}
+          // deeplinkLandingForUpcomingRoomsModalVisible={true}
+          roomName="Liverpool"
+          roomDescription="You'll never walk alone! All of the above URL's will give you a new photo each time they are requested (provided there are enough photos to choose from given the filtering). However each can also be limited to only updating once per day or week. To do so, simply append "
+          time="11:50 PM"
+          date="12th March, 2021"
+          toggleModal={() => {
+            this.setState({ deeplinkLandingForUpcomingRoomsModalVisible: false })
+          }}
+          // loading={this.state.deeplinkLoading}
+        />
         {/* ------------------------------------------------- DEEPLINK LANDING MODAL for @aryaman Dated: Feb 7, 2021------------------------------------------------- */}
         <DeeplinkLandingModal
           DeeplinkLandingModalVisible={this.state.DeeplinkLandingModalVisible}
@@ -1255,6 +1283,115 @@ class FollowPopUp extends Component {
     );
   }
 }
+class DeeplinkLandingForUpcomingRoomsModal extends Component{
+  render() {
+    return(
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={this.props.deeplinkLandingForUpcomingRoomsModalVisible}
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.2)',
+          }}>
+          <View
+            style={{
+              paddingBottom: 15,
+              width: '90%',
+              borderWidth: 3,
+              borderColor: '#e5e5e5',
+              backgroundColor: 'rgb(233, 235, 244)',
+              borderRadius: 10,
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: 10,
+                alignItems: 'center',
+                paddingHorizontal: 20,
+              }}>
+              <Text
+                ellipsizeMode="tail"
+                numberOfLines={2}
+                style={{
+                  color: '#3a7bd5',
+                  fontWeight: 'bold',
+                  fontSize: 20,
+                  width: "80%",
+                }}>
+                {this.props.roomName}
+              </Text>
+              <Icon
+                name="x-circle"
+                style={{ color: '#3a7bd5' }}
+                size={25}
+                onPress={this.props.toggleModal}
+              />
+            </View>
+            <View
+              style={{
+                marginTop: 10,
+                borderBottomColor: '#BFBFBF',
+                borderBottomWidth: 2,
+                borderRadius: 2,
+                width: '100%',
+                opacity: 0.2,
+                // marginBottom: 10,
+              }}
+            />
+            <Text ellipsizeMode="tail" numberOfLines={5} style={{ fontSize: 15, color: '#7f7f7f', marginTop: 5, paddingHorizontal: 20 }}>
+              {this.props.roomDescription}
+            </Text>
+            <View style={{alignSelf:'center', marginTop: 20}}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Icon
+                  name="calendar"
+                  style={{ color: '#3a7bd5' }}
+                  size={30}
+                />
+                <Text style={{color: '#3a7bd5', fontWeight:'bold', fontSize: 20, marginLeft: 10}}>{this.props.date}</Text>
+              </View>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Icon
+                  name="clock"
+                  style={{ color: '#3a7bd5' }}
+                  size={30}
+                />
+                <Text style={{color: '#3a7bd5', fontWeight:'bold', fontSize: 20, marginLeft: 10}}>{this.props.time}</Text>
+              </View>
+            </View>
+            <View
+              style={{
+                marginTop: 20,
+                borderBottomColor: '#BFBFBF',
+                borderBottomWidth: 2,
+                borderRadius: 2,
+                width: '100%',
+                opacity: 0.2,
+                marginBottom: 5,
+              }}
+            />
+            <View style={{ width: '100%', alignItems: 'center', marginLeft: 2 }}>
+              <CreateRoomButton
+                height={40}
+                width={0.68 * screenWidth}
+                borderRadius={20}
+                text="NOTIFY ME!"
+                createRoom={this.props.onJoinFromDeeplinkFunction}
+                loading={this.props.loading}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+}
 class DeeplinkLandingModal extends Component {
   render() {
     return (
@@ -1546,7 +1683,7 @@ class FeedbackModal extends Component {
             <View style={{ marginTop: 10, alignItems: 'center', width: '100%' }}>
               <CreateRoomButton
                 height={40}
-                width={0.6 * screenWidth}
+                width={0.7 * screenWidth}
                 borderRadius={20}
                 text="SUBMIT"
                 createRoom={this.props.submitFunction}
@@ -1793,15 +1930,15 @@ export class CreateRoomButton extends Component {
     return (
       <TouchableOpacity
         onPress={this.props.createRoom}>
-        <Box height={40} width={275} borderRadius={20}>
+        <Box height={this.props.height} width={this.props.width} borderRadius={this.props.borderRadius}>
           <LinearGradient
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             colors={['#3a7bd5', '#00d2ff']}
             style={{
-              height: 40,
-              borderRadius: 20,
-              width: 300,
+              height: this.props.height,
+              borderRadius: this.props.borderRadius,
+              width: this.props.width,
               alignSelf: 'center',
               justifyContent: 'center',
               alignItems: 'center',
@@ -1811,8 +1948,8 @@ export class CreateRoomButton extends Component {
                 alignItems: 'center',
                 justifyContent: 'center',
                 backgroundColor: 'transparent',
-                height: 40,
-                width: 300,
+                height: this.props.height,
+                width: this.props.width,
               }}
             >
               {!this.state.loading &&
