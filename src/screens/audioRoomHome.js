@@ -836,7 +836,7 @@ class audioRoomHome extends Component {
             }}>
             <Image
               style={{ height: '50%', width: '60%', resizeMode: 'contain' }}
-              source={require('../../Assets/noRooms.png')}
+              source={require('../../Assets/image.png')}
             />
             <Text
               style={{
@@ -1355,7 +1355,7 @@ export class Room extends Component {
           );
         })}
         <View style={{ alignSelf: 'center', marginTop: 5 }}>
-          <View
+          {/* <View
             style={{
               flexDirection: 'row',
               alignSelf: 'center',
@@ -1377,7 +1377,7 @@ export class Room extends Component {
                 />
               );
             })}
-          </View>
+          </View> */}
           <Text
             style={{
               fontWeight: 'bold',
