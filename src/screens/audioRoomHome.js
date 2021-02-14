@@ -90,6 +90,29 @@ const DATA = [
     description: "Hello hola si senor"
   },
 ];
+const NEWDATA = [
+  {
+    username: 'cristiano',
+    profilePic: 'https://source.unsplash.com/random',
+    following: 187,
+    followers: 4666,
+    description: "CR7 | Juventus | Madrid | Portugal | Manchester United | Nike | Athlete | Footballer"
+  },
+  {
+    username: 'taylorswift',
+    profilePic: 'https://source.unsplash.com/user/erondu',
+    following: 132,
+    followers: 421,
+    description: "Hello hola si senor"
+  },
+  {
+    username: 'zayn',
+    profilePic: 'https://source.unsplash.com/collection/162326/',
+    following: 132,
+    followers: 421,
+    description: "Hello hola si senor"
+  },
+];
 class audioRoomHome extends Component {
   constructor(props) {
     super(props);
@@ -122,7 +145,7 @@ class audioRoomHome extends Component {
       isFollowing: false,
       followPopUpVisible: false,
       // --------------------
-      scheduleRoomPopupVisible: false,
+      // scheduleRoomPopupVisible: true,
       deeplinkLandingForUpcomingRoomsModalVisible: false
     };
     if (Platform.OS == 'android') {
@@ -578,7 +601,23 @@ class audioRoomHome extends Component {
           }}
         />
         {/* *************************************************************** */}
-
+        {/* ======================= UPCOMING ROOM FEED @aryaman uncomment it ========================== */}
+        {/* <UpcomingRoom
+          hashtag="Really Good Time on Keplr"
+          caption="Join Hasir Mushtaq, Aryaman Shrey and Aditya Kumar taking on Modi Ji, and all the Bhakts in a once in a lifetime opportunity to get your queries answered in person."
+          profilePic="https://source.unsplash.com/random"
+          username="Hasir Mushtaq"
+          date="October 13, 2021"
+          time="10:00 a.m. IST"
+        /> */}
+        {/* ==================================================================== */}
+        {/* ````````````````` New Room UI use this and delete the old one @aryaman`````````````````````` */}
+        {/* <NewRoom
+          hashtag="Really Good Time on Keplr"
+          caption="Join Hasir Mushtaq, Aryaman Shrey and Aditya Kumar taking on Modi Ji, and all the Bhakts in a once in a lifetime opportunity to get your queries answered in person."
+          profilePic="https://source.unsplash.com/random"
+        /> */}
+        {/* ```````````````````````````````````````````````````````````````````````````````````````````` */}
         {/* ~~~~~~ This is create room button located at the bottom. ~~~~~~ */}
         <View
           style={{
@@ -620,12 +659,11 @@ class audioRoomHome extends Component {
           <CreateRoomButton
             height={40}
             width={screenWidth/2 - 20}
-            text="SCHEDULE ROOM"
+            text="SCHEDULED ROOMS"
             borderRadius={20}
-            createRoom={()=>{
-              this.setState({scheduleRoomPopupVisible: true})
-              console.log("schedule");
-            }}
+            createRoom={()=>
+              this.props.navigation.navigate('scheduleRoom')
+            }
           />
         </View>
         {/* Create Room Popup */}
@@ -667,16 +705,7 @@ class audioRoomHome extends Component {
                     fontSize: 20,
                     alignSelf: 'center'
                   }}>
-                  🏛
-                </Text>
-                <Text
-                  style={{
-                    color: '#3a7bd5',
-                    fontWeight: 'bold',
-                    fontSize: 20,
-                    alignSelf: 'center'
-                  }}>
-                  📃
+                  Start a Room
                 </Text>
                 <Icon
                   name="x-circle"
@@ -743,7 +772,7 @@ class audioRoomHome extends Component {
                   width={0.65 * screenWidth}
                   loading={this.state.createLoading}
                   borderRadius={20}
-                  text="START TOWNHALL"
+                  text="START ROOM"
                   createRoom={() => {
 
                     if (!this.state.createLoading) {
@@ -821,6 +850,7 @@ class audioRoomHome extends Component {
             </View>
           </View>
         </Modal>
+        {/* -----------------------------------UPCOMING DEEPLINK LANDING MODAL - @aryaman Dated: Feb 14,2020 ---------------------------------------- */}
         <DeeplinkLandingForUpcomingRoomsModal
           deeplinkLandingForUpcomingRoomsModalVisible={this.state.deeplinkLandingForUpcomingRoomsModalVisible}
           // deeplinkLandingForUpcomingRoomsModalVisible={true}
@@ -1381,7 +1411,7 @@ class DeeplinkLandingForUpcomingRoomsModal extends Component{
                 height={40}
                 width={0.68 * screenWidth}
                 borderRadius={20}
-                text="NOTIFY ME!"
+                text="YOU WILL BE NOTIFIED"
                 createRoom={this.props.onJoinFromDeeplinkFunction}
                 loading={this.props.loading}
               />
@@ -1484,7 +1514,7 @@ class DeeplinkLandingModal extends Component {
               <Text
                 style={{
                   fontWeight: 'bold',
-                  color: '#bebebe',
+                  color: '#7F8692',
                   width: 180,
                   marginTop: 7,
                   textAlign: 'center',
@@ -1695,6 +1725,141 @@ class FeedbackModal extends Component {
     );
   }
 }
+export class UpcomingRoom extends Component {
+  render() {
+    return (
+      <View>
+        <View
+          style={{
+            alignItems: 'center',
+            marginHorizontal: 25,
+            marginTop: 10,
+            marginBottom: 10,
+            justifyContent: 'space-between',
+          }}>
+              <Text style={{ alignItems: 'center',fontWeight: 'bold', color: '#3a7bd5', fontSize: 20, width: "80%", textAlign: 'center' }}>
+                {this.props.hashtag}
+              </Text>
+              <Text
+                ellipsizeMode="tail"
+                numberOfLines={7}
+                style={{ textAlign: 'center',fontWeight: 'bold', color: '#7F8692'}}>
+                {this.props.caption}
+              </Text>
+        </View>
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent:'center'}}>
+          <View style={{alignSelf: 'center', alignItems:'center'}}>
+            <Photo
+              height={55}
+              width={55}
+              borderRadius={10}
+              photoUrl={this.props.profilePic}
+              navigateToProfile={()=>{
+                console.log('hello');
+              }}
+            />
+            <Text style={{fontWeight:'bold', color:'#3a7bd5'}}>{this.props.username}</Text>
+          </View>
+          <View style={{height: '80%', width: 2, backgroundColor: 'rgba(191,191,191,0.5)', marginLeft: 20}}/>
+          <View style={{marginLeft: 20}}>
+            <Text style={{fontWeight:'bold', color:'#3a7bd5', alignSelf:'center', fontSize: 20, textDecorationLine: 'underline'}}>Join On:</Text>
+            <Text style={{fontWeight:'bold', color:'#3a7bd5', alignSelf:'center', marginTop: 10}}>{this.props.date}</Text>
+            <Text style={{fontWeight:'bold', color:'#3a7bd5', alignSelf:'center'}}>{this.props.time}</Text>
+          </View>
+        </View>
+        {this.props.startNow && (
+          <View style={{ marginTop: 10, alignItems: 'center', width: '100%', marginBottom: 10 }}>
+            <CreateRoomButton
+              height={40}
+              width={0.6 * screenWidth}
+              borderRadius={20}
+              text="START NOW"
+              createRoom={this.props.startNowFunction}
+            />
+          </View>
+        )}
+        <View
+          style={{
+            marginTop: 5,
+            borderBottomColor: 'rgba(191,191,191,0.3)',
+            borderBottomWidth: 2,
+            borderRadius: 2,
+            width: '85%',
+            marginTop: 10,
+            alignSelf: 'center',
+          }}
+        />
+      </View>
+    );
+  }
+}
+class NewRoom extends Component {
+  render(){
+    return(
+      <View>
+        <View
+          style={{
+            alignItems: 'center',
+            marginHorizontal: 25,
+            marginTop: 10,
+            marginBottom: 10,
+            justifyContent: 'space-between',
+          }}>
+            <Text style={{ alignItems: 'center',fontWeight: 'bold', color: '#3a7bd5', fontSize: 20, width: "80%", textAlign: 'center' }}>
+              {this.props.hashtag}
+            </Text>
+            <Text
+              ellipsizeMode="tail"
+              numberOfLines={7}
+              style={{ textAlign: 'center',fontWeight: 'bold', color: '#7F8692'}}>
+              {this.props.caption}
+            </Text>
+        </View>
+        <View style={{alignItems: 'center'}}>
+         <FlatList
+              data={NEWDATA}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              renderItem={({item})=>(
+                <View style={{alignSelf: 'center', alignItems:'center', justifyContent: 'center', marginLeft: 20}}>
+                  <Photo
+                    height={55}
+                    width={55}
+                    borderRadius={10}
+                    photoUrl={item.profilePic}
+                    navigateToProfile={()=>{
+                      console.log('hello');
+                    }}
+                  />
+                  <Text ellipsizeMode="tail" numberOfLines={1} style={{fontWeight:'bold', color:'#3a7bd5', marginLeft:-10}}>{item.username}</Text>
+                </View>
+              )}
+            />
+          </View>
+        <View style={{ marginTop: 10, alignItems: 'center', width: '100%', marginBottom: 10 }}>
+          <CreateRoomButton
+            height={40}
+            width={0.6 * screenWidth}
+            borderRadius={20}
+            text="JOIN ROOM"
+            createRoom={this.props.startNowFunction}
+          />
+        </View>
+        <View
+          style={{
+            marginTop: 5,
+            borderBottomColor: 'rgba(191,191,191,0.3)',
+            borderBottomWidth: 2,
+            borderRadius: 2,
+            width: '85%',
+            marginTop: 10,
+            alignSelf: 'center',
+          }}
+        />
+      </View>
+    );
+  }
+}
 // This is the room items, the props are:
 // hashtag: String, the name of the room.
 // caption: String, the caption/topic or whatever.
@@ -1729,17 +1894,17 @@ export class Room extends Component {
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            marginHorizontal: 15,
+            marginHorizontal: 25,
             justifyContent: 'space-between',
           }}>
           <View style={{ marginTop: 10 }}>
-            <Text style={{ fontWeight: 'bold', color: '#A1AFC3' }}>
+            <Text style={{ fontWeight: 'bold', color: '#3a7bd5' }}>
               {this.props.hashtag}
             </Text>
             <Text
               ellipsizeMode="tail"
               numberOfLines={1}
-              style={{ fontWeight: 'bold', color: '#bebebe', width: 270 }}>
+              style={{ fontWeight: 'bold', color: '#7F8692', width: 270 }}>
               {this.props.caption}
             </Text>
           </View>
@@ -1769,7 +1934,7 @@ export class Room extends Component {
             style={{
               flexDirection: 'row',
               alignSelf: 'center',
-              marginLeft: 20,
+              marginLeft: 25,
             }}>
             {this.props.participantsJSON !== undefined && Object.keys(this.props.participantsJSON).map((item) => {
               return (
@@ -1791,7 +1956,7 @@ export class Room extends Component {
           <Text
             style={{
               fontWeight: 'bold',
-              color: '#bebebe',
+              color: '#7F8692',
               width: 180,
               marginTop: 7,
               textAlign: 'center',
@@ -1804,13 +1969,12 @@ export class Room extends Component {
         <View
           style={{
             marginTop: 5,
-            borderBottomColor: '#BFBFBF',
+            borderBottomColor: 'rgba(191,191,191,0.3)',
             borderBottomWidth: 2,
             borderRadius: 2,
-            width: '90%',
+            width: '85%',
             marginTop: 10,
             alignSelf: 'center',
-            opacity: 0.2,
           }}
         />
       </View>
@@ -2018,7 +2182,7 @@ export class Photo extends Component {
   render() {
     return (
       <Box height={this.props.height} width={this.props.width} borderRadius={this.props.borderRadius}>
-        <TouchableWithoutFeedback
+        <TouchableOpacity
           style={{
             height: this.props.height,
             width: this.props.width,
@@ -2034,7 +2198,7 @@ export class Photo extends Component {
             source={{ uri: this.props.photoUrl }}
             style={{ height: this.props.height, width: this.props.width}}
           />
-        </TouchableWithoutFeedback>
+        </TouchableOpacity>
       </Box>
     );
   }
@@ -2045,7 +2209,7 @@ export class PhotoAndBio extends Component {
       <View
         style={{
           flexDirection: 'row',
-          paddingHorizontal: this.props.isDeeplinkLanding ? 40 : 15,
+          paddingHorizontal: this.props.isDeeplinkLanding ? 40 : 25,
           alignItems: 'center',
         }}>
         <Photo
@@ -2058,11 +2222,11 @@ export class PhotoAndBio extends Component {
         <View style={{ marginRight: 70, marginLeft: this.props.isDeeplinkLanding ? 5 : 10 }}>
           <Text
             onPress={this.props.navigateToProfile}
-            style={{ fontWeight: 'bold', color: '#A1AFC3' }}>
+            style={{ fontWeight: 'bold', color: '#3a7bd5' }}>
             {this.props.username}
           </Text>
           <Text
-            style={{ fontWeight: 'bold', color: '#bebebe', fontSize: 12 }}
+            style={{ fontWeight: 'bold', color: '#7F8692', fontSize: 12 }}
             ellipsizeMode="tail"
             numberOfLines={2}>
             {this.props.bio}
