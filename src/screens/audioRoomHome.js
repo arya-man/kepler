@@ -538,6 +538,7 @@ class audioRoomHome extends Component {
             data={DATA}
             horizontal={true}
             showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.username}
             renderItem={({item})=>(
               <FriendButton
                 username={item.username}
