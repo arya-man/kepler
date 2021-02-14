@@ -120,11 +120,13 @@ class audioRoomHome extends Component {
       profilePicOfPersonToBeFollowed: "https://source.unsplash.com/user/erondu",
       isFollowing: false,
       followPopUpVisible: false,
+      followRecommendationData:[],
+      indexOfpersonToBeFollowed:0
     };
     if (Platform.OS == 'android') {
       PermissionsAndroid.request('android.permission.RECORD_AUDIO')
     }
-
+    this.getFollowSuggestion()
   }
 
   toggleCreateRoomModal = () => {
@@ -200,7 +202,28 @@ class audioRoomHome extends Component {
   //   this.setState({ refreshing: false })
 
   // }
-
+  getFollowSuggestion = async()=>{
+    fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/getFollowSuggestion', {
+                  method: 'POST',
+                  headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    username: this.props.user.user.username
+                  })
+                })
+                  .then((res) => {
+                    return res.json()
+                  })
+                  .then((res) => {
+                    console.log("Recom: ", res.recommendation)
+                    this.setState({ followRecommendationData: res.recommendation})
+                  })
+                  .catch(() => {
+                    Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
+    })
+  }
   getRooms = () => {
 
     database().ref('rooms').once('value')
@@ -535,22 +558,24 @@ class audioRoomHome extends Component {
             }}>
           <Text style={{fontSize: 20, color:"#3a7bd5", fontWeight: "bold"}}>Follow Someone</Text>
           <FlatList
-            data={DATA}
+            data={this.state.followRecommendationData}
             horizontal={true}
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item.username}
-            renderItem={({item})=>(
+            renderItem={({item, index})=>(
               <FriendButton
                 username={item.username}
                 profilePic={item.profilePic}
                 onPress={()=>{
                   this.setState({
                     nameOfPersonToBeFollowed: item.username,
-                    descriptionOfPersonToBeFollowed: item.description,
-                    noOfFollowersOfPersonToBeFollowed: item.followers,
-                    noOfPeopleFollowingOfPersonToBeFollowed: item.following,
-                    profilePicOfPersonToBeFollowed: item.profilePic,
+                    descriptionOfPersonToBeFollowed: item.description?item.description:"Hello There",
+                    noOfFollowersOfPersonToBeFollowed: item.followers?item.followers:20,
+                    noOfPeopleFollowingOfPersonToBeFollowed: item.following?item.following:91,
+                    profilePicOfPersonToBeFollowed: item.profilePic?item.profilePic:"https://source.unsplash.com/user/erondu",
+                    indexOfpersonToBeFollowed:index,
                     followPopUpVisible: true,
+                    isFollowing:item.isFollowing
                   })
                 }}
               />
@@ -568,6 +593,46 @@ class audioRoomHome extends Component {
           onFollow={()=>{
             this.setState({isFollowing: !this.state.isFollowing})
             // Add Follow function logic here and based on that change isFollowing state.
+              if(this.state.isFollowing){
+                let changeData = this.state.followRecommendationData
+                changeData[this.state.indexOfpersonToBeFollowed]['isFollowing'] = false
+                changeData[this.state.indexOfpersonToBeFollowed]['followers'] = this.state.noOfFollowersOfPersonToBeFollowed -1
+                this.setState({
+                  followRecommendationData:changeData,
+                  noOfFollowersOfPersonToBeFollowed:this.state.noOfFollowersOfPersonToBeFollowed-1
+                })
+              }else{
+                let changeData = this.state.followRecommendationData
+                changeData[this.state.indexOfpersonToBeFollowed]['isFollowing'] = true
+                changeData[this.state.indexOfpersonToBeFollowed]['followers'] = this.state.noOfFollowersOfPersonToBeFollowed +1
+                this.setState({
+                  noOfFollowersOfPersonToBeFollowed:this.state.noOfFollowersOfPersonToBeFollowed+1,
+                  followRecommendationData:changeData,
+                })
+              }
+              fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/follow', {
+                            method: 'POST',
+                            headers: {
+                              Accept: 'application/json',
+                              'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                              username: this.props.user.user.username,
+                              user_image_url:this.props.user.user.photoUrl,
+                              followed: this.state.nameOfPersonToBeFollowed,
+                              followed_image_url: this.state.profilePicOfPersonToBeFollowed,
+                              active:this.state.isFollowing?false:true
+                            })
+                          })
+                            .then((res) => {
+                              return res.json()
+                            })
+                            .then((res) => {
+                              console.log("Recom: ", res)
+                            })
+                            .catch(() => {
+              })
+            
           
           }}
           followPopUpVisibleFunction={()=>{
