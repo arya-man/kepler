@@ -605,8 +605,8 @@ class audioRoom extends Component {
     if (this.state.loading) {
       return (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgb(233, 235, 244)'}}>
-          <ActivityIndicator size="large" color="#4e7bb4" />
-          {/* <PacmanIndicator color="#4e7bb4" size={50} /> */}
+          <ActivityIndicator size="large" color="#3a7bd5" />
+          {/* <PacmanIndicator color="#3a7bd5" size={50} /> */}
         </View>
       );
     } else {
@@ -639,7 +639,7 @@ class audioRoom extends Component {
                   // marginTop: 10,
                   fontSize: 25,
                   fontWeight: 'bold',
-                  color: '#4e7bb4',
+                  color: '#3a7bd5',
                 }}
                 ellipsizeMode="tail"
                 numberOfLines={2}>
@@ -767,7 +767,7 @@ class audioRoom extends Component {
             horizontal={true}
             showsPagination={false}>
             <View style={{flex: 1}}>
-              <Text style={{fontSize: 20, color: '#4e7bb4', marginLeft: 15}}>
+              <Text style={{fontSize: 20, color: '#3a7bd5', marginLeft: 15}}>
                 Hosts
               </Text>
               {/* ScrollView of Hosts, one with the star is Admin */}
@@ -856,7 +856,7 @@ class audioRoom extends Component {
             </View>
 
             <View style={{flex: 1, backgroundColor: 'rgb(233, 235, 244)'}}>
-              <Text style={{fontSize: 20, color: '#4e7bb4', marginLeft: 15}}>
+              <Text style={{fontSize: 20, color: '#3a7bd5', marginLeft: 15}}>
                 Description
               </Text>
               <Text
@@ -868,7 +868,7 @@ class audioRoom extends Component {
                 }}>
                 {`${this.props.navigation.getParam('caption')}`}
               </Text>
-              <Text style={{fontSize: 20, color: '#4e7bb4', marginLeft: 15}}>
+              <Text style={{fontSize: 20, color: '#3a7bd5', marginLeft: 15}}>
                 Participants
               </Text>
               {/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~NEW SLIDE : PARTICIPANTS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
@@ -1065,7 +1065,7 @@ class audioRoom extends Component {
                   }}>
                   <Text
                     style={{
-                      color: '#4e7bb4',
+                      color: '#3a7bd5',
                       fontSize: 20,
                       fontWeight: 'bold',
                     }}>
@@ -1208,7 +1208,7 @@ class audioRoom extends Component {
                   }}>
                   <Text
                     style={{
-                      color: '#4e7bb4',
+                      color: '#3a7bd5',
                       fontSize: 20,
                       fontWeight: 'bold',
                     }}>
@@ -1287,7 +1287,7 @@ class audioRoom extends Component {
                   }}>
                   <Text
                     style={{
-                      color: '#4e7bb4',
+                      color: '#3a7bd5',
                       fontSize: 20,
                       fontWeight: 'bold',
                     }}>
@@ -1433,7 +1433,7 @@ export class Notification extends Component {
           // elevation: 5,
           marginTop: '15%',
           zIndex: 5,
-          backgroundColor: '#4e7bb4',
+          backgroundColor: '#3a7bd5',
           paddingTop: 5,
           paddingHorizontal: 15,
           borderRadius: 20,
@@ -1478,7 +1478,7 @@ export class Admin extends Component {
               height: screenWidth / 3 - 40,
               width: screenWidth / 3 - 40,
               alignSelf: 'center',
-              borderColor: '#4e7bb4',
+              borderColor: '#3a7bd5',
               borderWidth: this.props.micOn ? 4 : 0,
               borderRadius: 15,
             }}
@@ -1488,7 +1488,7 @@ export class Admin extends Component {
         <Text
           style={{
             marginTop: -10,
-            color: '#4e7bb4',
+            color: '#3a7bd5',
             overflow: 'hidden',
             width: 80,
             height: 20,
@@ -1515,7 +1515,7 @@ export class Admin extends Component {
               // top: 5,
               // right: -15,
               color: '#fff',
-              backgroundColor: '#4e7bb4',
+              backgroundColor: '#3a7bd5',
               padding: 3,
               // borderRadius: 10,
             }}
@@ -1537,7 +1537,7 @@ export class Admin extends Component {
               // top: 5,
               // right: -15,
               color: '#fff',
-              backgroundColor: '#4e7bb4',
+              backgroundColor: '#3a7bd5',
               padding: 3,
               // borderRadius: 10,
             }}
@@ -1569,7 +1569,7 @@ export class Host extends Component {
             style={{
               height: screenWidth / 3 - 40,
               width: screenWidth / 3 - 40,
-              borderColor: '#4e7bb4',
+              borderColor: '#3a7bd5',
               borderWidth: this.props.micOn ? 4 : 0,
               borderRadius: 15,
               alignSelf: 'center',
@@ -1580,7 +1580,7 @@ export class Host extends Component {
         <Text
           style={{
             marginTop: -10,
-            color: '#4e7bb4',
+            color: '#3a7bd5',
             overflow: 'hidden',
             width: 80,
             height: 20,
@@ -1607,7 +1607,7 @@ export class Host extends Component {
               // top: 5,
               // right: -15,
               color: '#fff',
-              backgroundColor: '#4e7bb4',
+              backgroundColor: '#3a7bd5',
               padding: 3,
               // borderRadius: 10,
             }}
@@ -1678,7 +1678,7 @@ export class PersonInQueue extends Component {
             paddingHorizontal: 3,
             borderRadius: 10,
             overflow: 'hidden',
-            backgroundColor: '#4e7bb4',
+            backgroundColor: '#3a7bd5',
           }}>
           {this.props.queueNo}
         </Text>
@@ -1983,7 +1983,7 @@ export class CreateRoomButton extends Component {
                 </Text>
               )}
               {this.state.loading && (
-                <PulseIndicator color="#4e7bb4" size={40} />
+                <PulseIndicator color="#3a7bd5" size={40} />
               )}
             </View>
           </LinearGradient>
@@ -2026,7 +2026,7 @@ class FeedbackModal extends Component {
               }}>
               <Text
                 style={{
-                  color: '#4e7bb4',
+                  color: '#3a7bd5',
                   fontWeight: 'bold',
                   fontSize: 20,
                 }}>

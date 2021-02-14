@@ -83,19 +83,12 @@ class openingScreen extends Component {
           .then(user => {
             // console.log(user)
             user.forEach(async loggedIn => {
-              // console.log(loggedIn)
-              // console.log("LOGIN",loggedIn['_data'])
-
               var log = loggedIn['_data']
-              // console.log("LOG",log['avatar'].toBase64())
-              //log['photoUrl'] = await log['photoUrl']
-              //delete log['avatar']
-
               this.props.dispatch({
                 type: GET_USER,
                 payload: log
               })
-              await AsyncStorage.setItem('data', JSON.stringify(loggedIn["_data"]));
+              //await AsyncStorage.setItem('data', JSON.stringify(loggedIn["_data"]));
             })
             this.props.navigation.navigate("normal");
           })
@@ -115,7 +108,7 @@ class openingScreen extends Component {
     if (this.state.isLoading === true) {
       return (
         <View style={{ flex: 1, justifyContent: "center" }}>
-          <ActivityIndicator size="large" color="#4e7bb4" />
+          <ActivityIndicator size="large" color="#3a7bd5" />
         </View>
       )
     }
@@ -154,7 +147,7 @@ class openingScreen extends Component {
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
               <View style={{ marginTop: 120 }}>
                 <Image
-                  source={require('../../Assets/LogoName.png')}
+                  source={require('../../Assets/keplr-name.png')}
                   style={{
                     height: 70,
                     width: '60%',
