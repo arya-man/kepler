@@ -71,17 +71,17 @@ class openingScreen extends Component {
     if (this.state.firstName == '' || this.state.lastName == '' || this.state.bio == '') {
       if (this.state.firstName == '') {
         this.setState({
-          firstName: 'anon'
+          firstName: 'Anon'
         })
       }
       if (this.state.lastName == '') {
         this.setState({
-          lastName: 'anon'
+          lastName: 'Anon'
         })
       }
       if (this.state.bio == '') {
         this.setState({
-          bio: 'anon'
+          bio: 'Hello World, I am enjoying Keplr'
         })
       }
       // this.setState({
