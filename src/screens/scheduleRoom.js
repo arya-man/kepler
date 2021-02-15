@@ -5,6 +5,10 @@ import Feather from 'react-native-vector-icons/Feather';
 import {CreateRoomButton, UpcomingRoom} from './audioRoomHome';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
+import RNFetchBlob from 'rn-fetch-blob';
+import Share from 'react-native-share';
+import dynamicLinks from '@react-native-firebase/dynamic-links';
+
 const screenWidth = Dimensions.get('window').width;
 
 export default class scheduleRoom extends Component {
@@ -35,6 +39,53 @@ export default class scheduleRoom extends Component {
       this.setState({ showDateTimePicker: true });
   };
 
+  deeplink = async(id) => {
+    const link = await dynamicLinks().buildLink({
+    link: 'https://keplr.org/'+id,
+    // domainUriPrefix is created in your Firebase console
+    domainUriPrefix: 'https://keplr.page.link',
+    android: {
+      packageName: 'com.keplr',
+    },
+    ios:{
+      bundleId:'com.keplrapp'
+    }
+  });
+  console.log(link);
+  return link;
+
+}
+  onShareFunction = async () => {
+    let shareLink = await this.deeplink(this.props.navigation.getParam('roomId'));
+    this.setState({shareLoading: true})
+    let file_url = "https://firebasestorage.googleapis.com/v0/b/keplr-4ff01.appspot.com/o/keplr-share.png?alt=media&token=3c6ed63b-d7ea-418e-a911-4899113033c8";
+    let imagePath = null;
+    RNFetchBlob.config({
+        fileCache: true
+    })
+    .fetch("GET", file_url)
+    // the image is now dowloaded to device's storage
+    .then(resp => {
+        // the image path you can use it directly with Image component
+        imagePath = resp.path();
+        return resp.readFile("base64");
+    })
+    .then(async base64Data => {
+        var base64Data = `data:image/png;base64,` + base64Data;
+        // here's base64 encoded image
+        await Share.open({ 
+          url: base64Data,
+          message: "Join us on Keplr! \n" + shareLink
+        });
+        // remove the file from storage
+        return fs.unlink(imagePath);
+    }).catch(error => {
+      this.setState({shareLoading: false})
+    });
+    this.setState({shareLoading: false})
+    // ------------------------------------------------------
+    // console.log("share share");
+  }
   render() {
     return (
       <SafeAreaView style={{flex: 1,backgroundColor: 'rgb(233, 235, 244)'}}>
@@ -77,6 +128,7 @@ export default class scheduleRoom extends Component {
                 startNowFunction={()=>{
                   console.log('hello');
                 }}
+                shareFunction={this.onShareFunction}
               />
         )}
         <ScheduleRoomPopUp
