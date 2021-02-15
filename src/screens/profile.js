@@ -47,7 +47,9 @@ export class openingScreen extends Component {
       error: "",
       isLoading: false,
       authmodalVisible: false,
-      authMessage: ''
+      authMessage: '',
+      followers:this.props.user.user.followers,
+      following:this.props.user.user.following
     };
     // console.log("Hello", this.props.user.user.photoUrl)
     this.keyboardCheck = this.keyboardCheck.bind(this);
@@ -91,7 +93,7 @@ export class openingScreen extends Component {
                 type: GET_USER,
                 payload: log
               })
-              await AsyncStorage.setItem('data', JSON.stringify(user["_data"]));
+              //await AsyncStorage.setItem('data', JSON.stringify(user["_data"]));
               this.props.navigation.goBack()
             }.bind(this))
             .catch(function (error) {
@@ -294,15 +296,15 @@ export class openingScreen extends Component {
                       marginLeft: -15
                     }}
                     >
-                      @hasirmushtaq
+                      {"@"+this.state.username}
                     </Text>
                     <View style={{flexDirection:'row', alignSelf:'center', marginVertical: 15}}>
                       <View style={{marginRight: 20, alignItems: 'center'}}>
-                        <Text style={{fontSize: 20, fontWeight:'bold', color:'#7F8692'}}>12,342</Text>
+                        <Text style={{fontSize: 20, fontWeight:'bold', color:'#7F8692'}}>{this.state.followers}</Text>
                         <Text style={{color:'#7F8692'}}>Followers</Text>
                       </View>
                       <View style={{alignItems: 'center'}}>
-                        <Text style={{fontSize: 20, fontWeight:'bold', color:'#7F8692'}}>43,111</Text>
+                        <Text style={{fontSize: 20, fontWeight:'bold', color:'#7F8692'}}>{this.state.following}</Text>
                         <Text style={{color:'#7F8692'}}>Following</Text>
                       </View>
                     </View>
