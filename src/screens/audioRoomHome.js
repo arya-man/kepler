@@ -17,7 +17,8 @@ import {
 } from 'react-native';
 import 'react-native-get-random-values'
 import Icon from 'react-native-vector-icons/Feather';
-import Material from 'react-native-vector-icons/MaterialIcons'
+import Material from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Box from './neumorphButton';
 import CBox from './customizableNeuButton';
 import LinearGradient from 'react-native-linear-gradient';
@@ -523,6 +524,9 @@ class audioRoomHome extends Component {
           username="Hasir Mushtaq"
           date="October 13, 2021"
           time="10:00 a.m. IST"
+          shareNowFunction={()=> {
+            console.log('hello');
+          }}
         /> */}
         {/* ==================================================================== */}
         {/* ````````````````` New Room UI use this and delete the old one @aryaman`````````````````````` */}
@@ -1691,14 +1695,31 @@ export class UpcomingRoom extends Component {
             <Text style={{ fontWeight: 'bold', color: '#3a7bd5', alignSelf: 'center' }}>{this.props.time}</Text>
           </View>
         </View>
-        {this.props.startNow && (
+        {this.props.startNow ? (
+          <View style={{ marginTop: 10, alignItems: 'center', width: '100%', marginBottom: 10, flexDirection: 'row', justifyContent: 'center' }}>
+            <CreateRoomButton
+              height={40}
+              width={0.5 * screenWidth - 40}
+              borderRadius={20}
+              text="START NOW"
+              createRoom={this.props.startNowFunction}
+            />
+            <CreateRoomButton
+              height={40}
+              width={0.5 * screenWidth - 40}
+              borderRadius={20}
+              text="SHARE"
+              createRoom={this.props.shareFunction}
+            />
+          </View>
+        ) : (
           <View style={{ marginTop: 10, alignItems: 'center', width: '100%', marginBottom: 10 }}>
             <CreateRoomButton
               height={40}
               width={0.6 * screenWidth}
               borderRadius={20}
-              text="START NOW"
-              createRoom={this.props.startNowFunction}
+              text="SHARE"
+              createRoom={this.props.shareNowFunction}
             />
           </View>
         )}

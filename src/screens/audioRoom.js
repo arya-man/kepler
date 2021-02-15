@@ -93,8 +93,9 @@ class audioRoom extends Component {
   // ------------- SHARE ROOM FUNCTION @aryaman: Dated: Feb 8, 2020 -> Add Deep Link in message on line 97 -------------------------
   onShareFunction = async () => {
     let shareLink = await this.deeplink(this.props.navigation.getParam('roomId'));
-    this.setState({ shareLoading: true })
-    file_url = "https://firebasestorage.googleapis.com/v0/b/keplr-4ff01.appspot.com/o/keplr-share.png?alt=media&token=3c6ed63b-d7ea-418e-a911-4899113033c8";
+    this.setState({shareLoading: true})
+    let file_url = "https://firebasestorage.googleapis.com/v0/b/keplr-4ff01.appspot.com/o/keplr-share.png?alt=media&token=3c6ed63b-d7ea-418e-a911-4899113033c8";
+
     let imagePath = null;
     RNFetchBlob.config({
       fileCache: true
@@ -111,7 +112,9 @@ class audioRoom extends Component {
         // here's base64 encoded image
         await Share.open({
           url: base64Data,
-          message: "Join us on Keplr! " + shareLink
+
+          message: "Join us on Keplr! \n" + shareLink
+
         });
         // remove the file from storage
         return fs.unlink(imagePath);
