@@ -434,6 +434,7 @@ class audioRoomHome extends Component {
           <FlatList
             data={this.state.followRecommendationData}
             horizontal={true}
+            keyExtractor={(item) => item.username}
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item.username}
             renderItem={({ item, index }) => (
@@ -1760,6 +1761,7 @@ class NewRoom extends Component {
             )}
           />
         </View>
+
         <View style={{ marginTop: 10, alignItems: 'center', width: '100%', marginBottom: 10 }}>
           <CreateRoomButton
             height={40}
