@@ -99,7 +99,7 @@ class openingScreen extends Component {
       url = await ref.getDownloadURL();
     }
     else {
-      url = 'https://firebasestorage.googleapis.com/v0/b/keplr-4ff01.appspot.com/o/rocket.png?alt=media&token=48594f77-8e8c-4061-8725-580162101f90'
+      url = 'https://firebasestorage.googleapis.com/v0/b/keplr-4ff01.appspot.com/o/rocket.png?alt=media&token=095b92d1-cc86-4d60-8940-cb17bac0213d'
     }
     firestore()
       .collection('Users')

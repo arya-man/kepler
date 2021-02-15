@@ -39,9 +39,10 @@ import ErrorPopup from './errorPopup';
 import database from '@react-native-firebase/database';
 import Toast from 'react-native-simple-toast';
 import RtcEngine from 'react-native-agora';
-import { PacmanIndicator, DotIndicator } from 'react-native-indicators';
 import firestore from '@react-native-firebase/firestore';
 import RNFetchBlob from 'rn-fetch-blob';
+import LottieView from 'lottie-react-native'
+import ReactNativeForegroundService from "@supersami/rn-foreground-service";
 
 const screenWidth = Math.round(Dimensions.get('window').width);
 import dynamicLinks from '@react-native-firebase/dynamic-links';
@@ -75,7 +76,7 @@ class audioRoom extends Component {
     this.numberOfHosts = 0;
   }
   deeplink = async (id) => {
-    const link = await dynamicLinks().buildLink({
+    const link = await dynamicLinks().buildShortLink({
       link: 'https://keplr.org/' + id,
       // domainUriPrefix is created in your Firebase console
       domainUriPrefix: 'https://keplr.page.link',
@@ -85,15 +86,15 @@ class audioRoom extends Component {
       ios: {
         bundleId: 'com.keplrapp'
       }
-    });
-    console.log(link);
+    } , dynamicLinks.ShortLinkType.SHORT);
+    // console.log(link);
     return link;
 
   }
   // ------------- SHARE ROOM FUNCTION @aryaman: Dated: Feb 8, 2020 -> Add Deep Link in message on line 97 -------------------------
   onShareFunction = async () => {
     let shareLink = await this.deeplink(this.props.navigation.getParam('roomId'));
-    this.setState({shareLoading: true})
+    this.setState({ shareLoading: true })
     let file_url = "https://firebasestorage.googleapis.com/v0/b/keplr-4ff01.appspot.com/o/keplr-share.png?alt=media&token=3c6ed63b-d7ea-418e-a911-4899113033c8";
 
     let imagePath = null;
@@ -170,11 +171,16 @@ class audioRoom extends Component {
   async componentDidMount() {
     if (Platform.OS === 'android') {
       BackHandler.addEventListener('hardwareBackPress', this.backAction);
+      ReactNativeForegroundService.start({
+        id: 144,
+        title: "Please don\'t tap this notification",
+        message: `🚀: ${this.props.navigation.getParam('hashtag')}`
+      });
     }
 
     if (!this.props.connected) {
       Toast.show('You are disconnected from the Internet', Toast.LONG);
-      this.props.navigation.goBack();
+      this.props.navigation.navigate('openingScreen')
     } else {
       database()
         .ref(`e/${this.props.navigation.getParam('roomId')}`)
@@ -574,6 +580,10 @@ class audioRoom extends Component {
       .ref(`e/${this.props.navigation.getParam('roomId')}`)
       .off();
 
+    if(Platform.OS === 'android') {
+      ReactNativeForegroundService.stop()
+    }
+
     // this.BackHandler.remove()
 
     // BackHandler.removeEventListener('hardwareBackPress', this.backAction);
@@ -603,7 +613,25 @@ class audioRoom extends Component {
     if (this.state.loading) {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgb(233, 235, 244)' }}>
-          <ActivityIndicator size="large" color="#3a7bd5" />
+          {/* <ActivityIndicator size="large" color="#3a7bd5" /> */}
+          <LottieView
+            source={require('../../Assets/rocket.json')}
+            autoPlay
+            loop
+            speed={1.5}
+            style={{
+              height: 200,
+              // marginTop: '30%',
+              alignSelf: 'center',
+            }}
+          />
+          <Text style={{
+            color: '#3a7bd5',
+            fontSize: 20,
+            fontWeight: 'bold', alignSelf: 'center'
+          }}>
+            Houston do you copy?
+            </Text>
           {/* <PacmanIndicator color="#3a7bd5" size={50} /> */}
         </View>
       );
@@ -686,7 +714,7 @@ class audioRoom extends Component {
                       )
                       .remove()
                       .catch();
-                    this.props.navigation.goBack();
+                    this.props.navigation.navigate('openingScreen');
                   } else if (this.state.role === 1) {
                     // database().ref(`queue/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).remove().catch()
                     database()
@@ -696,7 +724,7 @@ class audioRoom extends Component {
                       )
                       .remove()
                       .catch();
-                    this.props.navigation.goBack();
+                      this.props.navigation.navigate('openingScreen')
                   } else {
                     database()
                       .ref(
@@ -705,7 +733,7 @@ class audioRoom extends Component {
                       )
                       .remove()
                       .catch();
-                    this.props.navigation.goBack();
+                      this.props.navigation.navigate('openingScreen')
                   }
                 }}
                 name="Leave"
@@ -736,7 +764,7 @@ class audioRoom extends Component {
             okButtonText="GO TO HOME"
             clickFunction={() => {
               this.setState({ agoraInitError: false });
-              this.props.navigation.goBack();
+              this.props.navigation.navigate('openingScreen')
             }}
             modalVisible={this.state.agoraInitError}
           />
@@ -766,7 +794,7 @@ class audioRoom extends Component {
             okButtonText="GO TO HOME"
             clickFunction={() => {
               this.setState({ roomEnded: false });
-              this.props.navigation.goBack();
+              this.props.navigation.navigate('openingScreen')
             }}
             modalVisible={this.state.roomEnded && !this.state.leave}
 

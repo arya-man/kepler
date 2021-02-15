@@ -5,9 +5,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Image,
-  TouchableWithoutFeedback,
   FlatList,
-  ActivityIndicator,
   Modal,
   TextInput,
   Platform,
@@ -18,7 +16,6 @@ import {
 import 'react-native-get-random-values'
 import Icon from 'react-native-vector-icons/Feather';
 import Material from 'react-native-vector-icons/MaterialIcons';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Box from './neumorphButton';
 import CBox from './customizableNeuButton';
 import LinearGradient from 'react-native-linear-gradient';
@@ -37,9 +34,12 @@ import messaging from '@react-native-firebase/messaging'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import VersionNumber from 'react-native-version-number';
 import dynamicLinks from '@react-native-firebase/dynamic-links';
+import LottieView from 'lottie-react-native'
+import moment from 'moment';
+import Share from 'react-native-share';
+import RNFetchBlob from 'rn-fetch-blob';
 
 const screenWidth = Dimensions.get('window').width
-
 
 class audioRoomHome extends Component {
   constructor(props) {
@@ -72,11 +72,11 @@ class audioRoomHome extends Component {
       profilePicOfPersonToBeFollowed: "https://source.unsplash.com/user/erondu",
       isFollowing: false,
       followPopUpVisible: false,
-
+      showReconnectToast: false,
       followRecommendationData: [],
       indexOfpersonToBeFollowed: 0,
       deeplinkLandingForUpcomingRoomsModalVisible: false,
-      randomNumber:Math.floor(Math.random() * this.props.rooms.length)
+      randomNumber: 0
     };
     if (Platform.OS == 'android') {
       PermissionsAndroid.request('android.permission.RECORD_AUDIO')
@@ -114,33 +114,64 @@ class audioRoomHome extends Component {
         Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
       })
   }
-  getRooms = () => {
 
-    database().ref('rooms').once('value')
-      .then((query) => {
-        var arr = []
-        query.forEach(doc => {
-          var obj = { id: doc.key }
-          obj = { ...obj, ...doc.val() }
-          arr.push(obj)
-          // console.log("OBJ", obj)
-        })
-        this.props.dispatch({
-          type: GET_ROOMS,
-          payload: arr
-        })
-      })
-      .catch(() => {
-        this.setState({ getError: true })
-      })
+  getRooms = async () => {
 
-    this.setState({ loading: false })
-    this.setState({ refreshing: false })
+    var versionHere = VersionNumber.buildVersion
+    // console.log("VERSION", versionHere)
+
+    fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/getRooms', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        version: versionHere,
+        os: Platform.OS
+      })
+    })
+      .then((res) => {
+        return res.json()
+      })
+      .then((res) => {
+
+        // console.log("ROOMS", res)
+
+        if (res.length === 1) {
+          if (res[0] === 'error') {
+            this.setState({ updateApp: true })
+          }
+          else {
+
+            this.props.dispatch({
+              type: GET_ROOMS,
+              payload: res
+            })
+
+            this.setState({ randomNumber: Math.floor(Math.random() * res.length) })
+
+          }
+        }
+        else {
+
+          this.props.dispatch({
+            type: GET_ROOMS,
+            payload: res
+          })
+
+          this.setState({ randomNumber: Math.floor(Math.random() * res.length) })
+
+        }
+
+        this.setState({ loading: false, refreshing: false })
+
+      })
 
   }
 
+
   async checkDeepLink() {
-    // console.log("ID: ", this.props.deepLinkID)
     let roomId = this.props.deepLinkID;
     if (roomId !== 0) {
 
@@ -148,17 +179,14 @@ class audioRoomHome extends Component {
         type: DEEP_LINK,
         payload: 0
       })
-      //fetch data
-      // console.log("fetching data for : ", roomId)
-      /// @@todo aryaman fetch data, that will be stored in this.state/deepLinkData => then setthe modal based on the data
+
       database().ref(`rooms/${roomId}`).once('value', async (snap) => {
 
         var obj = {}
 
-        if (snap.val() !== null) {
+        if (snap.val() !== null && snap.val().isActive) {
 
           var length = Object.keys(snap.val()['admin'])
-          // console.log("LENGTH", length)
           var text = ''
 
           if (length.length === 1) {
@@ -176,7 +204,21 @@ class audioRoomHome extends Component {
           this.setState({ DeeplinkLandingModalVisible: true });
 
         }
-        else {
+        else if (snap.val() !== null && !snap.val().isActive) {
+
+          var obj = {
+
+            hashtag: snap.val().hashtag,
+            caption: snap.val().caption,
+            date: moment(snap.val().dateTime).format('MMMM Do YYYY'),
+            time: moment(snap.val().dateTime).format('h:mm A')
+
+          }
+
+          this.setState({ deepLinkData: obj, deeplinkLandingForUpcomingRoomsModalVisible: true })
+
+        }
+        else if (snap.val() === null) {
 
           this.setState({ deepLinkDone: true })
 
@@ -187,20 +229,16 @@ class audioRoomHome extends Component {
 
 
   _handleOpenURL = event => {
-    // console.log("Liniking ", event)
     dynamicLinks().onLink(link => {
-      // console.log("Inside: ", link)
       if (link.url.includes("https://keplr.org")) {
         var roomId = link.url.slice(link.url.lastIndexOf('/') + 1);
-        //navigate to that part of the page
         database().ref(`rooms/${roomId}`).once('value', async (snap) => {
 
           var obj = {}
 
-          if (snap.val() !== null) {
+          if (snap.val() !== null && snap.val().isActive) {
 
             var length = Object.keys(snap.val()['admin'])
-            // console.log("LENGTH", length)
             var text = ''
 
             if (length.length === 1) {
@@ -218,7 +256,21 @@ class audioRoomHome extends Component {
             this.setState({ DeeplinkLandingModalVisible: true });
 
           }
-          else {
+          else if (snap.val() !== null && !snap.val().isActive) {
+
+            var obj = {
+
+              hashtag: snap.val().hashtag,
+              caption: snap.val().caption,
+              date: moment(snap.val().dateTime).format('MMMM Do YYYY'),
+              time: moment(snap.val().dateTime).format('h:mm A')
+
+            }
+
+            this.setState({ deepLinkData: obj, deeplinkLandingForUpcomingRoomsModalVisible: true })
+
+          }
+          else if (snap.val() === null) {
 
             this.setState({ deepLinkDone: true })
 
@@ -229,150 +281,127 @@ class audioRoomHome extends Component {
     });
   };
 
+  deeplink = async (id) => {
+    const link = await dynamicLinks().buildShortLink({
+      link: 'https://keplr.org/' + id,
+      // domainUriPrefix is created in your Firebase console
+      domainUriPrefix: 'https://keplr.page.link',
+      android: {
+        packageName: 'com.keplr',
+      },
+      ios: {
+        bundleId: 'com.keplrapp'
+      }
+    }, dynamicLinks.ShortLinkType.SHORT);
+    // console.log(link);
+    return link;
+
+  }
+  // ------------- SHARE ROOM FUNCTION @aryaman: Dated: Feb 8, 2020 -> Add Deep Link in message on line 97 -------------------------
+  onShareFunction = async (id) => {
+    let shareLink = await this.deeplink(id);
+    // this.setState({ shareLoading: true })
+    let file_url = "https://firebasestorage.googleapis.com/v0/b/keplr-4ff01.appspot.com/o/keplr-share.png?alt=media&token=3c6ed63b-d7ea-418e-a911-4899113033c8";
+
+    let imagePath = null;
+    RNFetchBlob.config({
+      fileCache: true
+    })
+      .fetch("GET", file_url)
+      .then(resp => {
+        imagePath = resp.path();
+        return resp.readFile("base64");
+      })
+      .then(async base64Data => {
+        var base64Data = `data:image/png;base64,` + base64Data;
+        await Share.open({
+          url: base64Data,
+          message: "Join us on Keplr! \n" + shareLink
+        });
+        return fs.unlink(imagePath);
+      }).catch(error => {
+        // this.setState({ shareLoading: false })
+      });
+    // this.setState({ shareLoading: false })
+  }
+
   async componentDidMount() {
 
+    await this.getRooms()
+
     Linking.addEventListener('url', this._handleOpenURL);
+
+    this.checkDeepLink()
+
+    var bioDone = await AsyncStorage.getItem('bioDone')
+
+    if (bioDone === null) {
+
+      await AsyncStorage.setItem('bioDone', 'done')
+
+    }
+
+    database().ref('dummy').on('value', snap => {
+
+    })
+
+    database().ref('.info/connected').on('value', snap => {
+      this.props.dispatch({
+        type: GET_CONNECTED,
+        payload: snap.val()
+      })
+    })
+
+    if (Platform.OS === 'ios') {
+      var authorizationStatus = await messaging().requestPermission()
+
+      if (authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED || authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL) {
+
+        messaging().subscribeToTopic('all').catch()
+
+        if (this.props.user.user.token === undefined) {
+
+          var token = await messaging().getToken()
+
+          firestore().collection('Users').doc(this.props.user.user.username).update({
+            token: token
+          })
+
+          this.props.dispatch({
+            type: GET_TOKEN,
+            payload: token
+          })
+
+        }
+
+      }
+    }
+
+    if (Platform.OS === 'android') {
+
+      messaging().subscribeToTopic('all').catch()
+
+      if (this.props.user.user.token === undefined) {
+
+        var token = await messaging().getToken()
+
+        firestore().collection('Users').doc(this.props.user.user.username).update({
+          token: token
+        })
+
+        this.props.dispatch({
+          type: GET_TOKEN,
+          payload: token
+        })
+
+      }
+
+    }
 
     this.props.dispatch({
       type: CURRENT_TIMESTAMP,
       payload: new Date().getTime()
     })
-
-    database().ref('version').once('value', async snap => {
-
-      var versionHere = VersionNumber.buildVersion
-
-      if (versionHere >= snap.val()) {
-
-        this.checkDeepLink()
-
-        database().ref('rooms').once('value')
-          .then((query) => {
-            var arr = []
-            query.forEach(doc => {
-              var obj = { id: doc.key }
-              obj = { ...obj, ...doc.val() }
-              arr.push(obj)
-            })
-            this.props.dispatch({
-              type: GET_ROOMS,
-              payload: arr
-            })
-          })
-          .catch(() => {
-            this.setState({ getError: true })
-          })
-
-        var bioDone = await AsyncStorage.getItem('bioDone')
-
-        if (bioDone === null) {
-
-          await AsyncStorage.setItem('bioDone', 'done')
-
-        }
-
-        database().ref('dummy').on('value', snap => {
-
-        })
-
-        database().ref('.info/connected').on('value', snap => {
-          this.props.dispatch({
-            type: GET_CONNECTED,
-            payload: snap.val()
-          })
-        })
-
-        // this.getRooms()
-
-        if (Platform.OS === 'ios') {
-          var authorizationStatus = await messaging().requestPermission()
-
-          if (authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED || authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL) {
-
-            messaging().subscribeToTopic('all').catch()
-
-          }
-        }
-
-        if (Platform.OS === 'android') {
-
-          messaging().subscribeToTopic('all').catch()
-
-        }
-
-        this.setState({ loading: false })
-        this.setState({ refreshing: false })
-
-      }
-      else {
-
-        this.setState({ updateApp: true, loading: false, refreshing: false })
-
-      }
-
-    })
-      .catch(async () => {
-
-        this.checkDeepLink()
-        database().ref('rooms').once('value')
-          .then((query) => {
-            var arr = []
-            query.forEach(doc => {
-              var obj = { id: doc.key }
-              obj = { ...obj, ...doc.val() }
-              arr.push(obj)
-              // console.log("OBJ", obj)
-            })
-            this.props.dispatch({
-              type: GET_ROOMS,
-              payload: arr
-            })
-          })
-          .catch(() => {
-            this.setState({ getError: true })
-          })
-
-        var bioDone = await AsyncStorage.getItem('bioDone')
-
-        if (bioDone === null) {
-
-          await AsyncStorage.setItem('bioDone', 'done')
-
-        }
-
-        database().ref('dummy').on('value', snap => {
-
-        })
-
-        database().ref('.info/connected').on('value', snap => {
-          this.props.dispatch({
-            type: GET_CONNECTED,
-            payload: snap.val()
-          })
-        })
-
-        // this.getRooms()
-
-        if (Platform.OS === 'ios') {
-          var authorizationStatus = await messaging().requestPermission()
-
-          if (authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED || authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL) {
-
-            messaging().subscribeToTopic('all').catch()
-
-          }
-        }
-
-        if (Platform.OS === 'android') {
-
-          messaging().subscribeToTopic('all').catch()
-
-        }
-
-        this.setState({ loading: false })
-        this.setState({ refreshing: false })
-
-      })
 
   }
 
@@ -382,8 +411,74 @@ class audioRoomHome extends Component {
 
       if (this.props.connected) {
 
-        Toast.show('Re-connected!', Toast.SHORT)
+        if (this.state.showReconnectToast) {
 
+          Toast.show('Re-connected!', Toast.SHORT)
+
+        }
+
+      }
+      else {
+        this.setState({ showReconnectToast: true })
+      }
+
+    }
+
+    if (this.props.deepLinkID !== prevProps.deepLinkID && prevProps.deepLinkID === 0) {
+
+      // console.log("UPDATED ID: ", this.props.deepLinkID)
+      let roomId = this.props.deepLinkID;
+      if (roomId !== 0) {
+
+        this.props.dispatch({
+          type: DEEP_LINK,
+          payload: 0
+        })
+
+        database().ref(`rooms/${roomId}`).once('value', async (snap) => {
+
+          var obj = {}
+
+          if (snap.val() !== null && snap.val().isActive) {
+
+            var length = Object.keys(snap.val()['admin'])
+            var text = ''
+
+            if (length.length === 1) {
+              text = `${[length[0]]} is already here`
+            }
+            else if (length.length === 2) {
+              text = `${[length[0]]} and ${[length[1]]} are already here`
+            }
+            else {
+              text = `${[length[0]]},${[length[1]]} and ${[length[2]]} are already here`
+            }
+
+            obj = { ...snap.val(), callToAction: text, id: snap.key }
+            this.setState({ deepLinkData: obj })
+            this.setState({ DeeplinkLandingModalVisible: true });
+
+          }
+          else if (snap.val() !== null && !snap.val().isActive) {
+
+            var obj = {
+
+              hashtag: snap.val().hashtag,
+              caption: snap.val().caption,
+              date: moment(snap.val().dateTime).format('MMMM Do YYYY'),
+              time: moment(snap.val().dateTime).format('h:mm A')
+
+            }
+
+            this.setState({ deepLinkData: obj, deeplinkLandingForUpcomingRoomsModalVisible: true })
+
+          }
+          else if (snap.val() === null) {
+
+            this.setState({ deepLinkDone: true })
+
+          }
+        })
       }
 
     }
@@ -419,7 +514,7 @@ class audioRoomHome extends Component {
         />
         {/* ********************** Following/Followers stuff************************ */}
         {/* Try to render this somewhere in between the rooms flatlist, not on the top. Make it like in facebook, i.e, somewhere in between the feed. */}
-        
+
         <FollowPopUp
           followPopUpVisible={this.state.followPopUpVisible}
           username={this.state.nameOfPersonToBeFollowed}
@@ -719,10 +814,10 @@ class audioRoomHome extends Component {
         <DeeplinkLandingForUpcomingRoomsModal
           deeplinkLandingForUpcomingRoomsModalVisible={this.state.deeplinkLandingForUpcomingRoomsModalVisible}
           // deeplinkLandingForUpcomingRoomsModalVisible={true}
-          roomName="Liverpool"
-          roomDescription="You'll never walk alone! All of the above URL's will give you a new photo each time they are requested (provided there are enough photos to choose from given the filtering). However each can also be limited to only updating once per day or week. To do so, simply append "
-          time="11:50 PM"
-          date="12th March, 2021"
+          roomName={this.state.deepLinkData.hashtag}
+          roomDescription={this.state.deepLinkData.caption}
+          time={this.state.deepLinkData.time}
+          date={this.state.deepLinkData.date}
           toggleModal={() => {
             this.setState({ deeplinkLandingForUpcomingRoomsModalVisible: false })
           }}
@@ -756,7 +851,8 @@ class audioRoomHome extends Component {
                     'Content-Type': 'application/json'
                   },
                   body: JSON.stringify({
-                    roomId: this.state.deepLinkData.id
+                    roomId: this.state.deepLinkData.id,
+                    username: this.props.user.user.username
                   })
                 })
                   .then((res) => {
@@ -764,9 +860,17 @@ class audioRoomHome extends Component {
                   })
                   .then((res) => {
                     //console.log("TYPE OF TOKEN", typeof (res.token))
-                    this.setState({ deeplinkLoading: false })
-                    this.setState({ DeeplinkLandingModalVisible: false })
-                    this.props.navigation.navigate('audioRoom', { caption: this.state.deepLinkData.caption, hashtag: this.state.deepLinkData.hashtag, roomId: this.state.deepLinkData.id, role: 0, agoraToken: res.token })
+                    if (res.token !== 'error') {
+
+                      this.setState({ deeplinkLoading: false })
+                      this.setState({ DeeplinkLandingModalVisible: false })
+                      this.props.navigation.navigate('audioRoom', { caption: this.state.deepLinkData.caption, hashtag: this.state.deepLinkData.hashtag, roomId: this.state.deepLinkData.id, role: 0, agoraToken: res.token })
+
+                    }
+                    else {
+                      this.setState({ deeplinkLoading: false })
+                      Toast.showWithGravity('Whoops, server error. Please Try Again', Toast.SHORT, Toast.CENTER)
+                    }
                   })
                   .catch(() => {
                     this.setState({ deeplinkLoading: false })
@@ -812,23 +916,19 @@ class audioRoomHome extends Component {
 
         <UpdateModal
           feedbackModalVisible={this.state.updateApp}
-          // toggleCreateRoomModal={() =>
-          //   this.setState({ feedbackModalVisible: false })
-          // }
-          // onChangeText={(text) => {
-          //   this.setState({ feedback: text });
-          // }}
           submitFunction={() => {
-            // firestore().collection('feedback').add({
-            //   text: this.state.feedback
-            // })
-            //   .then(() => {
-            //     this.setState({ feedbackModalVisible: false })
-            //   })
-            //   .catch(() => {
-            //     this.setState({ feedbackModalVisible: false })
-            //   })
-            Linking.openURL('https://play.google.com/store/apps/details?id=com.keplr')
+
+            if(Platform.OS === 'android') {
+
+              Linking.openURL('https://play.google.com/store/apps/details?id=com.keplr')
+
+            }
+            else if (Platform.OS === 'ios') {
+
+              Linking.openURL('https://apps.apple.com/in/app/keplr/id1543771904')
+
+            }
+
           }}
         />
 
@@ -858,7 +958,25 @@ class audioRoomHome extends Component {
 
         {this.state.loading ? (
           <View style={{ flex: 1, justifyContent: 'center', marginBottom: 60 }}>
-            <ActivityIndicator size="large" color="#3a7bd5" />
+            {/* <ActivityIndicator size="large" color="#3a7bd5" /> */}
+            <LottieView
+              source={require('../../Assets/rocket.json')}
+              autoPlay
+              loop
+              speed={1.5}
+              style={{
+                height: 200,
+                // marginTop: '30%',
+                alignSelf: 'center',
+              }}
+            />
+            <Text style={{
+              color: '#3a7bd5',
+              fontSize: 20,
+              fontWeight: 'bold', alignSelf: 'center'
+            }}>
+              3,2,1...Liftoff
+            </Text>
           </View>
         ) : this.props.rooms.length === 0 ? (
           <View
@@ -926,81 +1044,129 @@ class audioRoomHome extends Component {
                 keyExtractor={(item) => item['id']}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item, index }) => {
-                  console.log(index, this.state.randomNumber)
-                    var showText = 'showtext'
-                  var count
-                  if (item.nh !== undefined) {
-                    count = item.nh
-                  }
-                  if (item.na !== undefined) {
-                    if (item.nh !== undefined) {
-                      count += item.na
-                    }
-                  }
 
                   if (item.isActive) {
 
                     var keys = []
                     var values = []
 
-                    if(item.admin !== undefined) {
+                    if (item.admin !== undefined) {
 
                       keys = Object.keys(item.admin)
                       values = Object.values(item.admin)
 
                     }
 
+                    var loading = false
+                    if (this.state.buttonFetching === item.id) {
+                      loading = true
+                    }
+
                     return (
                       <View>
-                        
-                      <NewRoom
-                        hashtag={item.hashtag}
-                        caption={item.caption}
-                        adminKeys={keys}
-                        adminValues={values}
-                      />
-                      {this.state.randomNumber === index && 
+                        <NewRoom
+                          hashtag={item.hashtag}
+                          caption={item.caption}
+                          adminKeys={keys}
+                          adminValues={values}
+                          loading={loading}
+                          startNowFunction={() => {
+
+                            if (this.props.connected) {
+                              var audio = true
+                              if (Platform.OS === 'android') {
+                                audio = PermissionsAndroid.check('android.permission.RECORD_AUDIO')
+                              }
+                              if (audio) {
+
+                                this.setState({ buttonFetching: item.id })
+
+                                fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
+                                  method: 'POST',
+                                  headers: {
+                                    Accept: 'application/json',
+                                    'Content-Type': 'application/json'
+                                  },
+                                  body: JSON.stringify({
+                                    roomId: item.id,
+                                    username: this.props.user.user.username
+                                  })
+                                })
+                                  .then((res) => {
+                                    return res.json()
+                                  })
+                                  .then((res) => {
+                                    //console.log("TYPE OF TOKEN", typeof (res.token))
+                                    if (res.token !== 'error') {
+
+                                      this.setState({ buttonFetching: false })
+                                      this.props.navigation.navigate('audioRoom', { caption: this.state.deepLinkData.caption, hashtag: this.state.deepLinkData.hashtag, roomId: this.state.deepLinkData.id, role: 0, agoraToken: res.token })
+
+                                    }
+                                    else {
+                                      this.setState({ buttonFetching: false })
+                                      Toast.showWithGravity('Whoops, server error. Please Try Again', Toast.SHORT, Toast.CENTER)
+                                    }
+                                  })
+                                  .catch(() => {
+                                    this.setState({ buttonFetching: false })
+                                    Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
+                                  })
+                              }
+                              else {
+
+                                Toast.showWithGravity('Please give audio permission to join a townhall', Toast.SHORT, Toast.CENTER)
+                              }
+
+                            }
+                            else {
+                              Toast.showWithGravity('You have to be connected to the Internet to join a townhall', Toast.SHORT, Toast.CENTER)
+                            }
+
+                          }}
+                        />
+                        {this.state.randomNumber === index &&
                           <View
-          style={{
-            marginLeft: 25,
-            marginRight: 20,
-            marginTop: 15,
-            paddingTop: 5,
-            paddingBottom: 10,
-            borderTopWidth: 2,
-            borderBottomWidth: 2,
-            borderBottomColor: 'rgba(191,191,191,0.3)',
-            borderTopColor: 'rgba(191,191,191,0.3)',
-            backgroundColor: 'rgb(233, 235, 244)',
-          }}>
-          <Text style={{ fontSize: 20, color: "#3a7bd5", fontWeight: "bold" }}>Follow Someone</Text>
-          <FlatList
-            data={this.state.followRecommendationData}
-            horizontal={true}
-            keyExtractor={(item) => item.username}
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.username}
-            renderItem={({ item, index }) => (
-              <FriendButton
-                username={item.username}
-                profilePic={item.profilePic}
-                onPress={() => {
-                  this.setState({
-                    nameOfPersonToBeFollowed: item.username,
-                    descriptionOfPersonToBeFollowed: item.description ? item.description : "Hello There",
-                    noOfFollowersOfPersonToBeFollowed: item.followers,
-                    noOfPeopleFollowingOfPersonToBeFollowed: item.following,
-                    profilePicOfPersonToBeFollowed: item.profilePic ? item.profilePic : "https://source.unsplash.com/user/erondu",
-                    indexOfpersonToBeFollowed: index,
-                    followPopUpVisible: true,
-                    isFollowing: item.isFollowing
-                  })
-                }}
-              />
-            )}
-          />
-        </View>
-                        
+                            style={{
+                              marginLeft: 25,
+                              marginRight: 20,
+                              marginTop: 15,
+                              paddingTop: 5,
+                              paddingBottom: 10,
+                              // borderTopWidth: 2,
+                              borderBottomWidth: 2,
+                              borderBottomColor: 'rgba(191,191,191,0.3)',
+                              // borderTopColor: 'rgba(191,191,191,0.3)',
+                              backgroundColor: 'rgb(233, 235, 244)',
+                            }}>
+                            <Text style={{ fontSize: 20, color: "#3a7bd5", fontWeight: "bold" }}>Follow Someone</Text>
+                            <FlatList
+                              data={this.state.followRecommendationData}
+                              horizontal={true}
+                              keyExtractor={(item) => item.username}
+                              showsHorizontalScrollIndicator={false}
+                              keyExtractor={(item) => item.username}
+                              renderItem={({ item, index }) => (
+                                <FriendButton
+                                  username={item.username}
+                                  profilePic={item.profilePic}
+                                  onPress={() => {
+                                    this.setState({
+                                      nameOfPersonToBeFollowed: item.username,
+                                      descriptionOfPersonToBeFollowed: item.description ? item.description : "Hello There",
+                                      noOfFollowersOfPersonToBeFollowed: item.followers,
+                                      noOfPeopleFollowingOfPersonToBeFollowed: item.following,
+                                      profilePicOfPersonToBeFollowed: item.profilePic ? item.profilePic : "https://source.unsplash.com/user/erondu",
+                                      indexOfpersonToBeFollowed: index,
+                                      followPopUpVisible: true,
+                                      isFollowing: item.isFollowing
+                                    })
+                                  }}
+                                />
+                              )}
+                            />
+                          </View>
+
                         }
                       </View>
                     )
@@ -1010,119 +1176,72 @@ class audioRoomHome extends Component {
 
                     return (
                       <View>
-                      <Room
-                        hashtag={item.hashtag}
-                        caption={item.caption}
-                        joinButton={async () => {
-                          if (this.props.connected) {
-                            var audio = true
-                            if (Platform.OS === 'android') {
-                              audio = PermissionsAndroid.check('android.permission.RECORD_AUDIO')
-                            }
-                            if (audio) {
-
-                              this.setState({ buttonFetching: item.id })
-
-                              fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
-                                method: 'POST',
-                                headers: {
-                                  Accept: 'application/json',
-                                  'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                  roomId: item.id
-                                })
-                              })
-                                .then((res) => {
-                                  return res.json()
-                                })
-                                .then((res) => {
-
-                                  if (res.token !== 'error') {
-
-                                    this.setState({ buttonFetching: false })
-                                    this.props.navigation.navigate('audioRoom', { caption: item.caption, hashtag: item.hashtag, roomId: item.id, role: 0, agoraToken: res.token })
-
-                                  }
-                                  else {
-
-                                    this.setState({ buttonFetching: false })
-                                    Toast.showWithGravity('Whoops, a server error. Please try again', Toast.SHORT, Toast.CENTER)
-
-                                  }
-
-                                })
-                                .catch(() => {
-                                  this.setState({ buttonFetching: false })
-                                  Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
-                                })
-                            }
-                            else {
-                              Toast.showWithGravity('Please give audio permission to join a townhall', Toast.SHORT, Toast.CENTER)
-                            }
-
-                          }
-                          else {
-                            Toast.showWithGravity('You have to be connected to the Internet to join a townhall', Toast.SHORT, Toast.CENTER)
-                          }
-                        }}
-                        fetching={this.state.buttonFetching}
-                        id={item.id}
-                        adminJSON={item.admin}
-                        participantsJSON={item.participants}
-                        navigateToListOfParticipants={() => {
-                          // console.log('listofparticipants');
-                        }}
-                        participantsCallToAction={showText}
-                      />
-                      {this.state.randomNumber === index && 
+                        <UpcomingRoom
+                          loading={false}
+                          hashtag={item.hashtag}
+                          caption={item.caption}
+                          fetching={this.state.buttonFetching}
+                          date={moment(item.dateTime).format('MMMM Do YYYY')}
+                          time={moment(item.dateTime).format('h:mm A')}
+                          startNow={false}
+                          startNowFunction={() => { }}
+                          shareNowFunction={async () => {
+                            await this.onShareFunction(item.id)
+                          }}
+                          username={item.creator}
+                          photoUrl={item.creatorPhotoUrl}
+                          navigateToListOfParticipants={() => {
+                            // console.log('listofparticipants');
+                          }}
+                        />
+                        {this.state.randomNumber === index &&
                           <View
-          style={{
-            marginLeft: 25,
-            marginRight: 20,
-            marginTop: 15,
-            paddingTop: 5,
-            paddingBottom: 10,
-            borderTopWidth: 2,
-            borderBottomWidth: 2,
-            borderBottomColor: 'rgba(191,191,191,0.3)',
-            borderTopColor: 'rgba(191,191,191,0.3)',
-            backgroundColor: 'rgb(233, 235, 244)',
-          }}>
-          <Text style={{ fontSize: 20, color: "#3a7bd5", fontWeight: "bold" }}>Follow Someone</Text>
-          <FlatList
-            data={this.state.followRecommendationData}
-            horizontal={true}
-            keyExtractor={(item) => item.username}
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.username}
-            renderItem={({ item, index }) => (
-              <FriendButton
-                username={item.username}
-                profilePic={item.profilePic}
-                onPress={() => {
-                  this.setState({
-                    nameOfPersonToBeFollowed: item.username,
-                    descriptionOfPersonToBeFollowed: item.description ? item.description : "Hello There",
-                    noOfFollowersOfPersonToBeFollowed: item.followers,
-                    noOfPeopleFollowingOfPersonToBeFollowed: item.following,
-                    profilePicOfPersonToBeFollowed: item.profilePic ? item.profilePic : "https://source.unsplash.com/user/erondu",
-                    indexOfpersonToBeFollowed: index,
-                    followPopUpVisible: true,
-                    isFollowing: item.isFollowing
-                  })
-                }}
-              />
-            )}
-          />
-        </View>
-                        
+                            style={{
+                              marginLeft: 25,
+                              marginRight: 20,
+                              marginTop: 15,
+                              paddingTop: 5,
+                              paddingBottom: 10,
+                              // borderTopWidth: 2,
+                              borderBottomWidth: 2,
+                              borderBottomColor: 'rgba(191,191,191,0.3)',
+                              // borderTopColor: 'rgba(191,191,191,0.3)',
+                              backgroundColor: 'rgb(233, 235, 244)',
+                            }}>
+                            <Text style={{ fontSize: 20, color: "#3a7bd5", fontWeight: "bold" }}>Follow Someone</Text>
+                            <FlatList
+                              data={this.state.followRecommendationData}
+                              horizontal={true}
+                              keyExtractor={(item) => item.username}
+                              showsHorizontalScrollIndicator={false}
+                              keyExtractor={(item) => item.username}
+                              renderItem={({ item, index }) => (
+                                <FriendButton
+                                  username={item.username}
+                                  profilePic={item.profilePic}
+                                  onPress={() => {
+                                    this.setState({
+                                      nameOfPersonToBeFollowed: item.username,
+                                      descriptionOfPersonToBeFollowed: item.description ? item.description : "Hello There",
+                                      noOfFollowersOfPersonToBeFollowed: item.followers,
+                                      noOfPeopleFollowingOfPersonToBeFollowed: item.following,
+                                      profilePicOfPersonToBeFollowed: item.profilePic ? item.profilePic : "https://source.unsplash.com/user/erondu",
+                                      indexOfpersonToBeFollowed: index,
+                                      followPopUpVisible: true,
+                                      isFollowing: item.isFollowing
+                                    })
+                                  }}
+                                />
+                              )}
+                            />
+                          </View>
+
                         }
                       </View>
                     );
 
                   }
-                  
+
 
                 }}
               />
@@ -1392,8 +1511,8 @@ class DeeplinkLandingForUpcomingRoomsModal extends Component {
                 width={0.68 * screenWidth}
                 borderRadius={20}
                 text="YOU WILL BE NOTIFIED"
-                createRoom={this.props.onJoinFromDeeplinkFunction}
-                loading={this.props.loading}
+                createRoom={this.props.toggleModal}
+                loading={false}
               />
             </View>
           </View>
@@ -1478,7 +1597,7 @@ class DeeplinkLandingModal extends Component {
                   return (
                     <Image
                       key={item}
-                      source={{ uri: this.props.participantsJSON[item]['photoUrl'] }}
+                      source={{ uri: this.props.participantsJSON[item] }}
                       style={{
                         marginLeft: -20,
                         height: 50,
@@ -1733,7 +1852,7 @@ export class UpcomingRoom extends Component {
               height={55}
               width={55}
               borderRadius={10}
-              photoUrl={this.props.profilePic}
+              photoUrl={this.props.photoUrl}
               navigateToProfile={() => {
                 console.log('hello');
               }}
@@ -1755,6 +1874,7 @@ export class UpcomingRoom extends Component {
               borderRadius={20}
               text="START NOW"
               createRoom={this.props.startNowFunction}
+              loading={this.props.loading}
             />
             <CreateRoomButton
               height={40}
@@ -1765,16 +1885,16 @@ export class UpcomingRoom extends Component {
             />
           </View>
         ) : (
-          <View style={{ marginTop: 10, alignItems: 'center', width: '100%', marginBottom: 10 }}>
-            <CreateRoomButton
-              height={40}
-              width={0.6 * screenWidth}
-              borderRadius={20}
-              text="SHARE"
-              createRoom={this.props.shareNowFunction}
-            />
-          </View>
-        )}
+            <View style={{ marginTop: 10, alignItems: 'center', width: '100%', marginBottom: 10 }}>
+              <CreateRoomButton
+                height={40}
+                width={0.6 * screenWidth}
+                borderRadius={20}
+                text="SHARE"
+                createRoom={this.props.shareNowFunction}
+              />
+            </View>
+          )}
         <View
           style={{
             marginTop: 5,
@@ -1842,6 +1962,7 @@ class NewRoom extends Component {
             borderRadius={20}
             text="JOIN ROOM"
             createRoom={this.props.startNowFunction}
+            loading={this.props.loading}
           />
         </View>
         <View
