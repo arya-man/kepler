@@ -564,6 +564,7 @@ class audioRoomHome extends Component {
           <FlatList
             data={DATA}
             horizontal={true}
+            keyExtractor={(item) => item.username}
             showsHorizontalScrollIndicator={false}
             renderItem={({item})=>(
               <FriendButton
@@ -1820,6 +1821,7 @@ class NewRoom extends Component {
               data={NEWDATA}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
+              keyExtractor={(item) => item.username}
               renderItem={({item})=>(
                 <View style={{alignSelf: 'center', alignItems:'center', justifyContent: 'center', marginLeft: 20}}>
                   <Photo
