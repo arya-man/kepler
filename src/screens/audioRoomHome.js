@@ -75,7 +75,8 @@ class audioRoomHome extends Component {
 
       followRecommendationData: [],
       indexOfpersonToBeFollowed: 0,
-      deeplinkLandingForUpcomingRoomsModalVisible: false
+      deeplinkLandingForUpcomingRoomsModalVisible: false,
+      randomNumber:Math.floor(Math.random() * this.props.rooms.length)
     };
     if (Platform.OS == 'android') {
       PermissionsAndroid.request('android.permission.RECORD_AUDIO')
@@ -418,46 +419,7 @@ class audioRoomHome extends Component {
         />
         {/* ********************** Following/Followers stuff************************ */}
         {/* Try to render this somewhere in between the rooms flatlist, not on the top. Make it like in facebook, i.e, somewhere in between the feed. */}
-        <View
-          style={{
-            marginLeft: 25,
-            marginRight: 20,
-            marginTop: 15,
-            paddingTop: 5,
-            paddingBottom: 10,
-            borderTopWidth: 2,
-            borderBottomWidth: 2,
-            borderBottomColor: 'rgba(191,191,191,0.3)',
-            borderTopColor: 'rgba(191,191,191,0.3)',
-            backgroundColor: 'rgb(233, 235, 244)',
-          }}>
-          <Text style={{ fontSize: 20, color: "#3a7bd5", fontWeight: "bold" }}>Follow Someone</Text>
-          <FlatList
-            data={this.state.followRecommendationData}
-            horizontal={true}
-            keyExtractor={(item) => item.username}
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.username}
-            renderItem={({ item, index }) => (
-              <FriendButton
-                username={item.username}
-                profilePic={item.profilePic}
-                onPress={() => {
-                  this.setState({
-                    nameOfPersonToBeFollowed: item.username,
-                    descriptionOfPersonToBeFollowed: item.description ? item.description : "Hello There",
-                    noOfFollowersOfPersonToBeFollowed: item.followers ? item.followers : 20,
-                    noOfPeopleFollowingOfPersonToBeFollowed: item.following ? item.following : 91,
-                    profilePicOfPersonToBeFollowed: item.profilePic ? item.profilePic : "https://source.unsplash.com/user/erondu",
-                    indexOfpersonToBeFollowed: index,
-                    followPopUpVisible: true,
-                    isFollowing: item.isFollowing
-                  })
-                }}
-              />
-            )}
-          />
-        </View>
+        
         <FollowPopUp
           followPopUpVisible={this.state.followPopUpVisible}
           username={this.state.nameOfPersonToBeFollowed}
@@ -963,8 +925,9 @@ class audioRoomHome extends Component {
                 }}
                 keyExtractor={(item) => item['id']}
                 showsVerticalScrollIndicator={false}
-                renderItem={({ item }) => {
-                  var showText = 'showtext'
+                renderItem={({ item, index }) => {
+                  console.log(index, this.state.randomNumber)
+                    var showText = 'showtext'
                   var count
                   if (item.nh !== undefined) {
                     count = item.nh
@@ -988,21 +951,65 @@ class audioRoomHome extends Component {
                     }
 
                     return (
+                      <View>
+                        
                       <NewRoom
                         hashtag={item.hashtag}
                         caption={item.caption}
                         adminKeys={keys}
                         adminValues={values}
                       />
+                      {this.state.randomNumber === index && 
+                          <View
+          style={{
+            marginLeft: 25,
+            marginRight: 20,
+            marginTop: 15,
+            paddingTop: 5,
+            paddingBottom: 10,
+            borderTopWidth: 2,
+            borderBottomWidth: 2,
+            borderBottomColor: 'rgba(191,191,191,0.3)',
+            borderTopColor: 'rgba(191,191,191,0.3)',
+            backgroundColor: 'rgb(233, 235, 244)',
+          }}>
+          <Text style={{ fontSize: 20, color: "#3a7bd5", fontWeight: "bold" }}>Follow Someone</Text>
+          <FlatList
+            data={this.state.followRecommendationData}
+            horizontal={true}
+            keyExtractor={(item) => item.username}
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.username}
+            renderItem={({ item, index }) => (
+              <FriendButton
+                username={item.username}
+                profilePic={item.profilePic}
+                onPress={() => {
+                  this.setState({
+                    nameOfPersonToBeFollowed: item.username,
+                    descriptionOfPersonToBeFollowed: item.description ? item.description : "Hello There",
+                    noOfFollowersOfPersonToBeFollowed: item.followers,
+                    noOfPeopleFollowingOfPersonToBeFollowed: item.following,
+                    profilePicOfPersonToBeFollowed: item.profilePic ? item.profilePic : "https://source.unsplash.com/user/erondu",
+                    indexOfpersonToBeFollowed: index,
+                    followPopUpVisible: true,
+                    isFollowing: item.isFollowing
+                  })
+                }}
+              />
+            )}
+          />
+        </View>
+                        
+                        }
+                      </View>
                     )
 
                   }
                   else {
 
                     return (
-
-
-
+                      <View>
                       <Room
                         hashtag={item.hashtag}
                         caption={item.caption}
@@ -1068,9 +1075,54 @@ class audioRoomHome extends Component {
                         }}
                         participantsCallToAction={showText}
                       />
+                      {this.state.randomNumber === index && 
+                          <View
+          style={{
+            marginLeft: 25,
+            marginRight: 20,
+            marginTop: 15,
+            paddingTop: 5,
+            paddingBottom: 10,
+            borderTopWidth: 2,
+            borderBottomWidth: 2,
+            borderBottomColor: 'rgba(191,191,191,0.3)',
+            borderTopColor: 'rgba(191,191,191,0.3)',
+            backgroundColor: 'rgb(233, 235, 244)',
+          }}>
+          <Text style={{ fontSize: 20, color: "#3a7bd5", fontWeight: "bold" }}>Follow Someone</Text>
+          <FlatList
+            data={this.state.followRecommendationData}
+            horizontal={true}
+            keyExtractor={(item) => item.username}
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.username}
+            renderItem={({ item, index }) => (
+              <FriendButton
+                username={item.username}
+                profilePic={item.profilePic}
+                onPress={() => {
+                  this.setState({
+                    nameOfPersonToBeFollowed: item.username,
+                    descriptionOfPersonToBeFollowed: item.description ? item.description : "Hello There",
+                    noOfFollowersOfPersonToBeFollowed: item.followers,
+                    noOfPeopleFollowingOfPersonToBeFollowed: item.following,
+                    profilePicOfPersonToBeFollowed: item.profilePic ? item.profilePic : "https://source.unsplash.com/user/erondu",
+                    indexOfpersonToBeFollowed: index,
+                    followPopUpVisible: true,
+                    isFollowing: item.isFollowing
+                  })
+                }}
+              />
+            )}
+          />
+        </View>
+                        
+                        }
+                      </View>
                     );
 
                   }
+                  
 
                 }}
               />

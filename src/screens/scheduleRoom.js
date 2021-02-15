@@ -193,7 +193,7 @@ class scheduleRoom extends Component {
           <FlatList
           data={this.state.scheduledRoom}
           horizontal={false}
-          keyExtractor={(item) => item.username}
+          keyExtractor={(item) => item.roomId}
           renderItem={({item})=>(
             <UpcomingRoom
             hashtag={item.hashtag}
