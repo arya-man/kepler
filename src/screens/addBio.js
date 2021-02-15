@@ -108,6 +108,9 @@ class openingScreen extends Component {
         lastName: this.state.lastName,
         bio: this.state.bio,
         photoUrl: url,
+        joinTime:new Date(),
+        followers:0,
+        following:0
       })
       .then(() => {
         firestore()

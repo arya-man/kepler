@@ -1,6 +1,7 @@
 import { PURGE } from "redux-persist"
 
 export const GET_ROOMS = 'GET_ROOMS'
+export const CURRENT_TIMESTAMP = 'CURRENT_TIMESTAMP'
 
 export const CHANGE_ADMIN = 'CHANGE_ADMIN'
 
@@ -30,26 +31,29 @@ export const REMOVE_AGORA_HOSTS = 'REMOVE_AGORA_HOSTS'
 export const AM_I_TALKING = 'AM_I_TALKING'
 export const DEEP_LINK = 'DEEP_LINK'
 
-const INITIAL_STATE = { roomAudience: [], roomHosts: [], roomQueue: [], rooms: [], connected: false , agoraHosts: {} , AmItalking: 0, deepLinkID:0}
+const INITIAL_STATE = { roomAudience: [], roomHosts: [], roomQueue: [], rooms: [], connected: false, agoraHosts: {}, AmItalking: 0, deepLinkID: 0, timestamp: 0 }
 
 export default function roomsRedux(state = INITIAL_STATE, action) {
     switch (action.type) {
 
+        case CURRENT_TIMESTAMP:
+            return { ...state, timestamp: action.payload }
+
         case DEEP_LINK:
-            return {...state , deepLinkID: action.payload}
-        
+            return { ...state, deepLinkID: action.payload }
+
         case AM_I_TALKING:
-            return {...state , AmItalking: action.payload}
+            return { ...state, AmItalking: action.payload }
 
         case ADD_AGORA_HOSTS:
-            return {...state , agoraHosts: {[action.payload.agoraId]: action.payload.username , ...state.agoraHosts}}
+            return { ...state, agoraHosts: { [action.payload.agoraId]: action.payload.username, ...state.agoraHosts } }
 
         case REMOVE_AGORA_HOSTS:
-            const {[action.payload.agoraId]: removedValue , ...leftOver} = state.agoraHosts
-            return {...state , agoraHosts: leftOver}
+            const { [action.payload.agoraId]: removedValue, ...leftOver } = state.agoraHosts
+            return { ...state, agoraHosts: leftOver }
 
         case FLUSH_ROOM:
-            return { ...state, roomAudience: [], roomHosts: [], roomQueue: [], agoraHosts: {} , AmItalking: 0}
+            return { ...state, roomAudience: [], roomHosts: [], roomQueue: [], agoraHosts: {}, AmItalking: 0 }
 
         case GET_CONNECTED:
             return { ...state, connected: action.payload }
@@ -79,7 +83,7 @@ export default function roomsRedux(state = INITIAL_STATE, action) {
             }
 
         case REMOVE_ROOM_HOSTS:
-            return {...state , roomHosts: [...state.roomHosts.filter(item => item.username !== action.payload)]}
+            return { ...state, roomHosts: [...state.roomHosts.filter(item => item.username !== action.payload)] }
 
         case TALK_ROOM_HOSTS:
             return {
@@ -120,7 +124,7 @@ export default function roomsRedux(state = INITIAL_STATE, action) {
             return { ...state, roomAudience: [...state.roomAudience, action.payload] }
 
         case REMOVE_ROOM_AUDIENCE:
-            return {...state , roomAudience: [...state.roomAudience.filter(item => item.username !== action.payload)]}
+            return { ...state, roomAudience: [...state.roomAudience.filter(item => item.username !== action.payload)] }
 
         case CONNECTED_AUDIENCE:
             return {
@@ -145,7 +149,7 @@ export default function roomsRedux(state = INITIAL_STATE, action) {
             return { ...state, roomQueue: [...state.roomQueue, action.payload] }
 
         case REMOVE_ROOM_QUEUE:
-            return {...state , roomQueue: [...state.roomQueue.filter(item => item.username !== action.payload)]}
+            return { ...state, roomQueue: [...state.roomQueue.filter(item => item.username !== action.payload)] }
 
         case CONNECTED_QUEUE:
             return {

@@ -122,7 +122,7 @@ class scheduleRoom extends Component {
           }}>
             <Image
               style={{ height: '50%', width: '60%', resizeMode: 'contain' }}
-              source={require('../../Assets/noRooms.png')}
+              source={require('../../Assets/image.png')}
             />
             <Text
               style={{
