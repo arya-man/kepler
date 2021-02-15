@@ -73,7 +73,7 @@ class audioRoomHome extends Component {
       followPopUpVisible: false,
 
       followRecommendationData: [],
-      indexOfpersonToBeFollowed: 0
+      indexOfpersonToBeFollowed: 0,
       deeplinkLandingForUpcomingRoomsModalVisible: false
     };
     if (Platform.OS == 'android') {
@@ -543,12 +543,12 @@ class audioRoomHome extends Component {
             position: 'absolute',
             bottom: 0,
             zIndex: 5,
-            flexDirection:'row',
+            flexDirection: 'row',
             justifyContent: 'center'
           }}>
           <CreateRoomButton
             height={40}
-            width={screenWidth/2 - 20}
+            width={screenWidth / 2 - 20}
             text="START ROOM"
             borderRadius={20}
             createRoom={async () => {
@@ -571,10 +571,10 @@ class audioRoomHome extends Component {
           />
           <CreateRoomButton
             height={40}
-            width={screenWidth/2 - 20}
+            width={screenWidth / 2 - 20}
             text="SCHEDULED ROOMS"
             borderRadius={20}
-            createRoom={()=>
+            createRoom={() =>
               this.props.navigation.navigate('scheduleRoom')
             }
           />
@@ -759,7 +759,7 @@ class audioRoomHome extends Component {
           toggleModal={() => {
             this.setState({ deeplinkLandingForUpcomingRoomsModalVisible: false })
           }}
-          // loading={this.state.deeplinkLoading}
+        // loading={this.state.deeplinkLoading}
         />
         {/* ------------------------------------------------- DEEPLINK LANDING MODAL for @aryaman Dated: Feb 7, 2021------------------------------------------------- */}
         <DeeplinkLandingModal
@@ -969,73 +969,104 @@ class audioRoomHome extends Component {
                       count += item.na
                     }
                   }
-                  return (
-                    <Room
-                      hashtag={item.hashtag}
-                      caption={item.caption}
-                      joinButton={async () => {
-                        if (this.props.connected) {
-                          var audio = true
-                          if (Platform.OS === 'android') {
-                            audio = PermissionsAndroid.check('android.permission.RECORD_AUDIO')
-                          }
-                          if (audio) {
 
-                            this.setState({ buttonFetching: item.id })
+                  if (item.isActive) {
 
-                            fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
-                              method: 'POST',
-                              headers: {
-                                Accept: 'application/json',
-                                'Content-Type': 'application/json'
-                              },
-                              body: JSON.stringify({
-                                roomId: item.id
+                    var keys = []
+                    var values = []
+
+                    if(item.admin !== undefined) {
+
+                      keys = Object.keys(item.admin)
+                      values = Object.values(item.admin)
+
+                    }
+
+                    return (
+                      <NewRoom
+                        hashtag={item.hashtag}
+                        caption={item.caption}
+                        adminKeys={keys}
+                        adminValues={values}
+                      />
+                    )
+
+                  }
+                  else {
+
+                    return (
+
+
+
+                      <Room
+                        hashtag={item.hashtag}
+                        caption={item.caption}
+                        joinButton={async () => {
+                          if (this.props.connected) {
+                            var audio = true
+                            if (Platform.OS === 'android') {
+                              audio = PermissionsAndroid.check('android.permission.RECORD_AUDIO')
+                            }
+                            if (audio) {
+
+                              this.setState({ buttonFetching: item.id })
+
+                              fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/agoraToken', {
+                                method: 'POST',
+                                headers: {
+                                  Accept: 'application/json',
+                                  'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                  roomId: item.id
+                                })
                               })
-                            })
-                              .then((res) => {
-                                return res.json()
-                              })
-                              .then((res) => {
+                                .then((res) => {
+                                  return res.json()
+                                })
+                                .then((res) => {
 
-                                if (res.token !== 'error') {
+                                  if (res.token !== 'error') {
 
+                                    this.setState({ buttonFetching: false })
+                                    this.props.navigation.navigate('audioRoom', { caption: item.caption, hashtag: item.hashtag, roomId: item.id, role: 0, agoraToken: res.token })
+
+                                  }
+                                  else {
+
+                                    this.setState({ buttonFetching: false })
+                                    Toast.showWithGravity('Whoops, a server error. Please try again', Toast.SHORT, Toast.CENTER)
+
+                                  }
+
+                                })
+                                .catch(() => {
                                   this.setState({ buttonFetching: false })
-                                  this.props.navigation.navigate('audioRoom', { caption: item.caption, hashtag: item.hashtag, roomId: item.id, role: 0, agoraToken: res.token })
+                                  Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
+                                })
+                            }
+                            else {
+                              Toast.showWithGravity('Please give audio permission to join a townhall', Toast.SHORT, Toast.CENTER)
+                            }
 
-                                }
-                                else {
-
-                                  this.setState({ buttonFetching: false })
-                                  Toast.showWithGravity('Whoops, a server error. Please try again', Toast.SHORT, Toast.CENTER)
-
-                                }
-
-                              })
-                              .catch(() => {
-                                this.setState({ buttonFetching: false })
-                                Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
-                              })
                           }
                           else {
-                            Toast.showWithGravity('Please give audio permission to join a townhall', Toast.SHORT, Toast.CENTER)
+                            Toast.showWithGravity('You have to be connected to the Internet to join a townhall', Toast.SHORT, Toast.CENTER)
                           }
+                        }}
+                        fetching={this.state.buttonFetching}
+                        id={item.id}
+                        adminJSON={item.admin}
+                        participantsJSON={item.participants}
+                        navigateToListOfParticipants={() => {
+                          // console.log('listofparticipants');
+                        }}
+                        participantsCallToAction={showText}
+                      />
+                    );
 
-                        }
-                        else {
-                          Toast.showWithGravity('You have to be connected to the Internet to join a townhall', Toast.SHORT, Toast.CENTER)
-                        }
-                      }}
-                      fetching={this.state.buttonFetching}
-                      id={item.id}
-                      adminJSON={item.admin}
-                      participantsJSON={item.participants}
-                      navigateToListOfParticipants={() => {
-                        // console.log('listofparticipants');
-                      }}
-                      participantsCallToAction={showText}
-                    />
-                  );
+                  }
+
                 }}
               />
             )}
@@ -1205,9 +1236,9 @@ class FollowPopUp extends Component {
     );
   }
 }
-class DeeplinkLandingForUpcomingRoomsModal extends Component{
+class DeeplinkLandingForUpcomingRoomsModal extends Component {
   render() {
-    return(
+    return (
       <Modal
         animationType="fade"
         transparent={true}
@@ -1269,22 +1300,22 @@ class DeeplinkLandingForUpcomingRoomsModal extends Component{
             <Text ellipsizeMode="tail" numberOfLines={5} style={{ fontSize: 15, color: '#7f7f7f', marginTop: 5, paddingHorizontal: 20 }}>
               {this.props.roomDescription}
             </Text>
-            <View style={{alignSelf:'center', marginTop: 20}}>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{ alignSelf: 'center', marginTop: 20 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Icon
                   name="calendar"
                   style={{ color: '#3a7bd5' }}
                   size={30}
                 />
-                <Text style={{color: '#3a7bd5', fontWeight:'bold', fontSize: 20, marginLeft: 10}}>{this.props.date}</Text>
+                <Text style={{ color: '#3a7bd5', fontWeight: 'bold', fontSize: 20, marginLeft: 10 }}>{this.props.date}</Text>
               </View>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Icon
                   name="clock"
                   style={{ color: '#3a7bd5' }}
                   size={30}
                 />
-                <Text style={{color: '#3a7bd5', fontWeight:'bold', fontSize: 20, marginLeft: 10}}>{this.props.time}</Text>
+                <Text style={{ color: '#3a7bd5', fontWeight: 'bold', fontSize: 20, marginLeft: 10 }}>{this.props.time}</Text>
               </View>
             </View>
             <View
@@ -1629,34 +1660,34 @@ export class UpcomingRoom extends Component {
             marginBottom: 10,
             justifyContent: 'space-between',
           }}>
-              <Text style={{ alignItems: 'center',fontWeight: 'bold', color: '#3a7bd5', fontSize: 20, width: "80%", textAlign: 'center' }}>
-                {this.props.hashtag}
-              </Text>
-              <Text
-                ellipsizeMode="tail"
-                numberOfLines={7}
-                style={{ textAlign: 'center',fontWeight: 'bold', color: '#7F8692'}}>
-                {this.props.caption}
-              </Text>
+          <Text style={{ alignItems: 'center', fontWeight: 'bold', color: '#3a7bd5', fontSize: 20, width: "80%", textAlign: 'center' }}>
+            {this.props.hashtag}
+          </Text>
+          <Text
+            ellipsizeMode="tail"
+            numberOfLines={7}
+            style={{ textAlign: 'center', fontWeight: 'bold', color: '#7F8692' }}>
+            {this.props.caption}
+          </Text>
         </View>
-        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent:'center'}}>
-          <View style={{alignSelf: 'center', alignItems:'center'}}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ alignSelf: 'center', alignItems: 'center' }}>
             <Photo
               height={55}
               width={55}
               borderRadius={10}
               photoUrl={this.props.profilePic}
-              navigateToProfile={()=>{
+              navigateToProfile={() => {
                 console.log('hello');
               }}
             />
-            <Text style={{fontWeight:'bold', color:'#3a7bd5'}}>{this.props.username}</Text>
+            <Text style={{ fontWeight: 'bold', color: '#3a7bd5' }}>{this.props.username}</Text>
           </View>
-          <View style={{height: '80%', width: 2, backgroundColor: 'rgba(191,191,191,0.5)', marginLeft: 20}}/>
-          <View style={{marginLeft: 20}}>
-            <Text style={{fontWeight:'bold', color:'#3a7bd5', alignSelf:'center', fontSize: 20, textDecorationLine: 'underline'}}>Join On:</Text>
-            <Text style={{fontWeight:'bold', color:'#3a7bd5', alignSelf:'center', marginTop: 10}}>{this.props.date}</Text>
-            <Text style={{fontWeight:'bold', color:'#3a7bd5', alignSelf:'center'}}>{this.props.time}</Text>
+          <View style={{ height: '80%', width: 2, backgroundColor: 'rgba(191,191,191,0.5)', marginLeft: 20 }} />
+          <View style={{ marginLeft: 20 }}>
+            <Text style={{ fontWeight: 'bold', color: '#3a7bd5', alignSelf: 'center', fontSize: 20, textDecorationLine: 'underline' }}>Join On:</Text>
+            <Text style={{ fontWeight: 'bold', color: '#3a7bd5', alignSelf: 'center', marginTop: 10 }}>{this.props.date}</Text>
+            <Text style={{ fontWeight: 'bold', color: '#3a7bd5', alignSelf: 'center' }}>{this.props.time}</Text>
           </View>
         </View>
         {this.props.startNow && (
@@ -1686,8 +1717,8 @@ export class UpcomingRoom extends Component {
   }
 }
 class NewRoom extends Component {
-  render(){
-    return(
+  render() {
+    return (
       <View>
         <View
           style={{
@@ -1697,37 +1728,38 @@ class NewRoom extends Component {
             marginBottom: 10,
             justifyContent: 'space-between',
           }}>
-            <Text style={{ alignItems: 'center',fontWeight: 'bold', color: '#3a7bd5', fontSize: 20, width: "80%", textAlign: 'center' }}>
-              {this.props.hashtag}
-            </Text>
-            <Text
-              ellipsizeMode="tail"
-              numberOfLines={7}
-              style={{ textAlign: 'center',fontWeight: 'bold', color: '#7F8692'}}>
-              {this.props.caption}
-            </Text>
+          <Text style={{ alignItems: 'center', fontWeight: 'bold', color: '#3a7bd5', fontSize: 20, width: "80%", textAlign: 'center' }}>
+            {this.props.hashtag}
+          </Text>
+          <Text
+            ellipsizeMode="tail"
+            numberOfLines={7}
+            style={{ textAlign: 'center', fontWeight: 'bold', color: '#7F8692' }}>
+            {this.props.caption}
+          </Text>
         </View>
-        <View style={{alignItems: 'center'}}>
-         <FlatList
-              data={NEWDATA}
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-              renderItem={({item})=>(
-                <View style={{alignSelf: 'center', alignItems:'center', justifyContent: 'center', marginLeft: 20}}>
-                  <Photo
-                    height={55}
-                    width={55}
-                    borderRadius={10}
-                    photoUrl={item.profilePic}
-                    navigateToProfile={()=>{
-                      console.log('hello');
-                    }}
-                  />
-                  <Text ellipsizeMode="tail" numberOfLines={1} style={{fontWeight:'bold', color:'#3a7bd5', marginLeft:-10}}>{item.username}</Text>
-                </View>
-              )}
-            />
-          </View>
+        <View style={{ alignItems: 'center' }}>
+          <FlatList
+            data={this.props.adminKeys}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={item => item}
+            renderItem={({ item, index }) => (
+              <View style={{ alignSelf: 'center', alignItems: 'center', justifyContent: 'center', marginLeft: 20 }}>
+                <Photo
+                  height={55}
+                  width={55}
+                  borderRadius={10}
+                  photoUrl={this.props.adminValues[index]}
+                  navigateToProfile={() => {
+                    console.log('hello');
+                  }}
+                />
+                <Text ellipsizeMode="tail" numberOfLines={1} style={{ fontWeight: 'bold', color: '#3a7bd5', marginLeft: -10 }}>{item}</Text>
+              </View>
+            )}
+          />
+        </View>
         <View style={{ marginTop: 10, alignItems: 'center', width: '100%', marginBottom: 10 }}>
           <CreateRoomButton
             height={40}
