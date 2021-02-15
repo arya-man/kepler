@@ -202,7 +202,7 @@ class BottomBar extends Component {
     );
   }
 }
-class BackButtonAndTitle extends Component {
+export class BackButtonAndTitle extends Component {
   render(){
     return(
       <View 
