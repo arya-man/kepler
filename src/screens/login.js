@@ -83,19 +83,12 @@ class openingScreen extends Component {
           .then(user => {
             // console.log(user)
             user.forEach(async loggedIn => {
-              // console.log(loggedIn)
-              // console.log("LOGIN",loggedIn['_data'])
-
               var log = loggedIn['_data']
-              // console.log("LOG",log['avatar'].toBase64())
-              //log['photoUrl'] = await log['photoUrl']
-              //delete log['avatar']
-
               this.props.dispatch({
                 type: GET_USER,
                 payload: log
               })
-              await AsyncStorage.setItem('data', JSON.stringify(loggedIn["_data"]));
+              //await AsyncStorage.setItem('data', JSON.stringify(loggedIn["_data"]));
             })
             this.props.navigation.navigate("normal");
           })

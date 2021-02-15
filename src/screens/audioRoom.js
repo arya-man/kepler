@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   Text,
   View,
@@ -20,7 +20,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
 import Swiper from 'react-native-swiper';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import Share from 'react-native-share';
 import {
   REMOVE_ROOM_QUEUE,
@@ -39,7 +39,7 @@ import ErrorPopup from './errorPopup';
 import database from '@react-native-firebase/database';
 import Toast from 'react-native-simple-toast';
 import RtcEngine from 'react-native-agora';
-import {PacmanIndicator, DotIndicator} from 'react-native-indicators';
+import { PacmanIndicator, DotIndicator } from 'react-native-indicators';
 import firestore from '@react-native-firebase/firestore';
 import RNFetchBlob from 'rn-fetch-blob';
 
@@ -68,58 +68,60 @@ class audioRoom extends Component {
       talking: {},
       leave: false,
       feedbackModalVisible: false,
-      feedback : '',
+      feedback: '',
       shareLoading: false,
     };
-    this.BackHandler;
     this.agora;
     this.numberOfHosts = 0;
   }
-  deeplink = async(id) => {
+  deeplink = async (id) => {
     const link = await dynamicLinks().buildLink({
-    link: 'https://keplr.org/'+id,
-    // domainUriPrefix is created in your Firebase console
-    domainUriPrefix: 'https://keplr.page.link',
-    android: {
-      packageName: 'com.keplr',
-    },
-    ios:{
-      bundleId:'com.keplrapp'
-    }
-  });
-  console.log(link);
-  return link;
+      link: 'https://keplr.org/' + id,
+      // domainUriPrefix is created in your Firebase console
+      domainUriPrefix: 'https://keplr.page.link',
+      android: {
+        packageName: 'com.keplr',
+      },
+      ios: {
+        bundleId: 'com.keplrapp'
+      }
+    });
+    console.log(link);
+    return link;
 
-}
+  }
   // ------------- SHARE ROOM FUNCTION @aryaman: Dated: Feb 8, 2020 -> Add Deep Link in message on line 97 -------------------------
   onShareFunction = async () => {
     let shareLink = await this.deeplink(this.props.navigation.getParam('roomId'));
     this.setState({shareLoading: true})
     let file_url = "https://firebasestorage.googleapis.com/v0/b/keplr-4ff01.appspot.com/o/keplr-share.png?alt=media&token=3c6ed63b-d7ea-418e-a911-4899113033c8";
+
     let imagePath = null;
     RNFetchBlob.config({
-        fileCache: true
+      fileCache: true
     })
-    .fetch("GET", file_url)
-    // the image is now dowloaded to device's storage
-    .then(resp => {
+      .fetch("GET", file_url)
+      // the image is now dowloaded to device's storage
+      .then(resp => {
         // the image path you can use it directly with Image component
         imagePath = resp.path();
         return resp.readFile("base64");
-    })
-    .then(async base64Data => {
+      })
+      .then(async base64Data => {
         var base64Data = `data:image/png;base64,` + base64Data;
         // here's base64 encoded image
-        await Share.open({ 
+        await Share.open({
           url: base64Data,
+
           message: "Join us on Keplr! \n" + shareLink
+
         });
         // remove the file from storage
         return fs.unlink(imagePath);
-    }).catch(error => {
-      this.setState({shareLoading: false})
-    });
-    this.setState({shareLoading: false})
+      }).catch(error => {
+        this.setState({ shareLoading: false })
+      });
+    this.setState({ shareLoading: false })
     // ------------------------------------------------------
     // console.log("share share");
   }
@@ -146,13 +148,13 @@ class audioRoom extends Component {
   };
   // These two toggle the permissions popups, pass the current state of the popups.
   givePermissionPopUp(visible) {
-    this.setState({givePermissionPopUp: visible});
+    this.setState({ givePermissionPopUp: visible });
   }
   removePermissionPopUp(visible) {
-    this.setState({removePermissionPopUp: visible});
+    this.setState({ removePermissionPopUp: visible });
   }
   reportPopUp(visible) {
-    this.setState({reportPopUp: visible});
+    this.setState({ reportPopUp: visible });
   }
 
   toggleCreateRoomModal = () => {
@@ -178,14 +180,13 @@ class audioRoom extends Component {
         .ref(`e/${this.props.navigation.getParam('roomId')}`)
         .once('value', async (snap) => {
           if (snap.val() !== null) {
-            this.setState({loading: false});
+            this.setState({ loading: false });
             database().ref(`rooms/${this.props.navigation.getParam('roomId')}`).remove().catch()
-            this.setState({roomEnded: true});
+            this.setState({ roomEnded: true });
           } else {
             database()
               .ref(
-                `hosts/${this.props.navigation.getParam('roomId')}/${
-                  this.props.user.user.username
+                `hosts/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username
                 }`,
               )
               .once('value', async (snap) => {
@@ -221,8 +222,7 @@ class audioRoom extends Component {
                   if (this.state.role < 2 && !isHost) {
                     database()
                       .ref(
-                        `audience/${this.props.navigation.getParam('roomId')}/${
-                          this.props.user.user.username
+                        `audience/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username
                         }`,
                       )
                       .set({
@@ -252,9 +252,9 @@ class audioRoom extends Component {
 
                       if (snap.key === this.props.user.user.username) {
                         if (snap.val().value === -1) {
-                          this.setState({role: 3});
+                          this.setState({ role: 3 });
                         } else {
-                          this.setState({role: 2});
+                          this.setState({ role: 2 });
                         }
                       }
 
@@ -274,9 +274,9 @@ class audioRoom extends Component {
                     .on('child_changed', (snap) => {
                       if (snap.key === this.props.user.user.username) {
                         if (snap.val().value === -1) {
-                          this.setState({role: 3});
+                          this.setState({ role: 3 });
                         } else {
-                          this.setState({role: 2});
+                          this.setState({ role: 2 });
                         }
                       }
 
@@ -296,7 +296,7 @@ class audioRoom extends Component {
                       this.numberOfHosts -= 1;
 
                       if (snap.key === this.props.user.user.username) {
-                        this.setState({role: 0});
+                        this.setState({ role: 0 });
                       }
 
                       this.props.dispatch({
@@ -337,7 +337,7 @@ class audioRoom extends Component {
                     .orderByChild('value')
                     .on('child_added', (snap) => {
                       if (snap.key === this.props.user.user.username) {
-                        this.setState({role: 1});
+                        this.setState({ role: 1 });
                       }
 
                       this.props.dispatch({
@@ -364,7 +364,7 @@ class audioRoom extends Component {
                     .on('value', (snap) => {
                       if (snap.val() !== null) {
                         if (snap.val() === 1) {
-                          this.setState({roomEnded: true});
+                          this.setState({ roomEnded: true });
                         }
                       }
                     });
@@ -435,23 +435,23 @@ class audioRoom extends Component {
                       }
 
                       if (speakers.length > 0 && speakers[0].uid !== 0) {
-                        this.setState({talking: current});
+                        this.setState({ talking: current });
                       } else {
-                        this.setState({talking: current});
+                        this.setState({ talking: current });
                       }
                     },
                   );
 
-                  this.setState({loading: false});
+                  this.setState({ loading: false });
                 } catch (error) {
-                  this.setState({loading: false});
+                  this.setState({ loading: false });
                   //console.log("INSIDE CATCH ERROR", error)
                   if (this.state.role === 3) {
                     database()
                       .ref(`rooms/${this.props.navigation.getParam('roomId')}`)
                       .remove();
                   }
-                  this.setState({agoraInitError: true});
+                  this.setState({ agoraInitError: true });
                 }
               });
           }
@@ -473,7 +473,7 @@ class audioRoom extends Component {
           await this.agora.setClientRole(1);
 
           if (this.state.role === 2) {
-            this.setState({mic: true, textn: 'You have been made a Speaker!'});
+            this.setState({ mic: true, textn: 'You have been made a Speaker!' });
           } else {
             this.setState({
               mic: true,
@@ -482,7 +482,7 @@ class audioRoom extends Component {
           }
 
           this.timerToTheNotification(this.state.bounceValue);
-        } catch (error) {}
+        } catch (error) { }
       }
 
       /// REMOVED AS HOST OR ADMIN
@@ -506,7 +506,7 @@ class audioRoom extends Component {
             });
           }
           this.timerToTheNotification(this.state.bounceValue);
-        } catch (error) {}
+        } catch (error) { }
       }
     }
 
@@ -519,7 +519,7 @@ class audioRoom extends Component {
         if (this.state.role === 2 || this.state.role === 3) {
           try {
             await this.agora.muteLocalAudioStream(false);
-          } catch (error) {}
+          } catch (error) { }
         }
       }
 
@@ -528,7 +528,7 @@ class audioRoom extends Component {
         if (this.state.role === 2 || this.state.role === 3) {
           try {
             await this.agora.muteLocalAudioStream(true);
-          } catch (error) {}
+          } catch (error) { }
         }
       }
     }
@@ -539,14 +539,14 @@ class audioRoom extends Component {
       /// CONNECTED NOW
 
       if (this.props.connected) {
-        this.setState({textn: 'Re-connected Successfully'});
+        this.setState({ textn: 'Re-connected Successfully' });
 
         try {
           await this.agora.muteAllRemoteAudioStreams(false);
-        } catch (error) {}
+        } catch (error) { }
 
         if (this.state.role === 2 || this.state.role === 3) {
-          this.setState({mic: false});
+          this.setState({ mic: false });
         }
 
         this.timerToTheNotification(this.state.bounceValue);
@@ -554,14 +554,14 @@ class audioRoom extends Component {
 
       /// DISCONNECTED NOW
       else {
-        this.setState({textn: 'Disconnected from Internet'});
+        this.setState({ textn: 'Disconnected from Internet' });
 
         try {
           await this.agora.muteAllRemoteAudioStreams(true);
-        } catch (error) {}
+        } catch (error) { }
 
         if (this.state.role === 2 || this.state.role === 3) {
-          this.setState({mic: false});
+          this.setState({ mic: false });
         }
 
         this.timerToTheNotification(this.state.bounceValue);
@@ -576,35 +576,33 @@ class audioRoom extends Component {
 
     // this.BackHandler.remove()
 
-    if (Platform.OS === 'android') {
-      BackHandler.removeEventListener('hardwareBackPress', this.backAction);
-    }
-    try {
-      await this.agora.leaveChannel();
-      this.agora.removeAllListeners();
+    // BackHandler.removeEventListener('hardwareBackPress', this.backAction);
+    // try {
+    //   await this.agora.leaveChannel();
+    //   this.agora.removeAllListeners();
 
-      await this.agora.destroy();
-    } catch (error) {}
+    //   await this.agora.destroy();
+    // } catch (error) { }
 
     this.props.dispatch({
       type: FLUSH_ROOM,
     });
 
-    database()
-      .ref(`hosts/${this.props.navigation.getParam('roomId')}`)
-      .off();
-    database()
-      .ref(`audience/${this.props.navigation.getParam('roomId')}`)
-      .off();
-    database()
-      .ref(`q/${this.props.navigation.getParam('roomId')}`)
-      .off();
+    // database()
+    //   .ref(`hosts/${this.props.navigation.getParam('roomId')}`)
+    //   .off();
+    // database()
+    //   .ref(`audience/${this.props.navigation.getParam('roomId')}`)
+    //   .off();
+    // database()
+    //   .ref(`q/${this.props.navigation.getParam('roomId')}`)
+    //   .off();
   }
 
   render() {
     if (this.state.loading) {
       return (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgb(233, 235, 244)'}}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgb(233, 235, 244)' }}>
           <ActivityIndicator size="large" color="#3a7bd5" />
           {/* <PacmanIndicator color="#3a7bd5" size={50} /> */}
         </View>
@@ -645,14 +643,14 @@ class audioRoom extends Component {
                 numberOfLines={2}>
                 {this.props.navigation.getParam('hashtag')}
               </Text>
-              <Text style={{fontWeight:'bold', marginTop: 5, color: '#A1AFC3'}}>
+              <Text style={{ fontWeight: 'bold', marginTop: 5, color: '#A1AFC3' }}>
                 Swipe right to view the participants.
               </Text>
-              <Text style={{fontWeight:'bold', color: '#A1AFC3'}}>
+              <Text style={{ fontWeight: 'bold', color: '#A1AFC3' }}>
                 Users with a star are moderators.
               </Text>
               {this.state.role === 3 && (
-                <Text style={{fontWeight:'bold', color: '#A1AFC3'}}>
+                <Text style={{ fontWeight: 'bold', color: '#A1AFC3' }}>
                   Long Press for options.
                 </Text>
               )}
@@ -660,13 +658,30 @@ class audioRoom extends Component {
             <View>
               <Leave
                 pressFunction={async () => {
-                  this.setState({leave: true});
+                  this.setState({ leave: true });
+
+                  database()
+                    .ref(`hosts/${this.props.navigation.getParam('roomId')}`)
+                    .off();
+                  database()
+                    .ref(`audience/${this.props.navigation.getParam('roomId')}`)
+                    .off();
+                  database()
+                    .ref(`q/${this.props.navigation.getParam('roomId')}`)
+                    .off();
+
+                  BackHandler.removeEventListener('hardwareBackPress', this.backAction);
+                  try {
+                    await this.agora.leaveChannel();
+                    this.agora.removeAllListeners();
+
+                    await this.agora.destroy();
+                  } catch (error) { }
 
                   if (this.state.role === 2 || this.state.role === 3) {
                     database()
                       .ref(
-                        `hosts/${this.props.navigation.getParam('roomId')}/${
-                          this.props.user.user.username
+                        `hosts/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username
                         }`,
                       )
                       .remove()
@@ -676,8 +691,7 @@ class audioRoom extends Component {
                     // database().ref(`queue/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username}`).remove().catch()
                     database()
                       .ref(
-                        `audience/${this.props.navigation.getParam('roomId')}/${
-                          this.props.user.user.username
+                        `audience/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username
                         }`,
                       )
                       .remove()
@@ -686,8 +700,7 @@ class audioRoom extends Component {
                   } else {
                     database()
                       .ref(
-                        `audience/${this.props.navigation.getParam('roomId')}/${
-                          this.props.user.user.username
+                        `audience/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username
                         }`,
                       )
                       .remove()
@@ -697,13 +710,13 @@ class audioRoom extends Component {
                 }}
                 name="Leave"
               />
-              <TouchableOpacity onPress={this.onShareFunction} style={{flexDirection: "row", justifyContent:'center', alignItems: 'center', marginTop: 15}}>
-                <FontAwesome name="share-square-o" size={25} color="#A1AFC3" style={{marginRight:5}}/>
+              <TouchableOpacity onPress={this.onShareFunction} style={{ flexDirection: "row", justifyContent: 'center', alignItems: 'center', marginTop: 15 }}>
+                <FontAwesome name="share-square-o" size={25} color="#A1AFC3" style={{ marginRight: 5 }} />
                 {this.state.shareLoading ? (
                   <ActivityIndicator size="small" color="#A1AFC3" />
                 ) : (
-                  <Text style={{fontWeight:'bold', color: "#A1AFC3", fontSize: 15}}>Share</Text>
-                )}
+                    <Text style={{ fontWeight: 'bold', color: "#A1AFC3", fontSize: 15 }}>Share</Text>
+                  )}
               </TouchableOpacity>
             </View>
           </View>
@@ -722,7 +735,7 @@ class audioRoom extends Component {
             subTitle="There was an error while initialising audio. Please go to Home screen and try again."
             okButtonText="GO TO HOME"
             clickFunction={() => {
-              this.setState({agoraInitError: false});
+              this.setState({ agoraInitError: false });
               this.props.navigation.goBack();
             }}
             modalVisible={this.state.agoraInitError}
@@ -731,15 +744,15 @@ class audioRoom extends Component {
           <FeedbackModal
             feedbackModalVisible={this.state.feedbackModalVisible}
             toggleCreateRoomModal={() =>
-              this.setState({feedbackModalVisible: false})
+              this.setState({ feedbackModalVisible: false })
             }
             onChangeText={(text) => {
-              this.setState({feedback: text});
+              this.setState({ feedback: text });
             }}
-            
+
             submitFunction={() => {
               firestore().collection('report').doc(this.state.selectedUser).collection('report').doc(this.props.user.user.username).set({
-                report : this.state.feedback
+                report: this.state.feedback
               }).catch()
               this.setState({
                 feedbackModalVisible: false
@@ -752,29 +765,29 @@ class audioRoom extends Component {
             subTitle="The hall was ended because there were no speakers. Please refresh the home page."
             okButtonText="GO TO HOME"
             clickFunction={() => {
-              this.setState({roomEnded: false});
+              this.setState({ roomEnded: false });
               this.props.navigation.goBack();
             }}
             modalVisible={this.state.roomEnded && !this.state.leave}
 
           />
 
-          
+
 
           <Swiper
             showsButtons={false}
             loop={false}
             horizontal={true}
             showsPagination={false}>
-            <View style={{flex: 1}}>
-              <Text style={{fontSize: 20, color: '#3a7bd5', marginLeft: 15}}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 20, color: '#3a7bd5', marginLeft: 15 }}>
                 Hosts
               </Text>
               {/* ScrollView of Hosts, one with the star is Admin */}
               {/* Add a flatlist with THREE COLUMNS. Check Flatlist documentation for that.  */}
               {/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
               <SafeAreaView
-                style={{flex: 1}}
+                style={{ flex: 1 }}
                 showsVerticalScrollIndicator={false}
                 style={{
                   marginBottom: this.props.roomQueue.length > 0 ? 100 : 160,
@@ -791,7 +804,7 @@ class audioRoom extends Component {
                   numColumns={3}
                   data={this.props.roomHosts}
                   keyExtractor={(item) => item.username}
-                  renderItem={({item, index}) => {
+                  renderItem={({ item, index }) => {
                     var micOn = false;
                     if (item.username === this.props.user.user.username) {
                       if (this.props.AmItalking === 1) {
@@ -855,8 +868,8 @@ class audioRoom extends Component {
               </SafeAreaView>
             </View>
 
-            <View style={{flex: 1, backgroundColor: 'rgb(233, 235, 244)'}}>
-              <Text style={{fontSize: 20, color: '#3a7bd5', marginLeft: 15}}>
+            <View style={{ flex: 1, backgroundColor: 'rgb(233, 235, 244)' }}>
+              <Text style={{ fontSize: 20, color: '#3a7bd5', marginLeft: 15 }}>
                 Description
               </Text>
               <Text
@@ -868,23 +881,23 @@ class audioRoom extends Component {
                 }}>
                 {`${this.props.navigation.getParam('caption')}`}
               </Text>
-              <Text style={{fontSize: 20, color: '#3a7bd5', marginLeft: 15}}>
+              <Text style={{ fontSize: 20, color: '#3a7bd5', marginLeft: 15 }}>
                 Participants
               </Text>
               {/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~NEW SLIDE : PARTICIPANTS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
               <SafeAreaView
-                style={{flex: 1}}
+                style={{ flex: 1 }}
                 showsVerticalScrollIndicator={false}
-                style={{marginBottom: 150}}>
+                style={{ marginBottom: 150 }}>
                 {/*Check props below. */}
 
                 <FlatList
                   horizontal={false}
-                  style={{paddingLeft: -15, marginBottom: 100}}
+                  style={{ paddingLeft: -15, marginBottom: 100 }}
                   numColumns={3}
                   data={this.props.roomAudience}
                   keyExtractor={(item) => item.username}
-                  renderItem={({item}) => {
+                  renderItem={({ item }) => {
                     return (
                       <Participant
                         profilePic={item.photoUrl}
@@ -942,14 +955,14 @@ class audioRoom extends Component {
                 <MicButton
                   micOffFunction={() => {
                     if (this.props.connected) {
-                      this.setState({mic: false});
+                      this.setState({ mic: false });
                     } else {
                       Toast.show('No Internet Connection. Please re-connect');
                     }
                   }}
                   micOnFunction={() => {
                     if (this.props.connected) {
-                      this.setState({mic: true});
+                      this.setState({ mic: true });
                     } else {
                       Toast.show('No Internet Connection. Please re-connect');
                     }
@@ -966,8 +979,7 @@ class audioRoom extends Component {
                     if (this.props.connected) {
                       database()
                         .ref(
-                          `q/${this.props.navigation.getParam('roomId')}/${
-                            this.props.user.user.username
+                          `q/${this.props.navigation.getParam('roomId')}/${this.props.user.user.username
                           }`,
                         )
                         .set({
@@ -975,7 +987,7 @@ class audioRoom extends Component {
                           photoUrl: this.props.user.user.photoUrl,
                         })
                         .then(() => {
-                          this.setState({role: 1});
+                          this.setState({ role: 1 });
                         })
                         .catch(() => {
                           Toast.show(
@@ -998,7 +1010,7 @@ class audioRoom extends Component {
               keyExtractor={(item) => item.username}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
-              renderItem={({item, index}) => {
+              renderItem={({ item, index }) => {
                 // console.log("ITEM",item)
                 return (
                   <PersonInQueue
@@ -1122,13 +1134,13 @@ class audioRoom extends Component {
                     borderBottomWidth: 2,
                     paddingVertical: 10,
                   }}>
-                  <Text style={{color: '#7f7f7f', alignSelf: 'center'}}>
+                  <Text style={{ color: '#7f7f7f', alignSelf: 'center' }}>
                     Make Moderator
                   </Text>
                 </TouchableOpacity>
                 {/* Add on press here to give permission to talk. */}
                 <TouchableOpacity
-                  style={{paddingVertical: 10}}
+                  style={{ paddingVertical: 10 }}
                   onPress={() => {
                     if (this.props.connected) {
                       if (this.numberOfHosts < 17) {
@@ -1153,7 +1165,7 @@ class audioRoom extends Component {
                     }
                     this.givePermissionPopUp(!this.state.givePermissionPopUp);
                   }}>
-                  <Text style={{color: '#7f7f7f', alignSelf: 'center'}}>
+                  <Text style={{ color: '#7f7f7f', alignSelf: 'center' }}>
                     Give Permission to Talk
                   </Text>
                 </TouchableOpacity>
@@ -1161,15 +1173,15 @@ class audioRoom extends Component {
                 {/* Report*/}
 
                 <TouchableOpacity
-                  style={{paddingVertical: 10}}
+                  style={{ paddingVertical: 10 }}
                   onPress={() => {
                     this.givePermissionPopUp(!this.state.givePermissionPopUp);
                     this.setState({
-                      feedbackModalVisible : true,
+                      feedbackModalVisible: true,
                     })
                   }}>
-                  <Text style={{color: '#FF0000', alignSelf: 'center'}}>
-                  Report inappropriate
+                  <Text style={{ color: '#FF0000', alignSelf: 'center' }}>
+                    Report inappropriate
                   </Text>
                 </TouchableOpacity>
 
@@ -1237,7 +1249,7 @@ class audioRoom extends Component {
 
                     this.reportPopUp(!this.state.reportPopup);
                     this.setState({
-                      feedbackModalVisible : true,
+                      feedbackModalVisible: true,
                     })
                   }}
                   style={{
@@ -1248,7 +1260,7 @@ class audioRoom extends Component {
                     borderBottomWidth: 2,
                     paddingVertical: 10,
                   }}>
-                  <Text style={{color: '#FF0000', alignSelf: 'center'}}>
+                  <Text style={{ color: '#FF0000', alignSelf: 'center' }}>
                     Report inappropriate
                   </Text>
                 </TouchableOpacity>
@@ -1326,8 +1338,7 @@ class audioRoom extends Component {
                     if (this.props.connected) {
                       database()
                         .ref(
-                          `hosts/${this.props.navigation.getParam('roomId')}/${
-                            this.state.selectedUser
+                          `hosts/${this.props.navigation.getParam('roomId')}/${this.state.selectedUser
                           }`,
                         )
                         .update({
@@ -1342,19 +1353,18 @@ class audioRoom extends Component {
                       !this.state.removePermissionPopUp,
                     );
                   }}>
-                  <Text style={{color: '#7f7f7f', alignSelf: 'center'}}>
+                  <Text style={{ color: '#7f7f7f', alignSelf: 'center' }}>
                     Make Moderator
                   </Text>
                 </TouchableOpacity>
                 {/* Add on press here to remove talk permission. */}
                 <TouchableOpacity
-                  style={{paddingVertical: 10}}
+                  style={{ paddingVertical: 10 }}
                   onPress={() => {
                     if (this.props.connected) {
                       database()
                         .ref(
-                          `hosts/${this.props.navigation.getParam('roomId')}/${
-                            this.state.selectedUser
+                          `hosts/${this.props.navigation.getParam('roomId')}/${this.state.selectedUser
                           }`,
                         )
                         .remove(() => {
@@ -1379,7 +1389,7 @@ class audioRoom extends Component {
                       !this.state.removePermissionPopUp,
                     );
                   }}>
-                  <Text style={{color: '#7f7f7f', alignSelf: 'center'}}>
+                  <Text style={{ color: '#7f7f7f', alignSelf: 'center' }}>
                     Remove Permission to Talk
                   </Text>
                 </TouchableOpacity>
@@ -1387,14 +1397,14 @@ class audioRoom extends Component {
                 {/* Report*/}
 
                 <TouchableOpacity
-                  style={{paddingVertical: 10}}
+                  style={{ paddingVertical: 10 }}
                   onPress={() => {
                     this.removePermissionPopUp(!this.state.removePermissionPopUp,);
                     this.setState({
-                      feedbackModalVisible : true,
+                      feedbackModalVisible: true,
                     })
                   }}>
-                  <Text style={{color: '#FF0000', alignSelf: 'center'}}>
+                  <Text style={{ color: '#FF0000', alignSelf: 'center' }}>
                     Report Inappropriate
                   </Text>
                 </TouchableOpacity>
@@ -1438,7 +1448,7 @@ export class Notification extends Component {
           paddingHorizontal: 15,
           borderRadius: 20,
           maxWidth: 300,
-          transform: [{translateY: this.state.bounceValue}],
+          transform: [{ translateY: this.state.bounceValue }],
         }}>
         <Text
           style={{
@@ -1472,7 +1482,7 @@ export class Admin extends Component {
           height={screenWidth / 3 - 40}
           width={screenWidth / 3 - 40}
           borderRadius={15}
-          styleChildren={{justifyContent: 'center'}}>
+          styleChildren={{ justifyContent: 'center' }}>
           <Image
             style={{
               height: screenWidth / 3 - 40,
@@ -1482,7 +1492,7 @@ export class Admin extends Component {
               borderWidth: this.props.micOn ? 4 : 0,
               borderRadius: 15,
             }}
-            source={{uri: this.props.profilePic}}
+            source={{ uri: this.props.profilePic }}
           />
         </Box>
         <Text
@@ -1530,7 +1540,7 @@ export class Admin extends Component {
             overflow: 'hidden',
           }}>
           <Icon
-            name={this.props.micOn ?  "mic" : "mic-off"}
+            name={this.props.micOn ? "mic" : "mic-off"}
             size={15}
             style={{
               // position: 'absolute',
@@ -1564,7 +1574,7 @@ export class Host extends Component {
           height={screenWidth / 3 - 40}
           width={screenWidth / 3 - 40}
           borderRadius={15}
-          styleChildren={{justifyContent: 'center'}}>
+          styleChildren={{ justifyContent: 'center' }}>
           <Image
             style={{
               height: screenWidth / 3 - 40,
@@ -1574,7 +1584,7 @@ export class Host extends Component {
               borderRadius: 15,
               alignSelf: 'center',
             }}
-            source={{uri: this.props.profilePic}}
+            source={{ uri: this.props.profilePic }}
           />
         </Box>
         <Text
@@ -1600,7 +1610,7 @@ export class Host extends Component {
             overflow: 'hidden',
           }}>
           <Icon
-            name={this.props.micOn ?  "mic" : "mic-off"}
+            name={this.props.micOn ? "mic" : "mic-off"}
             size={15}
             style={{
               // position: 'absolute',
@@ -1628,7 +1638,7 @@ export class PersonInQueue extends Component {
     return (
       <View>
         <View style={this.props.style}>
-          <View style={{marginLeft: 3}}>
+          <View style={{ marginLeft: 3 }}>
             <TouchableOpacity onPress={this.props.longPressOnQueue}>
               <CBox
                 height={50}
@@ -1642,13 +1652,13 @@ export class PersonInQueue extends Component {
                 radiusWhite={10}
                 xWhite={-1}
                 yWhite={-1}
-                style={{marginLeft: 4}}>
+                style={{ marginLeft: 4 }}>
                 <Image
                   style={{
                     height: 50,
                     width: 50,
                   }}
-                  source={{uri: this.props.profilePic}}
+                  source={{ uri: this.props.profilePic }}
                 />
               </CBox>
             </TouchableOpacity>
@@ -1693,8 +1703,8 @@ export class Talk extends Component {
       <Box height={40} width={225} borderRadius={20}>
         <TouchableOpacity onPress={this.props.pressFunction}>
           <LinearGradient
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 0}}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
             colors={['#3a7bd5', '#00d2ff']}
             style={{
               height: 40,
@@ -1755,10 +1765,10 @@ export class Subscribe extends Component {
   }
   toggle = () => {
     if (this.state.subscribed) {
-      this.setState({subscribed: false});
+      this.setState({ subscribed: false });
       this.props.unSubscribedFunction();
     } else {
-      this.setState({subscribed: true});
+      this.setState({ subscribed: true });
       this.props.subscribedFunction();
     }
   };
@@ -1772,19 +1782,19 @@ export class Subscribe extends Component {
                 name="heart"
                 color="#3a7bd5"
                 size={25}
-                style={{alignSelf: 'center', marginTop: 7}}
+                style={{ alignSelf: 'center', marginTop: 7 }}
               />
             </Box>
           ) : (
-            <Box height={40} width={40} borderRadius={10}>
-              <FontAwesome
-                name="heart-o"
-                color="#7f7f7f"
-                size={25}
-                style={{alignSelf: 'center', marginTop: 7}}
-              />
-            </Box>
-          )}
+              <Box height={40} width={40} borderRadius={10}>
+                <FontAwesome
+                  name="heart-o"
+                  color="#7f7f7f"
+                  size={25}
+                  style={{ alignSelf: 'center', marginTop: 7 }}
+                />
+              </Box>
+            )}
         </TouchableOpacity>
       </View>
     );
@@ -1802,10 +1812,10 @@ export class Notify extends Component {
   }
   toggle = () => {
     if (this.state.notify) {
-      this.setState({notify: false});
+      this.setState({ notify: false });
       this.props.unNotifyFunction;
     } else {
-      this.setState({notify: true});
+      this.setState({ notify: true });
       this.props.notifyFunction;
     }
   };
@@ -1819,19 +1829,19 @@ export class Notify extends Component {
                 name="bell"
                 color="#7f7f7f"
                 size={25}
-                style={{alignSelf: 'center', marginTop: 7}}
+                style={{ alignSelf: 'center', marginTop: 7 }}
               />
             </Box>
           ) : (
-            <Box height={40} width={40} borderRadius={10}>
-              <Icon
-                name="bell-off"
-                color="#7f7f7f"
-                size={25}
-                style={{alignSelf: 'center', marginTop: 7}}
-              />
-            </Box>
-          )}
+              <Box height={40} width={40} borderRadius={10}>
+                <Icon
+                  name="bell-off"
+                  color="#7f7f7f"
+                  size={25}
+                  style={{ alignSelf: 'center', marginTop: 7 }}
+                />
+              </Box>
+            )}
         </TouchableOpacity>
       </View>
     );
@@ -1849,19 +1859,19 @@ export class MicButton extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (this.props.micOnorNot !== prevProps.micOnorNot) {
       if (this.props.micOnorNot) {
-        this.setState({micON: true});
+        this.setState({ micON: true });
       } else {
-        this.setState({micON: false});
+        this.setState({ micON: false });
       }
     }
   }
 
   toggle = () => {
     if (this.state.micON) {
-      this.setState({micON: false});
+      this.setState({ micON: false });
       this.props.micOffFunction();
     } else {
-      this.setState({micON: true});
+      this.setState({ micON: true });
       this.props.micOnFunction();
     }
   };
@@ -1875,19 +1885,19 @@ export class MicButton extends Component {
                 name="mic"
                 color="#A1AFC3"
                 size={25}
-                style={{alignSelf: 'center', marginTop: 7}}
+                style={{ alignSelf: 'center', marginTop: 7 }}
               />
             </Box>
           ) : (
-            <Box height={40} width={40} borderRadius={10}>
-              <Icon
-                name="mic-off"
-                color="#A1AFC3"
-                size={25}
-                style={{alignSelf: 'center', marginTop: 7}}
-              />
-            </Box>
-          )}
+              <Box height={40} width={40} borderRadius={10}>
+                <Icon
+                  name="mic-off"
+                  color="#A1AFC3"
+                  size={25}
+                  style={{ alignSelf: 'center', marginTop: 7 }}
+                />
+              </Box>
+            )}
         </TouchableOpacity>
       </View>
     );
@@ -1913,7 +1923,7 @@ export class Participant extends Component {
               height: screenWidth / 3 - 40,
               width: screenWidth / 3 - 40,
             }}
-            source={{uri: this.props.profilePic}}
+            source={{ uri: this.props.profilePic }}
           />
         </Box>
         <Text
@@ -1946,9 +1956,9 @@ export class CreateRoomButton extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (this.props.loading !== prevProps.loading) {
       if (this.props.loading === true) {
-        this.setState({loading: true});
+        this.setState({ loading: true });
       } else {
-        this.setState({loading: false});
+        this.setState({ loading: false });
       }
     }
   }
@@ -1958,8 +1968,8 @@ export class CreateRoomButton extends Component {
       <TouchableOpacity onPress={this.props.createRoom}>
         <Box height={40} width={275} borderRadius={20}>
           <LinearGradient
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 0}}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
             colors={['#3a7bd5', '#00d2ff']}
             style={{
               height: 40,
@@ -1978,7 +1988,7 @@ export class CreateRoomButton extends Component {
                 width: 300,
               }}>
               {!this.state.loading && (
-                <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 12}}>
+                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 12 }}>
                   {this.props.text}
                 </Text>
               )}
@@ -2096,7 +2106,7 @@ const mapStateToProps = (state) => {
     connected: state.rooms.connected,
     agoraHosts: state.rooms.agoraHosts,
     AmItalking: state.rooms.AmItalking,
-    deepLinkID:state.rooms.deepLinkID
+    deepLinkID: state.rooms.deepLinkID
   };
 };
 

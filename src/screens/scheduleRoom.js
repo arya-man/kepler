@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, SafeAreaView, TouchableOpacity, View, Dimensions, Modal, TextInput, Image} from 'react-native';
+import { Text, SafeAreaView, TouchableOpacity, View, Dimensions, Modal, TextInput, Image, FlatList, ScrollView} from 'react-native';
 import Box from '../screens/neumorphButton';
 import Feather from 'react-native-vector-icons/Feather';
 import {CreateRoomButton, UpcomingRoom} from './audioRoomHome';
@@ -10,8 +10,12 @@ import Share from 'react-native-share';
 import dynamicLinks from '@react-native-firebase/dynamic-links';
 
 const screenWidth = Dimensions.get('window').width;
+import { connect } from 'react-redux';
+import { withNavigation } from 'react-navigation';
+import { v4 as uuidv4 } from 'uuid'
+import Toast from 'react-native-simple-toast'
 
-export default class scheduleRoom extends Component {
+class scheduleRoom extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -22,8 +26,10 @@ export default class scheduleRoom extends Component {
       dateTimeValue: new Date(), // This will contain the final Date/Time, use moment to acces individuallly.
       title: "",  //This will contain the final title after entering.
       description: "",  //This will contain the final description after entering.
-      nothingScheduledYet: false
+      nothingScheduledYet: false,
+      scheduledRoom:[]
     };
+    this.getScheduledRoom()
   }
   onChange = (event, selectedDate) => {
     const currentDate = selectedDate || this.state.dateTimeValue;
@@ -38,6 +44,71 @@ export default class scheduleRoom extends Component {
       this.setState({ dateTimeMode: 'time' });
       this.setState({ showDateTimePicker: true });
   };
+  getScheduledRoom = async() =>{
+    fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/getScheduledRoom', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username:this.props.user.user.username,
+        })
+      })
+        .then((res) => {
+          return res.json()
+        })
+        .then((res) => {
+          console.log("rooms: ", res['data'])
+          if(res['data'].length == 0){
+            this.setState({nothingScheduledYet:true})
+          }
+          this.setState({scheduledRoom:res['data']})
+        })
+        .catch((err) => {
+          Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
+        })
+    
+  }
+  createRoom = () =>{
+    console.log("scheduled room")
+    if(this.state.title == "" || this.state.description == "" || this.state.dateTimeValue < new Date()){
+      console.log("it can\'t be empty")
+      return
+    }
+    var roomID = uuidv4()
+    //console.log("Users: ", this.props.user)
+    console.log(this.state.title)
+    console.log(this.state.description)
+    console.log(this.state.dateTimeValue)
+    fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/scheduleRoom', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          roomId: roomID,
+          title:this.state.title,
+          description:this.state.description,
+          dateTime:this.state.dateTimeValue,
+          username:this.props.user.user.username,
+          bio:this.props.user.user.bio,
+          photoUrl:this.props.user.user.photoUrl,
+        })
+      })
+        .then((res) => {
+          return res.json()
+        })
+        .then((res) => {
+          this.setState({scheduleRoomModalVisible: false})
+          Toast.showWithGravity('Room Scheduled Successfully', Toast.SHORT, Toast.CENTER)
+          this.getScheduledRoom()
+        })
+        .catch((err) => {
+          Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
+        })
+  }
 
   deeplink = async(id) => {
     const link = await dynamicLinks().buildLink({
@@ -102,7 +173,7 @@ export default class scheduleRoom extends Component {
           }}>
             <Image
               style={{ height: '50%', width: '60%', resizeMode: 'contain' }}
-              source={require('../../Assets/noRooms.png')}
+              source={require('../../Assets/image.png')}
             />
             <Text
               style={{
@@ -117,19 +188,32 @@ export default class scheduleRoom extends Component {
               </Text>
           </View>
         ) : (
-              <UpcomingRoom
-                hashtag="Really Good Time on Keplr"
-                caption="Join Hasir Mushtaq, Aryaman Shrey and Aditya Kumar taking on Modi Ji, and all the Bhakts in a once in a lifetime opportunity to get your queries answered in person."
-                profilePic="https://source.unsplash.com/random"
-                username="Hasir Mushtaq" //Here display full name, not username plz.
-                date="October 13, 2021"
-                time="10:00 a.m. IST"
-                startNow={true}
-                startNowFunction={()=>{
-                  console.log('hello');
-                }}
-                shareFunction={this.onShareFunction}
-              />
+
+          <View>
+          <FlatList
+          data={this.state.scheduledRoom}
+          horizontal={false}
+          keyExtractor={(item) => item.username}
+          renderItem={({item})=>(
+            <UpcomingRoom
+            hashtag={item.hashtag}
+            caption={item.caption}
+            profilePic={item.creatorPhotoUrl}
+            username={item.creator} //Here display full name, not username plz.
+            date={moment(item.dateTime).format('MMMM Do YYYY')}
+            time={moment(item.dateTime).format('h:mm A')}
+            startNow={true}
+            startNowFunction={()=>{
+              console.log('hello');
+            }}
+          />
+          
+          
+          )}
+        />
+</View>
+             
+
         )}
         <ScheduleRoomPopUp
           scheduleRoomModalVisible={this.state.scheduleRoomModalVisible}
@@ -153,6 +237,7 @@ export default class scheduleRoom extends Component {
           toggleScheduleRoomModal={()=>{
             this.setState({scheduleRoomModalVisible: false, active: false})
           }}
+          createRoom={this.createRoom}
         />
         {this.state.showDateTimePicker && (
           <DateTimePicker
@@ -390,8 +475,7 @@ class ScheduleRoomPopUp extends Component {
                   // loading={this.state.createLoading}
                   borderRadius={20}
                   text="DONE"
-                  createRoom={() => {
-                  }}
+                  createRoom={this.props.createRoom}
                 />
               </View>
             </View>
@@ -400,3 +484,11 @@ class ScheduleRoomPopUp extends Component {
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    user: state.user,
+  };
+};
+
+export default connect(mapStateToProps)(withNavigation(scheduleRoom));
