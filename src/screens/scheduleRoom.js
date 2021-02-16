@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 import { withNavigation } from 'react-navigation';
 import { v4 as uuidv4 } from 'uuid'
 import Toast from 'react-native-simple-toast'
+import LottieView from 'lottie-react-native'
 
 class scheduleRoom extends Component {
   constructor(props) {
@@ -27,8 +28,12 @@ class scheduleRoom extends Component {
       description: "",  //This will contain the final description after entering.
       nothingScheduledYet: false,
       scheduledRoom: [],
-      buttonLoading: false
+      buttonLoading: false,
+      loading:false
     };
+    
+  }
+  async componentDidMount() {
     this.getScheduledRoom()
   }
   onChange = (event, selectedDate) => {
@@ -45,6 +50,7 @@ class scheduleRoom extends Component {
     this.setState({ showDateTimePicker: true });
   };
   getScheduledRoom = async () => {
+    this.setState({loading:true})
     fetch('https://us-central1-keplr-4ff01.cloudfunctions.net/api/getScheduledRoom', {
       method: 'POST',
       headers: {
@@ -64,8 +70,10 @@ class scheduleRoom extends Component {
           this.setState({ nothingScheduledYet: true })
         }
         this.setState({ scheduledRoom: res['data'] })
+        this.setState({loading:false})
       })
       .catch((err) => {
+        this.setState({loading:false})
         Toast.showWithGravity('We encountered an error. Please Try Again', Toast.SHORT, Toast.CENTER)
       })
 
@@ -158,7 +166,31 @@ class scheduleRoom extends Component {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: 'rgb(233, 235, 244)' }}>
         <BackButtonAndTitle navigation={this.props.navigation} title="Scheduled Rooms" />
-        {this.state.nothingScheduledYet ? (
+        {this.state.loading ?
+        (<View style={{ flex: 1, justifyContent: 'center', marginBottom: 60 }}>
+        {/* <ActivityIndicator size="large" color="#3a7bd5" /> */}
+        <LottieView
+          source={require('../../Assets/rocket.json')}
+          autoPlay
+          loop
+          speed={1.5}
+          style={{
+            height: 200,
+            // marginTop: '30%',
+            alignSelf: 'center',
+          }}
+        />
+        <Text style={{
+          color: '#3a7bd5',
+          fontSize: 14,
+          fontWeight: 'bold', alignSelf: 'center'
+        }}>
+          Hold on...We are getting your Scheduled Room
+        </Text>
+      </View> ) 
+      
+      :
+        this.state.nothingScheduledYet ? (
           <View
             style={{
               alignSelf: 'center',
@@ -186,11 +218,13 @@ class scheduleRoom extends Component {
           </View>
         ) : (
 
-            <View>
+            <View
+            style={{ paddingBottom: 80 }}
+            >
               <FlatList
                 data={this.state.scheduledRoom}
                 extraData={this.state.buttonLoading}
-                style={{ paddingBottom: 65 }}
+                style={{ paddingBottom: 15 }}
                 horizontal={false}
                 keyExtractor={(item) => item.roomId}
                 renderItem={({ item }) => {
