@@ -22,6 +22,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { connect } from 'react-redux';
 import { withNavigation } from 'react-navigation';
 import { GET_ROOMS, GET_CONNECTED, DEEP_LINK, CURRENT_TIMESTAMP } from '../redux/roomsRedux';
+import {GET_USER} from '../redux/userRedux'
 import ErrorPopup from './errorPopup'
 import firestore from '@react-native-firebase/firestore'
 import database from '@react-native-firebase/database'
@@ -40,6 +41,8 @@ import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 
 const screenWidth = Dimensions.get('window').width
+
+var firestoreUnsubscribe
 
 class audioRoomHome extends Component {
   constructor(props) {
@@ -346,6 +349,15 @@ class audioRoomHome extends Component {
 
     })
 
+    firestoreUnsubscribe = firestore().collection('Users').doc(this.props.user.user.username).onSnapshot(async (snap) => {
+
+      this.props.dispatch({
+        type: GET_USER,
+        payload: snap.data()
+      })
+
+    })
+
     database().ref('.info/connected').on('value', snap => {
       this.props.dispatch({
         type: GET_CONNECTED,
@@ -368,10 +380,10 @@ class audioRoomHome extends Component {
             token: token
           })
 
-          this.props.dispatch({
-            type: GET_TOKEN,
-            payload: token
-          })
+          // this.props.dispatch({
+          //   type: GET_TOKEN,
+          //   payload: token
+          // })
 
         }
 
@@ -390,10 +402,10 @@ class audioRoomHome extends Component {
           token: token
         })
 
-        this.props.dispatch({
-          type: GET_TOKEN,
-          payload: token
-        })
+        // this.props.dispatch({
+        //   type: GET_TOKEN,
+        //   payload: token
+        // })
 
       }
 
@@ -490,6 +502,7 @@ class audioRoomHome extends Component {
 
     database().ref('dummy').off()
     database().ref('.info/connected').off()
+    firestoreUnsubscribe()
     Linking.removeEventListener('url', this._handleOpenURL);
 
   }
