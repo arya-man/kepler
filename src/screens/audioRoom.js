@@ -173,7 +173,7 @@ class audioRoom extends Component {
       BackHandler.addEventListener('hardwareBackPress', this.backAction);
       ReactNativeForegroundService.start({
         id: 144,
-        title: "Please don\'t tap this notification",
+        title: "Hope you are having a good day!",
         message: `🚀: ${this.props.navigation.getParam('hashtag')}`
       });
     }
@@ -675,11 +675,11 @@ class audioRoom extends Component {
                 Swipe right to view the participants.
               </Text>
               <Text style={{ fontWeight: 'bold', color: '#A1AFC3' }}>
-                Users with a star are moderators.
+                Users with a 🌟 are moderators.
               </Text>
               {this.state.role === 3 && (
                 <Text style={{ fontWeight: 'bold', color: '#A1AFC3' }}>
-                  Long Press for options.
+                  Press for options.
                 </Text>
               )}
             </View>
@@ -1938,8 +1938,8 @@ export class Participant extends Component {
       <TouchableOpacity
         style={{
           width: screenWidth / 3 - 50,
-          paddingLeft: (screenWidth - 3 * (screenWidth / 3 - 25)) / 3,
-          // marginRight: (screenWidth - 3 * (screenWidth / 3 - 50)) / 3,
+          marginLeft: (screenWidth - 3 * (screenWidth / 3 - 25)) / 3,
+          //  marginRight: (screenWidth - 3 * (screenWidth / 3 - 50)) / 3,
         }}
         onPress={this.props.longPressOnParticipant}>
         <Box
