@@ -465,12 +465,16 @@ class ScheduleRoomPopUp extends Component {
                 }}>
                 Schedule a Room
                 </Text>
+                <TouchableOpacity
+                  onPress={this.props.toggleScheduleRoomModal}
+                >
               <Feather
                 name="x-circle"
                 style={{ color: '#3a7bd5' }}
                 size={25}
-                onPress={this.props.toggleScheduleRoomModal}
+                
               />
+              </TouchableOpacity>
             </View>
             <View
               style={{

@@ -2070,12 +2070,16 @@ class FeedbackModal extends Component {
                 }}>
                 Report Inappropriate
               </Text>
+              <TouchableOpacity
+              onPress={this.props.toggleCreateRoomModal}
+              >
               <Icon
                 name="x-circle"
                 style={{ color: '#3a7bd5' }}
                 size={25}
-                onPress={this.props.toggleCreateRoomModal}
+                
               />
+              </TouchableOpacity>
             </View>
             <View
               style={{

@@ -26,6 +26,7 @@ import Video from 'react-native-video'
 
 const screenHeight = Dimensions.get('window').height
 const screenWidth = Dimensions.get('window').width
+import LottieView from 'lottie-react-native'
 
 class openingScreen extends Component {
   constructor(props) {
@@ -153,7 +154,27 @@ class openingScreen extends Component {
     if (this.state.isLoading === true) {
       return (
         <View style={{ flex: 1, justifyContent: "center" }}>
-          <ActivityIndicator size="large" color="#3a7bd5" />
+          <View style={{ flex: 1, justifyContent: 'center', marginBottom: 60 }}>
+        {/* <ActivityIndicator size="large" color="#3a7bd5" /> */}
+        <LottieView
+          source={require('../../Assets/rocket.json')}
+          autoPlay
+          loop
+          speed={1.5}
+          style={{
+            height: 200,
+            // marginTop: '30%',
+            alignSelf: 'center',
+          }}
+        />
+        <Text style={{
+          color: '#3a7bd5',
+          fontSize: 14,
+          fontWeight: 'bold', alignSelf: 'center'
+        }}>
+          Hold on...Loading
+        </Text>
+      </View>
         </View>
       )
     } else {
@@ -215,7 +236,7 @@ class openingScreen extends Component {
                     style={{ alignSelf: "center" }}
                   >
                     <Image
-                      source={require('../assets/placeholder.jpg')}
+                      source={{ uri: this.state.photoUrl }}
                       style={{
                         height: 100,
                         width: 100,

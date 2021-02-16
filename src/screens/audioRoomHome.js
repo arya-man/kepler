@@ -696,12 +696,16 @@ class audioRoomHome extends Component {
                   }}>
                   Start a Room
                 </Text>
+                <TouchableOpacity
+                onPress={this.toggleCreateRoomModal}
+                >
                 <Icon
                   name="x-circle"
                   style={{ color: '#3a7bd5' }}
                   size={25}
-                  onPress={this.toggleCreateRoomModal}
+                  
                 />
+                </TouchableOpacity>
               </View>
               <View
                 style={{
@@ -1352,12 +1356,15 @@ class FollowPopUp extends Component {
                 }}>
                 Follow
               </Text>
+              <TouchableOpacity
+                onPress={this.props.followPopUpVisibleFunction}
+              >
               <Icon
                 name="x-circle"
                 style={{ color: '#3a7bd5' }}
                 size={25}
-                onPress={this.props.followPopUpVisibleFunction}
               />
+              </TouchableOpacity>
             </View>
             <View
               style={{
@@ -1469,12 +1476,16 @@ class DeeplinkLandingForUpcomingRoomsModal extends Component {
                 }}>
                 {this.props.roomName}
               </Text>
+              <TouchableOpacity
+              onPress={this.props.toggleModal}
+              >
               <Icon
                 name="x-circle"
                 style={{ color: '#3a7bd5' }}
                 size={25}
-                onPress={this.props.toggleModal}
+                
               />
+              </TouchableOpacity>
             </View>
             <View
               style={{
@@ -1578,12 +1589,16 @@ class DeeplinkLandingModal extends Component {
                 }}>
                 {this.props.roomName}
               </Text>
+              <TouchableOpacity
+              onPress={this.props.toggleModal}
+              >
               <Icon
                 name="x-circle"
                 style={{ color: '#3a7bd5' }}
                 size={25}
-                onPress={this.props.toggleModal}
+                
               />
+              </TouchableOpacity>
             </View>
             <View
               style={{
@@ -1785,12 +1800,16 @@ class FeedbackModal extends Component {
                 }}>
                 Feedback
               </Text>
+              <TouchableOpacity
+                onPress={this.props.toggleCreateRoomModal}
+              >
               <Icon
                 name="x-circle"
                 style={{ color: '#3a7bd5' }}
                 size={25}
-                onPress={this.props.toggleCreateRoomModal}
+                
               />
+              </TouchableOpacity>
             </View>
             <View
               style={{

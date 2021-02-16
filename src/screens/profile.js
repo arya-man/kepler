@@ -32,6 +32,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 const screenHeight = Dimensions.get('window').height
 const screenWidth = Dimensions.get('window').width
+import LottieView from 'lottie-react-native'
 
 export class openingScreen extends Component {
   constructor(props) {
@@ -131,10 +132,12 @@ export class openingScreen extends Component {
                 payload: log
               })
               await AsyncStorage.setItem('data', JSON.stringify(user["_data"]));
+              this.setState({ isLoading: false })
               this.props.navigation.goBack()
             }.bind(this))
             .catch(function (error) {
               const { code, message } = error;
+              this.setState({ isLoading: false })
               this.setState({ authMessage: message })
             });
           // console.log('User updated!');
@@ -146,7 +149,7 @@ export class openingScreen extends Component {
           this.setState({ authMessage: `Error: ${error.code} | ${error.description}` })
         });
     }
-    this.setState({ isLoading: false })
+    //this.setState({ isLoading: false })
     // console.log('DONE');
   };
   logOutFunction = async () => {
@@ -193,7 +196,29 @@ export class openingScreen extends Component {
     if (this.state.isLoading) {
       return (
         <View style={{ flex: 1, justifyContent: "center" }}>
-          <ActivityIndicator size="large" color="#3a7bd5" />
+          <View style={{ flex: 1, justifyContent: "center" }}>
+          <View style={{ flex: 1, justifyContent: 'center', marginBottom: 60 }}>
+        {/* <ActivityIndicator size="large" color="#3a7bd5" /> */}
+        <LottieView
+          source={require('../../Assets/rocket.json')}
+          autoPlay
+          loop
+          speed={1.5}
+          style={{
+            height: 200,
+            // marginTop: '30%',
+            alignSelf: 'center',
+          }}
+        />
+        <Text style={{
+          color: '#3a7bd5',
+          fontSize: 14,
+          fontWeight: 'bold', alignSelf: 'center'
+        }}>
+          Hold on...Loading
+        </Text>
+      </View>
+        </View>
         </View>
       )
     }
