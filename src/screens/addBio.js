@@ -172,7 +172,7 @@ class openingScreen extends Component {
           fontSize: 14,
           fontWeight: 'bold', alignSelf: 'center'
         }}>
-          Hold on...Loading
+          Sending neutrinos...
         </Text>
       </View>
         </View>

@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   TouchableOpacity,
-  ActivityIndicator,
   Dimensions,
   SafeAreaView,
 } from "react-native";
@@ -105,6 +104,7 @@ class openingScreen extends Component {
         this.setState({ authMessage: message })
       });
   };
+
   render() {
     if (this.state.isLoading === true) {
       return (
@@ -127,7 +127,7 @@ class openingScreen extends Component {
           fontSize: 14,
           fontWeight: 'bold', alignSelf: 'center'
         }}>
-          Hold on...Loading
+          Sending neutrinos...
         </Text>
       </View>
         </View>

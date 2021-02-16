@@ -185,7 +185,7 @@ class scheduleRoom extends Component {
           fontSize: 14,
           fontWeight: 'bold', alignSelf: 'center'
         }}>
-          Hold on...We are getting your Scheduled Room
+          Establishing connection with exo...
         </Text>
       </View> ) 
       
