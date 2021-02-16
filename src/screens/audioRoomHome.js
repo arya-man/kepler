@@ -1118,7 +1118,7 @@ class audioRoomHome extends Component {
                                     if (res.token !== 'error') {
 
                                       this.setState({ buttonFetching: false })
-                                      this.props.navigation.navigate('audioRoom', { caption: this.state.deepLinkData.caption, hashtag: this.state.deepLinkData.hashtag, roomId: this.state.deepLinkData.id, role: 0, agoraToken: res.token })
+                                      this.props.navigation.navigate('audioRoom', { caption: item.caption, hashtag: item.hashtag, roomId: item.id, role: 0, agoraToken: res.token })
 
                                     }
                                     else {
