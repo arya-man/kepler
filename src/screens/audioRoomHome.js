@@ -372,9 +372,9 @@ class audioRoomHome extends Component {
 
         messaging().subscribeToTopic('all').catch()
 
-        if (this.props.user.user.token === undefined) {
+        var token = await messaging().getToken()
 
-          var token = await messaging().getToken()
+        if (this.props.user.user.token === token) {
 
           firestore().collection('Users').doc(this.props.user.user.username).update({
             token: token
@@ -394,9 +394,9 @@ class audioRoomHome extends Component {
 
       messaging().subscribeToTopic('all').catch()
 
-      if (this.props.user.user.token === undefined) {
+      var token = await messaging().getToken()
 
-        var token = await messaging().getToken()
+      if (this.props.user.user.token !== token) {
 
         firestore().collection('Users').doc(this.props.user.user.username).update({
           token: token
