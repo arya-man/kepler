@@ -41,6 +41,9 @@ Run the following commands:
 npm install 
 ```
 ```javascript
+follow the link firebase.io to configure to your firebase project as we use firebase. Also change the CRUD endpoints in the code for fetching rooms, etc. For anything, feel free to DM me.
+```
+```javascript
 react-native run-android 
 ```
 ```javascript
