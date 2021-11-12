@@ -1,8 +1,9 @@
 # Keplr
 Keplr is an Audio rooms cross native app built with React Native. 
 
-Provided much needed respite for times in distress and protest near us when it was used by people to discuss ideas and get together
--- an early step for greet online and meet offline experience.
+Built to be used by farmers who were protesting against newly released farm bills in the state of Punjab,India. The app although primarily built for them as they had trouble making their voice reach out to others in realtime in an easy manner, quickly started reaching out to the aunties and uncles of my community via whatsapp groups as they had an easy way to connect. Keplr was also inspired by clubhouse and we tried building an intellectual "school of athens" community, but failed.
+
+Nevertheless, it was able to connect thousands of farmers virtually via voice so that they could plan out in realtime where to congregate - which in retrospect feels like something plucked out of balajis' tweets.
 
 ## Features
 
@@ -16,8 +17,6 @@ Provided much needed respite for times in distress and protest near us when it w
 [Aryaman Shrey](https://github.com/arya-man)
 
 [Hasir Mushtaq](https://github.com/ragnar48h)
-
-[Aditya Kumar](https://github.com/adityaddy)
 
 ## App Screenshots
 
