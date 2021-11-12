@@ -22,9 +22,11 @@ Provided much needed respite for times in distress and protest near us when it w
 ## App Screenshots
 
 <p float="left" >
-  <img src="./Assets/1.webp" width="31%" />
-  <img src="./2.png" width="31%" /> 
-  <img src="./3.png" width="31%" /> 
+  <img src="./Assets/4.webp" width="19%" />
+  <img src="./5.webp" width="19%" /> 
+  <img src="./1.webp" width="19%" />
+  <img src="./2.webp" width="19%" /> 
+  <img src="./3.webp" width="19%" /> 
 </p>
 
 ## Download Links
